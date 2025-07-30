@@ -1,0 +1,445 @@
+{% extends "base.html" %}
+
+{% block title %}Job Application Tracker - ResumeBuilder{% endblock %}
+
+{% block content %}
+<style>
+.tracker-bg {
+    background: linear-gradient(120deg, #fdf6e3 0%, #e0eafc 100%);
+    min-height: 100vh;
+    padding-top: 30px;
+}
+.card, .card.shadow-sm {
+    border-radius: 16px !important;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.07) !important;
+}
+</style>
+<div class="tracker-bg">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1 class="h3 mb-0">Job Application Tracker</h1>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addApplicationModal">
+                        <i class="fas fa-plus"></i> Add Application
+                    </button>
+                </div>
+
+                <!-- Statistics Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="mb-0">{{ stats.total }}</h4>
+                                        <small>Total Applications</small>
+                                    </div>
+                                    <i class="fas fa-briefcase fa-2x opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="mb-0">{{ stats.applied }}</h4>
+                                        <small>Applied</small>
+                                    </div>
+                                    <i class="fas fa-paper-plane fa-2x opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-info text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="mb-0">{{ stats.interview }}</h4>
+                                        <small>Interviews</small>
+                                    </div>
+                                    <i class="fas fa-comments fa-2x opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-warning text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="mb-0">{{ stats.offers }}</h4>
+                                        <small>Offers</small>
+                                    </div>
+                                    <i class="fas fa-trophy fa-2x opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters and Search -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label class="form-label">Status Filter</label>
+                                <select class="form-select" id="statusFilter">
+                                    <option value="">All Statuses</option>
+                                    <option value="applied">Applied</option>
+                                    <option value="interview">Interview</option>
+                                    <option value="offer">Offer</option>
+                                    <option value="rejected">Rejected</option>
+                                    <option value="withdrawn">Withdrawn</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Date Range</label>
+                                <select class="form-select" id="dateFilter">
+                                    <option value="">All Time</option>
+                                    <option value="7">Last 7 Days</option>
+                                    <option value="30">Last 30 Days</option>
+                                    <option value="90">Last 90 Days</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Search</label>
+                                <input type="text" class="form-control" id="searchInput" placeholder="Search by company, job title, or notes...">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">&nbsp;</label>
+                                <button class="btn btn-outline-secondary w-100" onclick="clearFilters()">
+                                    <i class="fas fa-eraser"></i> Clear
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Applications Table -->
+                <div class="card shadow-sm">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-list"></i> Applications</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Company</th>
+                                        <th>Position</th>
+                                        <th>Status</th>
+                                        <th>Applied Date</th>
+                                        <th>Resume Used</th>
+                                        <th>Cover Letter</th>
+                                        <th>Follow-up</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="applicationsTable">
+                                    {% for app in applications %}
+                                    <tr data-status="{{ app.status }}" data-date="{{ app.date_applied.strftime('%Y-%m-%d') if app.date_applied }}">
+                                        <td>
+                                            <strong>{{ app.company }}</strong>
+                                            {% if app.website %}
+                                            <br><small class="text-muted">{{ app.website }}</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ app.job_title }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ app.status_color }}">{{ app.status.title() }}</span>
+                                        </td>
+                                        <td>
+                                            {% if app.date_applied %}
+                                            {{ app.date_applied.strftime('%b %d, %Y') }}
+                                            {% else %}
+                                            <span class="text-muted">Not set</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if app.resume_id %}
+                                            <a href="/edit-resume/{{ app.resume_id }}" class="text-decoration-none">
+                                                <i class="fas fa-file-alt"></i> View
+                                            </a>
+                                            {% else %}
+                                            <span class="text-muted">None</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if app.cover_letter_id %}
+                                            <a href="/edit-cover-letter/{{ app.cover_letter_id }}" class="text-decoration-none">
+                                                <i class="fas fa-envelope"></i> View
+                                            </a>
+                                            {% else %}
+                                            <span class="text-muted">None</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if app.follow_up_date %}
+                                            <span class="text-{{ 'danger' if app.follow_up_date < now else 'success' }}">
+                                                {{ app.follow_up_date.strftime('%b %d') }}
+                                            </span>
+                                            {% else %}
+                                            <span class="text-muted">Not set</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-outline-primary" onclick="editApplication({{ app.id }})">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-outline-info" onclick="viewDetails({{ app.id }})">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger" onclick="deleteApplication({{ app.id }})">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Application Modal -->
+<div class="modal fade" id="addApplicationModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Application</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="addApplicationForm">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Company *</label>
+                            <input type="text" class="form-control" name="company" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Job Title *</label>
+                            <input type="text" class="form-control" name="job_title" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Website</label>
+                            <input type="url" class="form-control" name="website" placeholder="https://...">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" name="status">
+                                <option value="applied">Applied</option>
+                                <option value="interview">Interview</option>
+                                <option value="offer">Offer</option>
+                                <option value="rejected">Rejected</option>
+                                <option value="withdrawn">Withdrawn</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Applied Date</label>
+                            <input type="date" class="form-control" name="date_applied">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Follow-up Date</label>
+                            <input type="date" class="form-control" name="follow_up_date">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Resume Used</label>
+                            <select class="form-select" name="resume_id">
+                                <option value="">Select Resume</option>
+                                {% for resume in resumes %}
+                                <option value="{{ resume.id }}">{{ resume.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Cover Letter</label>
+                            <select class="form-select" name="cover_letter_id">
+                                <option value="">Select Cover Letter</option>
+                                {% for cover in cover_letters %}
+                                <option value="{{ cover.id }}">{{ cover.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-control" name="notes" rows="3" placeholder="Add any notes about this application..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Application</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Application Details Modal -->
+<div class="modal fade" id="applicationDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Application Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="applicationDetails">
+                <!-- Details will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: #495057;
+}
+
+.badge {
+    font-size: 0.75rem;
+    padding: 0.5em 0.75em;
+}
+
+.btn-group-sm .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('addApplicationForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    addApplication();
+});
+
+// Filter functionality
+document.getElementById('statusFilter').addEventListener('change', filterApplications);
+document.getElementById('dateFilter').addEventListener('change', filterApplications);
+document.getElementById('searchInput').addEventListener('input', filterApplications);
+
+function filterApplications() {
+    const statusFilter = document.getElementById('statusFilter').value;
+    const dateFilter = document.getElementById('dateFilter').value;
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    
+    const rows = document.querySelectorAll('#applicationsTable tr');
+    
+    rows.forEach(row => {
+        let show = true;
+        
+        // Status filter
+        if (statusFilter && row.dataset.status !== statusFilter) {
+            show = false;
+        }
+        
+        // Date filter
+        if (dateFilter && row.dataset.date) {
+            const appDate = new Date(row.dataset.date);
+            const cutoffDate = new Date();
+            cutoffDate.setDate(cutoffDate.getDate() - parseInt(dateFilter));
+            
+            if (appDate < cutoffDate) {
+                show = false;
+            }
+        }
+        
+        // Search filter
+        if (searchTerm) {
+            const text = row.textContent.toLowerCase();
+            if (!text.includes(searchTerm)) {
+                show = false;
+            }
+        }
+        
+        row.style.display = show ? '' : 'none';
+    });
+}
+
+function clearFilters() {
+    document.getElementById('statusFilter').value = '';
+    document.getElementById('dateFilter').value = '';
+    document.getElementById('searchInput').value = '';
+    filterApplications();
+}
+
+function addApplication() {
+    const form = document.getElementById('addApplicationForm');
+    const formData = new FormData(form);
+    
+    fetch('/add-job-application', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while adding the application.');
+    });
+}
+
+function editApplication(id) {
+    // Redirect to edit page or open edit modal
+    window.location.href = `/edit-job-application/${id}`;
+}
+
+function viewDetails(id) {
+    fetch(`/job-application/${id}`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('applicationDetails').innerHTML = data.html;
+            new bootstrap.Modal(document.getElementById('applicationDetailsModal')).show();
+        }
+    });
+}
+
+function deleteApplication(id) {
+    if (confirm('Are you sure you want to delete this application?')) {
+        fetch(`/delete-job-application/${id}`, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        });
+    }
+}
+</script>
+{% endblock %} 

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Affiliate Dashboard - ResumeBuilder{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12 col-md-8 mx-auto">
+            <div class="card shadow-sm mt-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Affiliate Dashboard</h5>
+                    <a href="/dashboard" class="btn btn-outline-secondary btn-sm">Back</a>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Your Referral Link</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" value="{{ request.url_root }}affiliate-click/{{ link.code }}" readonly>
+                            <button class="btn btn-outline-primary" onclick="navigator.clipboard.writeText('{{ request.url_root }}affiliate-click/{{ link.code }}')">Copy</button>
+                        </div>
+                        <small class="text-muted">Share this link to earn rewards for every signup!</small>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <div class="h2 mb-0">{{ link.clicks }}</div>
+                                    <div class="text-muted">Clicks</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <div class="h2 mb-0">{{ link.signups }}</div>
+                                    <div class="text-muted">Signups</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <div class="h2 mb-0">${{ '%.2f'|format(link.payouts) }}</div>
+                                    <div class="text-muted">Payouts</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <form method="POST" action="/affiliate-payout">
+                        <button type="submit" class="btn btn-success" {% if link.signups == 0 %}disabled{% endif %}>Request Payout</button>
+                    </form>
+                    <hr>
+                    <h6>How it works</h6>
+                    <ul>
+                        <li>Share your referral link with friends, colleagues, or on social media.</li>
+                        <li>Earn $5 for every new signup through your link.</li>
+                        <li>Request payout anytime you have signups.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

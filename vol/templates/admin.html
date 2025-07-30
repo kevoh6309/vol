@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard - ResumeBuilder{% endblock %}
+{% block content %}
+<style>
+.admin-bg {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e0eafc 100%);
+    min-height: 100vh;
+    padding-top: 40px;
+}
+.card {
+    border-radius: 18px;
+    box-shadow: 0 4px 32px rgba(0,0,0,0.09);
+}
+</style>
+<div class="admin-bg">
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="card p-4">
+                    <h3 class="mb-4"><i class="bi bi-shield-lock"></i> Admin Dashboard</h3>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Premium</th>
+                                <th>Admin</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td>{{ user.id }}</td>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>{% if user.is_premium %}<span class="badge bg-warning">Yes</span>{% else %}No{% endif %}</td>
+                                <td>{% if user.is_admin %}<span class="badge bg-primary">Yes</span>{% else %}No{% endif %}</td>
+                                <td>
+                                    <form method="POST" action="/admin/toggle-premium/{{ user.id }}" style="display:inline;">
+                                        <button type="submit" class="btn btn-sm btn-outline-warning">Toggle Premium</button>
+                                    </form>
+                                    <form method="POST" action="/admin/delete-user/{{ user.id }}" style="display:inline;" onsubmit="return confirm('Delete this user?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

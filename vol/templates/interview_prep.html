@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Interview Prep | Resume Builder{% endblock %}
+{% block content %}
+<h2 class="mb-4">Interview Prep</h2>
+<div class="card shadow-sm transition mb-4">
+  <div class="card-body">
+    <h5 class="card-title mb-3"><i class="bi bi-mic-fill me-2 text-warning"></i>Mock Interview</h5>
+    <div class="mb-3 d-flex justify-content-between align-items-center">
+      <button class="btn btn-primary" id="nextQuestion"><i class="bi bi-shuffle me-1"></i>Next Question</button>
+      <button class="btn btn-outline-secondary" disabled>Premium Questions <i class='bi bi-lock-fill text-warning'></i> (Premium)</button>
+    </div>
+    <div class="alert alert-info text-center mb-4">
+      <i class="bi bi-lock-fill text-warning"></i> <strong>Upgrade to Premium</strong> to unlock more interview questions and advanced prep tools!
+    </div>
+    <div class="mb-3">
+      <div id="questionBox" class="fw-semibold">Press "Next Question" to begin.</div>
+    </div>
+    <form id="answerForm" style="display:none;">
+      <div class="mb-3">
+        <label class="form-label">Your Answer</label>
+        <textarea class="form-control" id="userAnswer" rows="2" required></textarea>
+      </div>
+      <button type="submit" class="btn btn-success">Get Feedback</button>
+    </form>
+    <div id="feedbackBox" class="mt-3"></div>
+  </div>
+</div>
+<script>
+const questions = [
+  "Tell me about yourself.",
+  "What are your strengths and weaknesses?",
+  "Why do you want this job?",
+  "Describe a challenge you faced and how you overcame it.",
+  "Where do you see yourself in five years?",
+  "Why should we hire you?",
+  "Tell me about a time you worked in a team.",
+  "How do you handle stress and pressure?",
+  "Give an example of a goal you reached and how you achieved it.",
+  "Describe your ideal work environment."
+];
+let currentQuestion = '';
+document.getElementById('nextQuestion').onclick = function() {
+  currentQuestion = questions[Math.floor(Math.random() * questions.length)];
+  document.getElementById('questionBox').textContent = currentQuestion;
+  document.getElementById('answerForm').style.display = '';
+  document.getElementById('feedbackBox').innerHTML = '';
+  document.getElementById('userAnswer').value = '';
+};
+document.getElementById('answerForm').onsubmit = async function(e) {
+  e.preventDefault();
+  const answer = document.getElementById('userAnswer').value.trim();
+  if (!answer) return;
+  const btn = this.querySelector('button[type="submit"]');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Getting Feedback...';
+  const res = await fetch('/chatbot', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({message: `Interview question: ${currentQuestion}\nCandidate answer: ${answer}\nGive feedback and tips for improvement.`})
+  });
+  const data = await res.json();
+  document.getElementById('feedbackBox').innerHTML = `<div class='alert alert-info'><strong>AI Feedback:</strong><br>${data.reply}</div>`;
+  btn.disabled = false;
+  btn.innerHTML = 'Get Feedback';
+};
+</script>
+{% endblock %} 

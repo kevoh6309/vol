@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} Team - ResumeBuilder{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12 col-md-6 mx-auto">
+            <div class="card shadow-sm mt-4">
+                <div class="card-header"><h5 class="mb-0">{{ action }} Team</h5></div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">Team Name</label>
+                            <input type="text" class="form-control" name="name" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">{{ action }} Team</button>
+                        <a href="/teams" class="btn btn-secondary ms-2">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

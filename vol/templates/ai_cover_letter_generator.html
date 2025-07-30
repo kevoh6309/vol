@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}AI Cover Letter Generator - ResumeBuilder{% endblock %}
+
+{% block content %}
+<style>
+.ai-bg {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e0eafc 100%);
+    min-height: 100vh;
+    padding-top: 40px;
+}
+.card, .card.shadow-sm {
+    border-radius: 18px !important;
+    box-shadow: 0 4px 32px rgba(0,0,0,0.09) !important;
+}
+</style>
+<div class="ai-bg">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12 col-lg-8 mx-auto">
+                <h1 class="h3 mb-4">AI Cover Letter Generator</h1>
+                <form id="aiCoverLetterForm" class="card shadow-sm mb-4 p-4">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Job Title</label>
+                            <input type="text" class="form-control" name="job_title" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Company</label>
+                            <input type="text" class="form-control" name="company" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Industry</label>
+                            <input type="text" class="form-control" name="industry">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Experience Level</label>
+                            <select class="form-select" name="experience">
+                                <option value="">Select</option>
+                                <option>Entry</option>
+                                <option>Mid</option>
+                                <option>Senior</option>
+                                <option>Executive</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Key Skills</label>
+                        <input type="text" class="form-control" name="skills" placeholder="e.g. Python, Project Management, Communication">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Achievements</label>
+                        <textarea class="form-control" name="achievements" rows="2" placeholder="Highlight your top achievements"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Motivation</label>
+                        <textarea class="form-control" name="motivation" rows="2" placeholder="Why do you want this job?"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tone</label>
+                        <select class="form-select" name="tone">
+                            <option>Professional</option>
+                            <option>Friendly</option>
+                            <option>Confident</option>
+                            <option>Creative</option>
+                            <option>Formal</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Generate Cover Letter</button>
+                </form>
+                <div id="aiLoading" class="text-center my-4" style="display:none;">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <div>Generating your cover letter...</div>
+                </div>
+                <div id="aiResult" style="display:none;">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Generated Cover Letter</h5>
+                            <button id="saveCoverLetterBtn" class="btn btn-success btn-sm"><i class="bi bi-save"></i> Save to My Cover Letters</button>
+                        </div>
+                        <div class="card-body">
+                            <pre id="aiCoverLetterText" class="bg-light p-3 rounded" style="white-space: pre-wrap;"></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+document.getElementById('aiCoverLetterForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    document.getElementById('aiLoading').style.display = '';
+    document.getElementById('aiResult').style.display = 'none';
+    const formData = new FormData(this);
+    fetch('/api/generate-cover-letter', {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        document.getElementById('aiLoading').style.display = 'none';
+        if (data.success) {
+            document.getElementById('aiResult').style.display = '';
+            document.getElementById('aiCoverLetterText').textContent = data.letter;
+        } else {
+            alert('Error: ' + data.message);
+        }
+    });
+});
+
+document.getElementById('saveCoverLetterBtn').addEventListener('click', function() {
+    const letter = document.getElementById('aiCoverLetterText').textContent;
+    fetch('/api/save-cover-letter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: letter })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            alert('Cover letter saved!');
+            window.location.href = '/my-cover-letters';
+        } else {
+            alert('Error: ' + data.message);
+        }
+    });
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,318 @@
+{% extends "base.html" %}
+
+{% block title %}Cover Letter Analytics - ResumeBuilder{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">Cover Letter Analytics</h1>
+                <div>
+                    <a href="/my-cover-letters" class="btn btn-outline-secondary me-2">
+                        <i class="fas fa-arrow-left"></i> Back to Cover Letters
+                    </a>
+                    <button onclick="exportAnalytics()" class="btn btn-success">
+                        <i class="fas fa-download"></i> Export Report
+                    </button>
+                </div>
+            </div>
+
+            <!-- Key Metrics -->
+            <div class="row mb-4">
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="mb-0">{{ total_cover_letters }}</h4>
+                                    <p class="mb-0">Total Cover Letters</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-file-alt fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="mb-0">{{ total_downloads }}</h4>
+                                    <p class="mb-0">Total Downloads</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-download fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="mb-0">{{ avg_length|round(1) }}</h4>
+                                    <p class="mb-0">Avg. Length (words)</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-chart-line fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-warning text-dark">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="mb-0">{{ most_used_template }}</h4>
+                                    <p class="mb-0">Most Used Template</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-star fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Template Usage Chart -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-chart-pie"></i> Template Usage</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="templateChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Monthly Activity -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Monthly Activity</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="activityChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-history"></i> Recent Activity</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Cover Letter</th>
+                                            <th>Template</th>
+                                            <th>Last Modified</th>
+                                            <th>Downloads</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for cover in recent_activity %}
+                                        <tr>
+                                            <td>
+                                                <strong>{{ cover.title or 'Untitled' }}</strong>
+                                                {% if cover.job_title %}
+                                                <br><small class="text-muted">{{ cover.job_title }}</small>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-{{ 'success' if cover.template == 'standard' else 'warning' if cover.template == 'creative' else 'info' }}">
+                                                    {{ cover.template.title() }}
+                                                </span>
+                                            </td>
+                                            <td>{{ cover.updated_at.strftime('%b %d, %Y') }}</td>
+                                            <td>{{ cover.downloads or 0 }}</td>
+                                            <td>
+                                                <a href="/edit-cover-letter/{{ cover.id }}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="/download-cover-letter/{{ cover.id }}" class="btn btn-sm btn-outline-success">
+                                                    <i class="fas fa-download"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Insights -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-lightbulb"></i> Performance Insights</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Top Performing Cover Letters</h6>
+                                    <ul class="list-group list-group-flush">
+                                        {% for cover in top_performers %}
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            {{ cover.title or 'Untitled' }}
+                                            <span class="badge bg-primary rounded-pill">{{ cover.downloads or 0 }} downloads</span>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Recommendations</h6>
+                                    <div class="alert alert-info">
+                                        <h6><i class="fas fa-info-circle"></i> Tips for Better Cover Letters</h6>
+                                        <ul class="mb-0">
+                                            <li>Keep your cover letters under 300 words for better engagement</li>
+                                            <li>Use specific metrics and achievements</li>
+                                            <li>Customize for each company and position</li>
+                                            <li>Include a strong call to action</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border-radius: 10px;
+    border: none;
+}
+
+.card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px 10px 0 0 !important;
+}
+
+.bg-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+.bg-success {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%) !important;
+}
+
+.bg-info {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+}
+
+.bg-warning {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%) !important;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Template Usage Chart
+    const templateCtx = document.getElementById('templateChart').getContext('2d');
+    const templateChart = new Chart(templateCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Standard', 'Creative', 'Executive'],
+            datasets: [{
+                data: [{{ template_stats.standard }}, {{ template_stats.creative }}, {{ template_stats.executive }}],
+                backgroundColor: [
+                    '#28a745',
+                    '#ffc107',
+                    '#17a2b8'
+                ],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+    // Monthly Activity Chart
+    const activityCtx = document.getElementById('activityChart').getContext('2d');
+    const activityChart = new Chart(activityCtx, {
+        type: 'line',
+        data: {
+            labels: {{ monthly_labels|tojson }},
+            datasets: [{
+                label: 'Cover Letters Created',
+                data: {{ monthly_data|tojson }},
+                borderColor: '#667eea',
+                backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+});
+
+function exportAnalytics() {
+    // Create a simple CSV export
+    const csvContent = "data:text/csv;charset=utf-8," 
+        + "Metric,Value\n"
+        + "Total Cover Letters,{{ total_cover_letters }}\n"
+        + "Total Downloads,{{ total_downloads }}\n"
+        + "Average Length,{{ avg_length|round(1) }} words\n"
+        + "Most Used Template,{{ most_used_template }}\n";
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "cover_letter_analytics.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+</script>
+{% endblock %} 

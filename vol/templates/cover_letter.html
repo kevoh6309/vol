@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Cover Letter Generator | Resume Builder{% endblock %}
+{% block content %}
+<h2 class="mb-4">Cover Letter Generator</h2>
+<div class="card shadow-sm transition mb-4">
+  <div class="card-body">
+    <h5 class="card-title mb-3"><i class="bi bi-file-earmark-text me-2 text-primary"></i>Generate a Cover Letter</h5>
+    <form id="coverForm">
+      <div class="mb-3">
+        <label class="form-label">Template</label>
+        <select class="form-select mb-2" id="coverTemplate">
+          <option value="standard">Standard</option>
+          <option value="modern">Modern</option>
+          <option value="creative" disabled>Creative <i class='bi bi-lock-fill text-warning'></i> (Premium)</option>
+          <option value="executive" disabled>Executive <i class='bi bi-lock-fill text-warning'></i> (Premium)</option>
+        </select>
+        <div class="form-text text-muted">Premium templates <i class='bi bi-lock-fill text-warning'></i> require an upgrade.</div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Job Title</label>
+        <input type="text" class="form-control" id="coverJob" placeholder="e.g. Software Engineer" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Company</label>
+        <input type="text" class="form-control" id="coverCompany" placeholder="e.g. Google" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Additional Details (optional)</label>
+        <textarea class="form-control" id="coverDetails" rows="2" placeholder="e.g. Why you want this job, key skills, etc."></textarea>
+      </div>
+      <div class="mb-3">
+        <button class="btn btn-outline-primary">Generate Cover Letter</button>
+        <button class="btn btn-outline-secondary ms-2" {% if not is_premium %}disabled{% endif %}>Premium Templates</button>
+        {% if not is_premium %}
+          <span class="text-warning ms-2">Upgrade to unlock premium cover letter templates.</span>
+        {% endif %}
+      </div>
+    </form>
+    <div class="alert alert-info mt-3 text-center">
+      <i class="bi bi-lock-fill text-warning"></i> <strong>Upgrade to Premium</strong> to unlock more cover letter templates!
+    </div>
+    <div id="coverResult" class="mt-4"></div>
+  </div>
+</div>
+<script>
+document.getElementById('coverForm').onsubmit = async function(e) {
+  e.preventDefault();
+  const job = document.getElementById('coverJob').value.trim();
+  const company = document.getElementById('coverCompany').value.trim();
+  const details = document.getElementById('coverDetails').value.trim();
+  const btn = this.querySelector('button[type="submit"]');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Generating...';
+  const prompt = `Write a professional cover letter for the position of ${job} at ${company}. ${details ? 'Additional info: ' + details : ''}`;
+  const res = await fetch('/chatbot', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({message: prompt})
+  });
+  const data = await res.json();
+  document.getElementById('coverResult').innerHTML = `<div class='alert alert-info'><strong>Cover Letter:</strong><br><pre style='white-space:pre-wrap;'>${data.reply}</pre></div>`;
+  btn.disabled = false;
+  btn.innerHTML = 'Generate Cover Letter';
+};
+</script>
+{% endblock %} 

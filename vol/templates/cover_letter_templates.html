@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Cover Letter Templates - ResumeBuilder{% endblock %}
+
+{% block content %}
+<style>
+.templates-bg {
+    background: linear-gradient(135deg, #e0eafc 0%, #f5f7fa 100%);
+    min-height: 100vh;
+    padding-top: 40px;
+}
+.card, .card.shadow-sm {
+    border-radius: 16px !important;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.07) !important;
+}
+</style>
+<div class="templates-bg">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="h3 mb-4">Cover Letter Templates</h1>
+                <div class="row">
+                    {% set premium_templates = ['Executive', 'Modern Blue', 'Elegant'] %}
+                    {% for template in ['Standard', 'Creative', 'Executive', 'Modern Blue', 'Elegant'] %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ template }}</h5>
+                                <div class="mb-3">
+                                    <img src="/static/cover_templates/{{ template|lower|replace(' ', '_') }}.png" alt="{{ template }} preview" class="img-fluid rounded">
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <a href="/preview-cover-letter?template={{ template }}" class="btn btn-outline-info btn-sm">Preview</a>
+                                    {% if template in premium_templates and not is_premium %}
+                                        <button class="btn btn-secondary btn-sm" disabled><i class="bi bi-lock-fill"></i> Premium</button>
+                                    {% else %}
+                                        <a href="/create-cover-letter?template={{ template }}" class="btn btn-primary btn-sm">Use This Template</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

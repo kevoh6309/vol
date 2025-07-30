@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+
+{% block title %}Share Cover Letter - ResumeBuilder{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">Share Cover Letter</h1>
+                <a href="/my-cover-letters" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Cover Letters
+                </a>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-share-alt"></i> Share Options</h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Email Sharing -->
+                            <div class="mb-4">
+                                <h6><i class="fas fa-envelope"></i> Share via Email</h6>
+                                <form method="POST" action="/share-cover-letter-email">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="recipient_email" class="form-label">Recipient Email</label>
+                                            <input type="email" class="form-control" id="recipient_email" name="recipient_email" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="recipient_name" class="form-label">Recipient Name</label>
+                                            <input type="text" class="form-control" id="recipient_name" name="recipient_name">
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="email_subject" class="form-label">Subject</label>
+                                        <input type="text" class="form-control" id="email_subject" name="email_subject" 
+                                               value="Cover Letter - {{ cover.title or 'Untitled' }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="email_message" class="form-label">Message</label>
+                                        <textarea class="form-control" id="email_message" name="email_message" rows="4">Hi,
+
+I'm sharing my cover letter with you. Please find it attached.
+
+Best regards,
+{{ current_user.username }}</textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-paper-plane"></i> Send Email
+                                    </button>
+                                </form>
+                            </div>
+
+                            <hr>
+
+                            <!-- Shareable Link -->
+                            <div class="mb-4">
+                                <h6><i class="fas fa-link"></i> Shareable Link</h6>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control" id="shareableLink" 
+                                           value="{{ shareable_link }}" readonly>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="copyLink()">
+                                        <i class="fas fa-copy"></i> Copy
+                                    </button>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="enableLink" 
+                                           {{ 'checked' if cover.is_public else '' }}>
+                                    <label class="form-check-label" for="enableLink">
+                                        Make this cover letter publicly accessible
+                                    </label>
+                                </div>
+                                <small class="text-muted">
+                                    When enabled, anyone with the link can view your cover letter.
+                                </small>
+                            </div>
+
+                            <hr>
+
+                            <!-- Social Media Sharing -->
+                            <div>
+                                <h6><i class="fas fa-share"></i> Share on Social Media</h6>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-outline-primary" onclick="shareOnLinkedIn()">
+                                        <i class="fab fa-linkedin"></i> LinkedIn
+                                    </button>
+                                    <button class="btn btn-outline-info" onclick="shareOnTwitter()">
+                                        <i class="fab fa-twitter"></i> Twitter
+                                    </button>
+                                    <button class="btn btn-outline-success" onclick="shareOnWhatsApp()">
+                                        <i class="fab fa-whatsapp"></i> WhatsApp
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <!-- Cover Letter Preview -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-eye"></i> Preview</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="cover-letter-preview template-{{ cover.template }}">
+                                <div class="name">{{ current_user.username }}</div>
+                                <div class="contact-info">
+                                    {% if current_user.email %}{{ current_user.email }}<br>{% endif %}
+                                    {% if current_user.phone %}{{ current_user.phone }}<br>{% endif %}
+                                </div>
+                                <div class="date">{{ now.strftime('%B %d, %Y') }}</div>
+                                <div class="recipient">
+                                    {% if cover.company %}
+                                    <strong>{{ cover.company }}</strong><br>
+                                    {% endif %}
+                                    {% if cover.job_title %}
+                                    Re: {{ cover.job_title }} Position
+                                    {% endif %}
+                                </div>
+                                <div class="content">
+                                    {{ cover.content[:200] }}...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sharing Statistics -->
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Sharing Stats</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <h4 class="text-primary">{{ cover.shares or 0 }}</h4>
+                                    <small class="text-muted">Total Shares</small>
+                                </div>
+                                <div class="col-6">
+                                    <h4 class="text-success">{{ cover.views or 0 }}</h4>
+                                    <small class="text-muted">Link Views</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.cover-letter-preview {
+    font-family: 'Times New Roman', serif;
+    line-height: 1.6;
+    color: #333;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background: #fff;
+    font-size: 12px;
+    max-height: 300px;
+    overflow: hidden;
+}
+
+.cover-letter-preview .name {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.cover-letter-preview .contact-info {
+    font-size: 10px;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.cover-letter-preview .date {
+    margin-bottom: 20px;
+}
+
+.cover-letter-preview .recipient {
+    margin-bottom: 20px;
+}
+
+.cover-letter-preview .content {
+    text-align: justify;
+    margin-bottom: 20px;
+}
+
+/* Template-specific styles */
+.template-standard {
+    font-family: 'Times New Roman', serif;
+}
+
+.template-creative {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.template-executive {
+    font-family: 'Georgia', serif;
+    border-left: 3px solid #2c3e50;
+    padding-left: 15px;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function copyLink() {
+    const linkInput = document.getElementById('shareableLink');
+    linkInput.select();
+    linkInput.setSelectionRange(0, 99999);
+    document.execCommand('copy');
+    
+    // Show feedback
+    const button = event.target.closest('button');
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+    setTimeout(() => {
+        button.innerHTML = originalText;
+    }, 2000);
+}
+
+function shareOnLinkedIn() {
+    const url = encodeURIComponent(window.location.href);
+    const title = encodeURIComponent('{{ cover.title or "Cover Letter" }}');
+    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}&title=${title}`, '_blank');
+}
+
+function shareOnTwitter() {
+    const url = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent('Check out my professional cover letter!');
+    window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
+}
+
+function shareOnWhatsApp() {
+    const url = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent('Check out my professional cover letter!');
+    window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
+}
+
+// Handle public link toggle
+document.getElementById('enableLink').addEventListener('change', function() {
+    const isPublic = this.checked;
+    fetch('/toggle-cover-letter-public', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            cover_id: {{ cover.id }},
+            is_public: isPublic
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update the shareable link
+            document.getElementById('shareableLink').value = data.shareable_link;
+        }
+    });
+});
+</script>
+{% endblock %} 

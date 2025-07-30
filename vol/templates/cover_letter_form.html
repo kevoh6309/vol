@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Edit' if cover else 'Create' }} Cover Letter - ResumeBuilder{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">{{ 'Edit' if cover else 'Create' }} Cover Letter</h1>
+                <a href="/my-cover-letters" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Cover Letters
+                </a>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <form method="POST">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="title" class="form-label">Cover Letter Title *</label>
+                                        <input type="text" class="form-control" id="title" name="title" 
+                                               value="{{ cover.title if cover else '' }}" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="template" class="form-label">
+                                            Template Style 
+                                            <a href="/cover-letter-templates" class="text-decoration-none" title="View all templates">
+                                                <i class="fas fa-external-link-alt"></i>
+                                            </a>
+                                        </label>
+                                        <select class="form-select" id="template" name="template">
+                                            <option value="standard" {{ 'selected' if (not cover and not template) or (cover and cover.template == 'standard') or template == 'standard' else '' }}>
+                                                Standard
+                                            </option>
+                                            <option value="creative" {{ 'selected' if (cover and cover.template == 'creative') or template == 'creative' else '' }}>
+                                                Creative 
+                                                {% if not session.get('is_premium') %}
+                                                <span class="badge bg-warning text-dark">Premium</span>
+                                                {% endif %}
+                                            </option>
+                                            <option value="executive" {{ 'selected' if (cover and cover.template == 'executive') or template == 'executive' else '' }}>
+                                                Executive
+                                                {% if not session.get('is_premium') %}
+                                                <span class="badge bg-warning text-dark">Premium</span>
+                                                {% endif %}
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="job_title" class="form-label">Job Title</label>
+                                        <input type="text" class="form-control" id="job_title" name="job_title" 
+                                               value="{{ cover.job_title if cover else '' }}">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="company" class="form-label">Company</label>
+                                        <input type="text" class="form-control" id="company" name="company" 
+                                               value="{{ cover.company if cover else '' }}">
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="content" class="form-label">Cover Letter Content *</label>
+                                    <textarea class="form-control" id="content" name="content" rows="15" required>{{ cover.content if cover else '' }}</textarea>
+                                    <div class="form-text">
+                                        Write a compelling cover letter that highlights your relevant experience and why you're the perfect fit for this role.
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    <a href="/my-cover-letters" class="btn btn-outline-secondary">Cancel</a>
+                                    <div>
+                                        <button type="button" class="btn btn-outline-primary me-2" onclick="previewCoverLetter()">
+                                            <i class="fas fa-eye"></i> Preview
+                                        </button>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save"></i> {{ 'Update' if cover else 'Create' }} Cover Letter
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-lightbulb"></i> Writing Tips</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success"></i> Keep it concise (1 page max)
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success"></i> Address the hiring manager by name
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success"></i> Highlight relevant achievements
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success"></i> Show enthusiasm for the role
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success"></i> Include a call to action
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-magic"></i> AI Writing Assistant</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted small mb-3">
+                                Get AI-powered suggestions to improve your cover letter.
+                            </p>
+                            <button type="button" class="btn btn-outline-primary btn-sm w-100" id="aiSuggest">
+                                <i class="fas fa-robot"></i> Get AI Suggestions
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-file-alt"></i> Cover Letter Examples</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted small mb-3">
+                                Get inspired with professional cover letter examples for different industries.
+                            </p>
+                            <a href="/cover-letter-examples" class="btn btn-outline-secondary btn-sm w-100">
+                                <i class="fas fa-eye"></i> View Examples
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Template selection with premium restrictions
+    const templateSelect = document.getElementById('template');
+    const premiumTemplates = ['creative', 'executive'];
+    const isPremium = {{ 'true' if session.get('is_premium') else 'false' }};
+
+    templateSelect.addEventListener('change', function() {
+        if (premiumTemplates.includes(this.value) && !isPremium) {
+            if (confirm('Premium templates require a premium subscription. Would you like to upgrade?')) {
+                window.location.href = '/pricing';
+            } else {
+                this.value = 'standard';
+            }
+        }
+    });
+
+    // AI Writing Assistant
+    document.getElementById('aiSuggest').addEventListener('click', function() {
+        const content = document.getElementById('content').value;
+        if (!content.trim()) {
+            alert('Please write some content first before getting AI suggestions.');
+            return;
+        }
+
+        this.disabled = true;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+
+        // Simulate AI analysis (replace with actual AI integration)
+        setTimeout(() => {
+            this.disabled = false;
+            this.innerHTML = '<i class="fas fa-robot"></i> Get AI Suggestions';
+            
+            // Show suggestions in a modal or alert
+            alert('AI Suggestions:\n\n1. Consider adding specific metrics to quantify your achievements\n2. The opening paragraph could be more engaging\n3. Add a stronger closing statement with a call to action');
+        }, 2000);
+    });
+
+    // Auto-save functionality
+    let autoSaveTimer;
+    const form = document.querySelector('form');
+    const inputs = form.querySelectorAll('input, textarea, select');
+
+    inputs.forEach(input => {
+        input.addEventListener('input', function() {
+            clearTimeout(autoSaveTimer);
+            autoSaveTimer = setTimeout(() => {
+                // Auto-save logic here
+                console.log('Auto-saving...');
+            }, 3000);
+        });
+    });
+
+    // Preview functionality
+    window.previewCoverLetter = function() {
+        const formData = new FormData(form);
+        const previewForm = document.createElement('form');
+        previewForm.method = 'POST';
+        previewForm.action = '/preview-cover-letter';
+        
+        for (const [key, value] of formData.entries()) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = key;
+            input.value = value;
+            previewForm.appendChild(input);
+        }
+        
+        document.body.appendChild(previewForm);
+        previewForm.submit();
+    };
+
+    // Handle example content from localStorage
+    const storedExample = localStorage.getItem('coverLetterExample');
+    if (storedExample) {
+        const contentTextarea = document.getElementById('content');
+        if (contentTextarea) {
+            contentTextarea.value = storedExample;
+            localStorage.removeItem('coverLetterExample');
+        }
+    }
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,422 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - ResumeBuilder{% endblock %}
+
+{% block content %}
+<style>
+.dash-bg {
+    background: linear-gradient(120deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    padding-top: 30px;
+}
+.card, .card.shadow-sm {
+    border-radius: 16px !important;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.07) !important;
+}
+</style>
+<div class="dash-bg">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1 class="h3 mb-0">Welcome back, {{ current_user.username }}!
+                        {% if is_premium %}
+                            <span class="badge bg-warning text-dark ms-2"><i class="bi bi-star-fill"></i> Premium</span>
+                        {% endif %}
+                    </h1>
+                    <div class="text-muted">
+                        <i class="fas fa-calendar"></i> {{ now.strftime('%B %d, %Y') }}
+                    </div>
+                </div>
+
+                {% if reminders %}
+                <div class="mb-4">
+                    {% for r in reminders %}
+                    <div class="alert alert-info d-flex align-items-center" role="alert">
+                        <i class="bi bi-bell me-2"></i>
+                        <div>
+                            <strong>Reminder:</strong> {{ r.message }} <span class="text-muted">(Due: {{ r.due_date.strftime('%b %d, %Y') }})</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Ad-Free Notice -->
+                {{ ad_free_notice() }}
+
+                <!-- Statistics Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="mb-0">{{ dashboard.resumes_created }}</h4>
+                                        <small>Resumes Created</small>
+                                    </div>
+                                    <i class="fas fa-file-alt fa-2x opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="mb-0">{{ dashboard.applications_submitted }}</h4>
+                                        <small>Applications</small>
+                                    </div>
+                                    <i class="fas fa-paper-plane fa-2x opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-info text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="mb-0">{{ dashboard.interviews_attended }}</h4>
+                                        <small>Interviews</small>
+                                    </div>
+                                    <i class="fas fa-comments fa-2x opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-warning text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="mb-0">{{ dashboard.offers_received }}</h4>
+                                        <small>Offers</small>
+                                    </div>
+                                    <i class="fas fa-trophy fa-2x opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Metrics -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card shadow-sm">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="fas fa-chart-line"></i> Interview Performance</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-6">
+                                        <div class="display-4 fw-bold text-primary">{{ "%.1f"|format(dashboard.average_interview_score) }}%</div>
+                                        <div class="text-muted">Average Score</div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="display-4 fw-bold text-success">{{ dashboard.practice_sessions_completed }}</div>
+                                        <div class="text-muted">Practice Sessions</div>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>Success Rate</span>
+                                        <span class="fw-bold">{{ "%.1f"|format((dashboard.offers_received / max(dashboard.interviews_attended, 1)) * 100) }}%</span>
+                                    </div>
+                                    <div class="progress mt-1">
+                                        <div class="progress-bar bg-success" style="width: {{ (dashboard.offers_received / max(dashboard.interviews_attended, 1)) * 100 }}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card shadow-sm">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="fas fa-fire"></i> Activity Streak</h5>
+                            </div>
+                            <div class="card-body text-center">
+                                <div class="display-4 fw-bold text-warning">{{ dashboard.streak_days }}</div>
+                                <div class="text-muted">Day Streak</div>
+                                <div class="mt-3">
+                                    <small class="text-muted">Keep up the great work! Consistency is key to success.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- In-Content Ad -->
+                {{ in_content_ad() }}
+
+                <div class="row">
+                    <div class="col-lg-8">
+                        <!-- Recent Activity -->
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="fas fa-history"></i> Recent Activity</h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group list-group-flush">
+                                    {% for resume in recent_resumes %}
+                                    <li class="list-group-item">
+                                        <i class="fas fa-file-alt text-primary"></i>
+                                        <strong>Resume:</strong> {{ resume.name or 'Untitled' }}
+                                        <span class="text-muted float-end">{{ resume.created_at.strftime('%b %d, %Y') }}</span>
+                                    </li>
+                                    {% endfor %}
+                                    {% for cover in recent_covers %}
+                                    <li class="list-group-item">
+                                        <i class="fas fa-envelope text-success"></i>
+                                        <strong>Cover Letter:</strong> {{ cover.title or 'Untitled' }}
+                                        <span class="text-muted float-end">{{ cover.created_at.strftime('%b %d, %Y') }}</span>
+                                    </li>
+                                    {% endfor %}
+                                    {% if not recent_resumes and not recent_covers %}
+                                    <li class="list-group-item text-center text-muted">No recent activity yet.</li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div class="card shadow-sm">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="fas fa-bolt"></i> Quick Actions</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <a href="/create-resume" class="btn btn-outline-primary w-100">
+                                            <i class="fas fa-plus"></i> Create New Resume
+                                        </a>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <a href="/ai-cover-letter-generator" class="btn btn-outline-success w-100">
+                                            <i class="fas fa-robot"></i> Generate Cover Letter
+                                        </a>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <a href="/resume-checker" class="btn btn-outline-warning w-100">
+                                            <i class="fas fa-search"></i> Check Resume
+                                        </a>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <a href="/job-application-tracker" class="btn btn-outline-info w-100">
+                                            <i class="fas fa-briefcase"></i> Track Applications
+                                        </a>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <a href="/interview-prep-advanced" class="btn btn-outline-secondary w-100">
+                                            <i class="fas fa-comments"></i> Practice Interviews
+                                        </a>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <a href="/career-toolkit" class="btn btn-outline-dark w-100">
+                                            <i class="fas fa-tools"></i> Career Toolkit
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <!-- Progress Overview -->
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="fas fa-tasks"></i> Progress Overview</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="dashboardChart" height="180"></canvas>
+                                <hr/>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Resume Completion</span>
+                                        <span>{{ "%.0f"|format((dashboard.resumes_created / max(dashboard.resumes_created, 1)) * 100) }}%</span>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar bg-primary" style="width: {{ (dashboard.resumes_created / max(dashboard.resumes_created, 1)) * 100 }}%"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Cover Letters</span>
+                                        <span>{{ "%.0f"|format((dashboard.cover_letters_created / max(dashboard.cover_letters_created, 1)) * 100) }}%</span>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar bg-success" style="width: {{ (dashboard.cover_letters_created / max(dashboard.cover_letters_created, 1)) * 100 }}%"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Interview Practice</span>
+                                        <span>{{ "%.0f"|format((dashboard.practice_sessions_completed / max(dashboard.practice_sessions_completed, 1)) * 100) }}%</span>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar bg-info" style="width: {{ (dashboard.practice_sessions_completed / max(dashboard.practice_sessions_completed, 1)) * 100 }}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tips & Recommendations -->
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="fas fa-lightbulb"></i> Tips & Recommendations</h5>
+                            </div>
+                            <div class="card-body">
+                                {% if dashboard.resumes_created == 0 %}
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i>
+                                    <strong>Get Started:</strong> Create your first resume to begin your job search journey.
+                                </div>
+                                {% endif %}
+                                
+                                {% if dashboard.applications_submitted == 0 %}
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <strong>Start Applying:</strong> Use the job tracker to organize your applications.
+                                </div>
+                                {% endif %}
+                                
+                                {% if dashboard.practice_sessions_completed < 3 %}
+                                <div class="alert alert-success">
+                                    <i class="fas fa-star"></i>
+                                    <strong>Practice Makes Perfect:</strong> Complete more interview practice sessions to improve your skills.
+                                </div>
+                                {% endif %}
+                                
+                                {% if dashboard.average_interview_score < 80 %}
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-chart-line"></i>
+                                    <strong>Improve Your Score:</strong> Focus on STAR method and specific examples in your answers.
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Premium Features -->
+                        {% if not is_premium %}
+                        <div class="card shadow-sm border-warning">
+                            <div class="card-header bg-warning text-white">
+                                <h5 class="mb-0"><i class="fas fa-crown"></i> Upgrade to Premium</h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-unstyled mb-3">
+                                    <li><i class="fas fa-check text-success"></i> Unlimited premium templates</li>
+                                    <li><i class="fas fa-check text-success"></i> Advanced analytics</li>
+                                    <li><i class="fas fa-check text-success"></i> Priority support</li>
+                                    <li><i class="fas fa-check text-success"></i> Custom branding</li>
+                                </ul>
+                                <a href="/upgrade" class="btn btn-warning w-100">
+                                    <i class="fas fa-arrow-up"></i> Upgrade Now
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e9ecef;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -22px;
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px #e9ecef;
+}
+
+.timeline-content {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
+}
+
+.card {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+}
+
+.progress {
+    height: 8px;
+    border-radius: 4px;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx = document.getElementById('dashboardChart').getContext('2d');
+const dashboardChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ['Resumes', 'Cover Letters', 'Applications', 'Practice Sessions'],
+        datasets: [{
+            label: 'Count',
+            data: [
+                {{ dashboard.resumes_created|default(0) }},
+                {{ dashboard.cover_letters_created|default(0) }},
+                {{ dashboard.applications_submitted|default(0) }},
+                {{ dashboard.practice_sessions_completed|default(0) }}
+            ],
+            backgroundColor: [
+                'rgba(13,110,253,0.7)',
+                'rgba(25,135,84,0.7)',
+                'rgba(13,202,240,0.7)',
+                'rgba(255,193,7,0.7)'
+            ],
+            borderColor: [
+                'rgba(13,110,253,1)',
+                'rgba(25,135,84,1)',
+                'rgba(13,202,240,1)',
+                'rgba(255,193,7,1)'
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { display: false },
+            title: { display: false }
+        },
+        scales: {
+            y: { beginAtZero: true, ticks: { stepSize: 1 } }
+        }
+    }
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block title %}{{ cover.title or 'Cover Letter' }} - ResumeBuilder{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">{{ cover.title or 'Cover Letter' }}</h1>
+                <div>
+                    <button onclick="window.print()" class="btn btn-outline-primary me-2">
+                        <i class="fas fa-print"></i> Print
+                    </button>
+                    <a href="/download-cover-letter/{{ cover.id }}" class="btn btn-primary">
+                        <i class="fas fa-download"></i> Download PDF
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card shadow-sm">
+                        <div class="card-body p-0">
+                            <div class="cover-letter-display template-{{ cover.template }}">
+                                <div class="header p-4">
+                                    <div class="name">{{ cover.author.username }}</div>
+                                    <div class="contact-info">
+                                        {% if cover.author.email %}{{ cover.author.email }}<br>{% endif %}
+                                        {% if cover.author.phone %}{{ cover.author.phone }}<br>{% endif %}
+                                        {% if cover.author.address %}{{ cover.author.address }}{% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="date px-4">
+                                    {{ cover.created_at.strftime('%B %d, %Y') }}
+                                </div>
+                                
+                                <div class="recipient px-4">
+                                    {% if cover.company %}
+                                    <strong>{{ cover.company }}</strong><br>
+                                    {% endif %}
+                                    {% if cover.job_title %}
+                                    Re: {{ cover.job_title }} Position
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="content px-4">
+                                    {{ cover.content|safe|replace('\n', '<br>') }}
+                                </div>
+                                
+                                <div class="signature px-4">
+                                    Sincerely,<br><br>
+                                    {{ cover.author.username }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <!-- Cover Letter Info -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-info-circle"></i> Cover Letter Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <strong>Title:</strong><br>
+                                {{ cover.title or 'Untitled Cover Letter' }}
+                            </div>
+                            {% if cover.job_title %}
+                            <div class="mb-3">
+                                <strong>Job Title:</strong><br>
+                                {{ cover.job_title }}
+                            </div>
+                            {% endif %}
+                            {% if cover.company %}
+                            <div class="mb-3">
+                                <strong>Company:</strong><br>
+                                {{ cover.company }}
+                            </div>
+                            {% endif %}
+                            <div class="mb-3">
+                                <strong>Template:</strong><br>
+                                <span class="badge bg-{{ 'success' if cover.template == 'standard' else 'warning' if cover.template == 'creative' else 'info' }}">
+                                    {{ cover.template.title() }}
+                                </span>
+                            </div>
+                            <div class="mb-3">
+                                <strong>Created:</strong><br>
+                                {{ cover.created_at.strftime('%B %d, %Y') }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Engagement Stats -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Engagement</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <h4 class="text-primary">{{ cover.views or 0 }}</h4>
+                                    <small class="text-muted">Views</small>
+                                </div>
+                                <div class="col-6">
+                                    <h4 class="text-success">{{ cover.shares or 0 }}</h4>
+                                    <small class="text-muted">Shares</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Call to Action -->
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="fas fa-rocket"></i> Create Your Own</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted small mb-3">
+                                Inspired by this cover letter? Create your own professional cover letter with ResumeBuilder!
+                            </p>
+                            <a href="/register" class="btn btn-primary w-100 mb-2">
+                                <i class="fas fa-user-plus"></i> Sign Up Free
+                            </a>
+                            <a href="/create-cover-letter" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-plus"></i> Create Cover Letter
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.cover-letter-display {
+    font-family: 'Times New Roman', serif;
+    line-height: 1.6;
+    color: #333;
+    min-height: 800px;
+    background: #fff;
+}
+
+.cover-letter-display .name {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.cover-letter-display .contact-info {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.cover-letter-display .date {
+    margin-bottom: 30px;
+}
+
+.cover-letter-display .recipient {
+    margin-bottom: 30px;
+}
+
+.cover-letter-display .content {
+    text-align: justify;
+    margin-bottom: 30px;
+}
+
+.cover-letter-display .signature {
+    margin-top: 40px;
+}
+
+/* Template-specific styles */
+.template-standard {
+    font-family: 'Times New Roman', serif;
+}
+
+.template-creative {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.template-executive {
+    font-family: 'Georgia', serif;
+    border-left: 4px solid #2c3e50;
+    padding-left: 20px;
+}
+
+.template-creative .name {
+    color: #2c3e50;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 10px;
+}
+
+.template-executive .name {
+    color: #2c3e50;
+    font-size: 28px;
+}
+
+@media print {
+    .btn, .card-header, .col-lg-4 {
+        display: none !important;
+    }
+    .cover-letter-display {
+        min-height: auto;
+    }
+}
+</style>
+{% endblock %} 

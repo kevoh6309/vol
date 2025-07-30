@@ -1,0 +1,129 @@
+<!-- Password Reset Email Template -->
+{% macro password_reset_email(username, reset_url) %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Reset - ResumeBuilder</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+        .button { display: inline-block; background: #007bff; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>ResumeBuilder</h1>
+            <p>Password Reset Request</p>
+        </div>
+        <div class="content">
+            <h2>Hello {{ username }},</h2>
+            <p>We received a request to reset your password for your ResumeBuilder account.</p>
+            <p>Click the button below to reset your password:</p>
+            <a href="{{ reset_url }}" class="button">Reset Password</a>
+            <p>If you didn't request this password reset, you can safely ignore this email.</p>
+            <p>This link will expire in 1 hour for security reasons.</p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2024 ResumeBuilder. All rights reserved.</p>
+            <p>If you have any questions, please contact our support team.</p>
+        </div>
+    </div>
+</body>
+</html>
+{% endmacro %}
+
+<!-- Welcome Email Template -->
+{% macro welcome_email(username) %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to ResumeBuilder</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+        .button { display: inline-block; background: #28a745; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Welcome to ResumeBuilder!</h1>
+            <p>Your journey to professional success starts here</p>
+        </div>
+        <div class="content">
+            <h2>Hello {{ username }},</h2>
+            <p>Welcome to ResumeBuilder! We're excited to help you create professional resumes and advance your career.</p>
+            <p>Here's what you can do with your new account:</p>
+            <ul>
+                <li>Create professional resumes with multiple templates</li>
+                <li>Generate AI-powered cover letters</li>
+                <li>Track your job applications</li>
+                <li>Build your professional portfolio</li>
+                <li>Practice interview questions</li>
+            </ul>
+            <a href="{{ url_for('dashboard', _external=True) }}" class="button">Get Started</a>
+            <p>If you have any questions, our support team is here to help!</p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2024 ResumeBuilder. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
+{% endmacro %}
+
+<!-- Premium Upgrade Email Template -->
+{% macro premium_upgrade_email(username) %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Premium - ResumeBuilder</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #333; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+        .button { display: inline-block; background: #28a745; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎉 Welcome to Premium!</h1>
+            <p>You now have access to all premium features</p>
+        </div>
+        <div class="content">
+            <h2>Congratulations {{ username }}!</h2>
+            <p>You've successfully upgraded to ResumeBuilder Premium. Here's what you now have access to:</p>
+            <ul>
+                <li>✅ Unlimited resume downloads</li>
+                <li>✅ Premium resume templates</li>
+                <li>✅ Advanced AI cover letter generation</li>
+                <li>✅ Portfolio hosting</li>
+                <li>✅ Advanced analytics</li>
+                <li>✅ Priority support</li>
+            </ul>
+            <a href="{{ url_for('dashboard', _external=True) }}" class="button">Start Using Premium Features</a>
+            <p>Thank you for choosing ResumeBuilder Premium!</p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2024 ResumeBuilder. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
+{% endmacro %} 

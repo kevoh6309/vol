@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Job Application - ResumeBuilder{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">Edit Job Application</h1>
+                <a href="/job-application-tracker" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Tracker
+                </a>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-edit"></i> Update Application Details</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="company" class="form-label">Company *</label>
+                                <input type="text" class="form-control" id="company" name="company" 
+                                       value="{{ application.company }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="job_title" class="form-label">Job Title *</label>
+                                <input type="text" class="form-control" id="job_title" name="job_title" 
+                                       value="{{ application.job_title }}" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="website" class="form-label">Company Website</label>
+                                <input type="url" class="form-control" id="website" name="website" 
+                                       value="{{ application.website }}" placeholder="https://...">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="status" class="form-label">Application Status</label>
+                                <select class="form-select" id="status" name="status">
+                                    <option value="applied" {{ 'selected' if application.status == 'applied' }}>Applied</option>
+                                    <option value="interview" {{ 'selected' if application.status == 'interview' }}>Interview</option>
+                                    <option value="offer" {{ 'selected' if application.status == 'offer' }}>Offer</option>
+                                    <option value="rejected" {{ 'selected' if application.status == 'rejected' }}>Rejected</option>
+                                    <option value="withdrawn" {{ 'selected' if application.status == 'withdrawn' }}>Withdrawn</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="date_applied" class="form-label">Date Applied</label>
+                                <input type="date" class="form-control" id="date_applied" name="date_applied" 
+                                       value="{{ application.date_applied.strftime('%Y-%m-%d') if application.date_applied }}">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="follow_up_date" class="form-label">Follow-up Date</label>
+                                <input type="date" class="form-control" id="follow_up_date" name="follow_up_date" 
+                                       value="{{ application.follow_up_date.strftime('%Y-%m-%d') if application.follow_up_date }}">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="interview_date" class="form-label">Interview Date</label>
+                                <input type="date" class="form-control" id="interview_date" name="interview_date" 
+                                       value="{{ application.interview_date.strftime('%Y-%m-%d') if application.interview_date }}">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="contact_person" class="form-label">Contact Person</label>
+                                <input type="text" class="form-control" id="contact_person" name="contact_person" 
+                                       value="{{ application.contact_person }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="contact_email" class="form-label">Contact Email</label>
+                                <input type="email" class="form-control" id="contact_email" name="contact_email" 
+                                       value="{{ application.contact_email }}">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="salary_range" class="form-label">Salary Range</label>
+                                <input type="text" class="form-control" id="salary_range" name="salary_range" 
+                                       value="{{ application.salary_range }}" placeholder="e.g., $50,000 - $70,000">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="resume_id" class="form-label">Resume Used</label>
+                                <select class="form-select" id="resume_id" name="resume_id">
+                                    <option value="">Select Resume</option>
+                                    {% for resume in resumes %}
+                                    <option value="{{ resume.id }}" {{ 'selected' if application.resume_id == resume.id }}>
+                                        {{ resume.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="cover_letter_id" class="form-label">Cover Letter</label>
+                                <select class="form-select" id="cover_letter_id" name="cover_letter_id">
+                                    <option value="">Select Cover Letter</option>
+                                    {% for cover in cover_letters %}
+                                    <option value="{{ cover.id }}" {{ 'selected' if application.cover_letter_id == cover.id }}>
+                                        {{ cover.title }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Last Updated</label>
+                                <div class="form-control-plaintext">
+                                    {{ application.updated_at.strftime('%B %d, %Y at %I:%M %p') if application.updated_at else 'Not set' }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Notes</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="4" 
+                                      placeholder="Add any additional notes about this application...">{{ application.notes }}</textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="interview_notes" class="form-label">Interview Notes</label>
+                            <textarea class="form-control" id="interview_notes" name="interview_notes" rows="4" 
+                                      placeholder="Add notes from interviews, feedback received, etc...">{{ application.interview_notes }}</textarea>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-outline-danger" onclick="deleteApplication()">
+                                <i class="fas fa-trash"></i> Delete Application
+                            </button>
+                            <div>
+                                <a href="/job-application-tracker" class="btn btn-outline-secondary me-2">Cancel</a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Update Application
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+}
+
+.form-control, .form-select {
+    border-radius: 8px;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+</style>
+
+<script>
+function deleteApplication() {
+    if (confirm('Are you sure you want to delete this application? This action cannot be undone.')) {
+        fetch(`/delete-job-application/{{ application.id }}`, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = '/job-application-tracker';
+            } else {
+                alert('Error: ' + data.message);
+            }
+        });
+    }
+}
+</script>
+{% endblock %} 

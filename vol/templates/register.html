@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Register - ResumeBuilder{% endblock %}
+{% block content %}
+<style>
+.register-bg {
+    background: linear-gradient(135deg, #fdf6e3 0%, #f5f7fa 100%);
+    min-height: 100vh;
+    padding-top: 60px;
+}
+.card {
+    border-radius: 18px;
+    box-shadow: 0 4px 32px rgba(0,0,0,0.09);
+}
+</style>
+<div class="register-bg">
+    {% include 'partials/register_form.html' %}
+</div>
+{% endblock %} 

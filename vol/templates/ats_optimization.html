@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}ATS Optimization | Resume Builder{% endblock %}
+{% block content %}
+<h2 class="mb-4">ATS Optimization</h2>
+<div class="card shadow-sm transition mb-4">
+  <div class="card-body">
+    <h5 class="card-title mb-3"><i class="bi bi-search me-2 text-primary"></i>Scan Your Resume for ATS</h5>
+    <form id="atsForm">
+      <div class="mb-3">
+        <label class="form-label">Paste Your Resume</label>
+        <textarea class="form-control" id="atsResume" rows="4" required></textarea>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Paste Job Description</label>
+        <textarea class="form-control" id="atsJob" rows="3" required></textarea>
+      </div>
+      <div class="mb-3">
+        <button class="btn btn-outline-primary">Basic Scan</button>
+        <button class="btn btn-outline-warning ms-2" {% if not is_premium %}disabled{% endif %}>Advanced Scan (Premium)</button>
+        {% if not is_premium %}
+          <span class="text-warning ms-2">Upgrade for advanced ATS optimization features.</span>
+        {% endif %}
+      </div>
+      <button type="submit" class="btn btn-primary w-100 mb-2">Check ATS Compatibility</button>
+      <button type="button" class="btn btn-outline-secondary w-100 mb-2" disabled>Advanced Scan <i class='bi bi-lock-fill text-warning'></i> (Premium)</button>
+    </form>
+    <div class="alert alert-info mt-3 text-center">
+      <i class="bi bi-lock-fill text-warning"></i> <strong>Upgrade to Premium</strong> to unlock advanced ATS scanning and optimization!
+    </div>
+    <div id="atsResult" class="mt-4"></div>
+  </div>
+</div>
+<script>
+document.getElementById('atsForm').onsubmit = async function(e) {
+  e.preventDefault();
+  const resume = document.getElementById('atsResume').value.trim();
+  const job = document.getElementById('atsJob').value.trim();
+  const btn = this.querySelector('button[type="submit"]');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Checking...';
+  const prompt = `Check this resume for ATS compatibility with the following job description. List missing keywords, formatting issues, and suggestions.\nResume:\n${resume}\nJob Description:\n${job}`;
+  const res = await fetch('/chatbot', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({message: prompt})
+  });
+  const data = await res.json();
+  document.getElementById('atsResult').innerHTML = `<div class='alert alert-info'><strong>ATS Feedback:</strong><br><pre style='white-space:pre-wrap;'>${data.reply}</pre></div>`;
+  btn.disabled = false;
+  btn.innerHTML = 'Check ATS Compatibility';
+};
+</script>
+{% endblock %} 

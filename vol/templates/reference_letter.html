@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Reference Letter Generator | Resume Builder{% endblock %}
+{% block content %}
+<h2 class="mb-4">Reference Letter Generator</h2>
+<div class="card shadow-sm transition mb-4">
+  <div class="card-body">
+    <h5 class="card-title mb-3"><i class="bi bi-person-lines-fill me-2 text-primary"></i>Generate a Reference Letter</h5>
+    <form id="refForm">
+      <div class="mb-3">
+        <label class="form-label">Template</label>
+        <select class="form-select mb-2" id="refTemplate">
+          <option value="standard">Standard</option>
+          <option value="modern">Modern</option>
+          <option value="executive" disabled>Executive <i class='bi bi-lock-fill text-warning'></i> (Premium)</option>
+          <option value="academic" disabled>Academic <i class='bi bi-lock-fill text-warning'></i> (Premium)</option>
+        </select>
+        <div class="form-text text-muted">Premium templates <i class='bi bi-lock-fill text-warning'></i> require an upgrade.</div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Recipient Name</label>
+        <input type="text" class="form-control" id="refRecipient" placeholder="e.g. Jane Doe" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Context/Relationship</label>
+        <textarea class="form-control" id="refContext" rows="2" placeholder="e.g. Worked together at XYZ, managed Jane for 2 years" required></textarea>
+      </div>
+      <div class="mb-3">
+        <button class="btn btn-outline-primary">Generate Reference Letter</button>
+        <button class="btn btn-outline-secondary ms-2" {% if not is_premium %}disabled{% endif %}>Premium Templates</button>
+        {% if not is_premium %}
+          <span class="text-warning ms-2">Upgrade to unlock premium reference letter templates.</span>
+        {% endif %}
+      </div>
+    </form>
+    <div class="alert alert-info mt-3 text-center">
+      <i class="bi bi-lock-fill text-warning"></i> <strong>Upgrade to Premium</strong> to unlock more reference letter templates!
+    </div>
+    <div id="refResult" class="mt-4"></div>
+  </div>
+</div>
+<script>
+document.getElementById('refForm').onsubmit = async function(e) {
+  e.preventDefault();
+  const recipient = document.getElementById('refRecipient').value.trim();
+  const context = document.getElementById('refContext').value.trim();
+  const btn = this.querySelector('button[type="submit"]');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Generating...';
+  const prompt = `Write a professional reference letter for ${recipient}. Context: ${context}`;
+  const res = await fetch('/chatbot', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({message: prompt})
+  });
+  const data = await res.json();
+  document.getElementById('refResult').innerHTML = `<div class='alert alert-info'><strong>Reference Letter:</strong><br><pre style='white-space:pre-wrap;'>${data.reply}</pre></div>`;
+  btn.disabled = false;
+  btn.innerHTML = 'Generate Reference Letter';
+};
+</script>
+{% endblock %} 

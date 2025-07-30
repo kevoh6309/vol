@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Practice Sessions - ResumeBuilder{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">Practice Sessions</h1>
+                <a href="/add-practice-session" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Session
+                </a>
+            </div>
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-list"></i> Your Sessions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Score</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for session in sessions %}
+                                <tr>
+                                    <td>{{ session.category }}</td>
+                                    <td>{{ session.score }}%</td>
+                                    <td>{{ session.created_at.strftime('%b %d, %Y') }}</td>
+                                    <td>
+                                        <a href="/edit-practice-session/{{ session.id }}" class="btn btn-outline-primary btn-sm"><i class="fas fa-edit"></i></a>
+                                        <form action="/delete-practice-session/{{ session.id }}" method="POST" style="display:inline;">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Delete this session?')"><i class="fas fa-trash"></i></button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% if not sessions %}
+                                <tr><td colspan="4" class="text-center text-muted">No practice sessions yet.</td></tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

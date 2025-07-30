@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Teams - ResumeBuilder{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">My Teams</h1>
+                <a href="/create-team" class="btn btn-primary"><i class="bi bi-plus"></i> Create Team</a>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Teams You Own</h5>
+                    <ul class="list-group mb-4">
+                        {% for t in my_teams %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>{{ t.name }}</span>
+                            <a href="/team/{{ t.id }}" class="btn btn-outline-info btn-sm">Manage</a>
+                        </li>
+                        {% else %}
+                        <li class="list-group-item text-muted">No teams owned.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h5>Teams You Belong To</h5>
+                    <ul class="list-group mb-4">
+                        {% for t in member_teams %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>{{ t.name }}</span>
+                            <a href="/team/{{ t.id }}" class="btn btn-outline-info btn-sm">View</a>
+                        </li>
+                        {% else %}
+                        <li class="list-group-item text-muted">No memberships.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

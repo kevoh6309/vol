@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Resume Builder{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='favicon.svg') }}">
+    <meta name="description" content="ResumeBuilder SaaS - Build beautiful resumes, cover letters, and track your job search with AI tools.">
+    
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-YOUR_ADSENSE_PUBLISHER_ID"
+         crossorigin="anonymous"></script>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({
+              google_ad_client: "ca-pub-YOUR_ADSENSE_PUBLISHER_ID",
+              enable_page_level_ads: true
+         });
+    </script>
+    <meta property="og:title" content="ResumeBuilder SaaS">
+    <meta property="og:description" content="Build beautiful resumes, cover letters, and track your job search with AI tools.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.url_root }}">
+    <meta property="og:image" content="{{ url_for('static', filename='resume-illustration.png') }}">
+    <style>
+        body {
+            background: #f8f9fa;
+            font-family: 'Inter', Arial, sans-serif;
+            color: #1e293b;
+            transition: background 0.3s, color 0.3s;
+        }
+        .navbar {
+            background: linear-gradient(90deg, #2563eb 0%, #1e3c72 100%);
+            transition: background 0.3s;
+        }
+        .navbar .navbar-brand {
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #fff !important;
+        }
+        .navbar-nav .nav-link {
+            color: #e0e7ef !important;
+            font-weight: 500;
+            margin-right: 8px;
+            transition: color 0.2s;
+        }
+        .navbar-nav .nav-link.active, .navbar-nav .nav-link:hover {
+            color: #ffd700 !important;
+        }
+        .btn-primary {
+            background: #2563eb;
+            border: none;
+            transition: background 0.2s;
+        }
+        .btn-primary:hover {
+            background: #1e3c72;
+        }
+        .card {
+            border-radius: 16px;
+            box-shadow: 0 2px 16px rgba(30,60,114,0.07);
+            border: none;
+        }
+        .form-label {
+            font-weight: 600;
+        }
+        .dark-mode body {
+            background: #181f2a;
+            color: #e0e7ef;
+        }
+        .dark-mode .navbar {
+            background: linear-gradient(90deg, #0f172a 0%, #2563eb 100%);
+        }
+        .dark-mode .navbar .navbar-brand {
+            color: #ffd700 !important;
+        }
+        .dark-mode .navbar-nav .nav-link {
+            color: #cbd5e1 !important;
+        }
+        .dark-mode .navbar-nav .nav-link.active, .dark-mode .navbar-nav .nav-link:hover {
+            color: #ffd700 !important;
+        }
+        .dark-mode .btn-primary {
+            background: #2563eb;
+        }
+        .dark-mode .btn-primary:hover {
+            background: #ffd700;
+            color: #181f2a;
+        }
+        .dark-mode .card {
+            background: #232e41;
+            color: #e0e7ef;
+        }
+        .dark-mode .form-label {
+            color: #ffd700;
+        }
+        .transition {
+            transition: all 0.3s;
+        }
+        .container.fadein {
+            animation: fadein 0.7s cubic-bezier(0.4,0,0.2,1);
+        }
+        @keyframes fadein {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: none; }
+        }
+        
+        /* AdSense Styles */
+        .ad-container {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 15px 0;
+            min-height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .ad-header-banner {
+            margin-bottom: 20px;
+        }
+        
+        .ad-sidebar {
+            margin: 15px 0;
+        }
+        
+        .ad-footer-banner {
+            margin-top: 20px;
+        }
+        
+        .ad-in-content {
+            margin: 25px 0;
+        }
+        
+        /* Hide ads for premium users */
+        .premium-user .ad-container {
+            display: none !important;
+        }
+        
+        /* Responsive ad adjustments */
+        @media (max-width: 768px) {
+            .ad-container {
+                margin: 10px 0;
+                padding: 5px;
+            }
+            
+            .ad-sidebar {
+                margin: 10px 0;
+            }
+        }
+        
+        /* Ad loading animation */
+        .ad-container:empty::before {
+            content: "Loading advertisement...";
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        /* AdSense compliance */
+        .ad-container::after {
+            content: "Advertisement";
+            position: absolute;
+            top: -8px;
+            left: 10px;
+            background: #fff;
+            padding: 0 5px;
+            font-size: 10px;
+            color: #6c757d;
+            border: 1px solid #e9ecef;
+            border-radius: 3px;
+        }
+        
+        .dark-mode .ad-container {
+            background: #232e41;
+            border-color: #374151;
+        }
+        
+        .dark-mode .ad-container::after {
+            background: #232e41;
+            color: #9ca3af;
+            border-color: #374151;
+        }
+    </style>
+</head>
+<body class="transition {% if is_premium %}premium-user{% endif %}">
+
+<!-- AdSense Macros -->
+{% macro display_ad(ad_unit_id, ad_slot, ad_format='auto', responsive='true') %}
+<div class="ad-container text-center">
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-YOUR_ADSENSE_PUBLISHER_ID"
+         data-ad-slot="{{ ad_slot }}"
+         data-ad-format="{{ ad_format }}"
+         data-full-width-responsive="{{ responsive }}"></ins>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+</div>
+{% endmacro %}
+
+{% macro header_banner_ad() %}
+<div class="ad-header-banner">
+    {{ display_ad('header-banner', 'YOUR_HEADER_BANNER_SLOT', 'auto', 'true') }}
+</div>
+{% endmacro %}
+
+{% macro sidebar_ad() %}
+<div class="ad-sidebar">
+    {{ display_ad('sidebar', 'YOUR_SIDEBAR_SLOT', 'auto', 'true') }}
+</div>
+{% endmacro %}
+
+{% macro footer_banner_ad() %}
+<div class="ad-footer-banner">
+    {{ display_ad('footer-banner', 'YOUR_FOOTER_BANNER_SLOT', 'auto', 'true') }}
+</div>
+{% endmacro %}
+
+{% macro in_content_ad() %}
+<div class="ad-in-content">
+    {{ display_ad('in-content', 'YOUR_IN_CONTENT_SLOT', 'auto', 'true') }}
+</div>
+{% endmacro %}
+
+{% macro ad_free_notice() %}
+{% if not is_premium %}
+<div class="ad-free-notice text-center p-2 bg-light border rounded mb-3">
+    <small class="text-muted">
+        <i class="bi bi-star-fill text-warning"></i>
+        Upgrade to Premium to remove ads and unlock all features!
+        <a href="{{ url_for('upgrade') }}" class="btn btn-sm btn-primary ms-2">Upgrade Now</a>
+    </small>
+</div>
+{% endif %}
+{% endmacro %}
+<nav class="navbar navbar-expand-lg mb-4">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">ResumeBuilder</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+        {% if current_user.is_authenticated %}
+        <!-- User Avatar Dropdown -->
+        <li class="nav-item dropdown ms-2">
+          <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="{{ current_user.profile_image if current_user.profile_image else '/static/avatar1.png' }}" alt="Avatar" class="rounded-circle me-2" style="width:36px;height:36px;object-fit:cover;border:2px solid #fff;box-shadow:0 2px 8px rgba(30,60,114,0.10);">
+            <span class="d-none d-md-inline">{{ current_user.username }}</span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
+            <li><a class="dropdown-item" href="/profile"><i class="bi bi-person me-2"></i>Profile</a></li>
+            <li><a class="dropdown-item" href="/settings"><i class="bi bi-gear me-2"></i>Settings</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="/logout"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+          </ul>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('my_resumes') }}">
+                <i class="fas fa-file-alt me-2"></i>My Resumes
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('analytics') }}">
+                <i class="fas fa-chart-line me-2"></i>Analytics
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('referrals') }}">
+                <i class="fas fa-share-alt me-2"></i>Referrals
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('profile') }}">
+                <i class="fas fa-user me-2"></i>Profile
+            </a>
+        </li>
+        <li class="nav-item"><a class="nav-link" href="/my-cover-letters">Cover Letters</a></li>
+        <li class="nav-item"><a class="nav-link" href="/career-toolkit">Career Toolkit</a></li>
+        <li class="nav-item"><a class="nav-link" href="/profile">Profile</a></li>
+        <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+        {% if not is_premium %}
+        <li class="nav-item">
+          <a class="btn btn-warning ms-2" href="/upgrade">Upgrade</a>
+        </li>
+        {% endif %}
+        {% else %}
+        <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
+        <li class="nav-item"><a class="nav-link" href="/register">Register</a></li>
+        {% endif %}
+        <li class="nav-item">
+          <button id="darkModeToggle" class="btn btn-sm btn-outline-light ms-2" type="button" title="Toggle dark mode">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-moon" viewBox="0 0 16 16">
+              <path d="M6 0a7 7 0 0 0 0 14c3.866 0 7-3.134 7-7 0-1.657-.672-3.156-1.757-4.243A7.001 7.001 0 0 1 6 0z"/>
+            </svg>
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Header Banner Ad -->
+{% if not is_premium %}
+{{ header_banner_ad() }}
+{% endif %}
+<div class="container transition fadein">
+  {% block content %}{% endblock %}
+</div>
+<script>
+  // Dark mode toggle
+  const toggle = document.getElementById('darkModeToggle');
+  toggle.onclick = function() {
+    document.documentElement.classList.toggle('dark-mode');
+    localStorage.setItem('darkMode', document.documentElement.classList.contains('dark-mode'));
+  };
+  // Persist dark mode
+  if (localStorage.getItem('darkMode') === 'true') {
+    document.documentElement.classList.add('dark-mode');
+  }
+</script>
+<!-- Google Analytics (replace with your own GA4 ID) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX');
+</script>
+<!-- For privacy-friendly analytics, try Plausible: https://plausible.io/docs/analytics-script -->
+    <!-- Chatbot FAB and Sidebar (available on every page) -->
+    <button id="chatbot-fab" class="btn btn-primary rounded-circle" style="position:fixed;bottom:32px;right:32px;z-index:1100;width:60px;height:60px;box-shadow:0 4px 16px rgba(30,60,114,0.18);display:flex;align-items:center;justify-content:center;">
+        <i class="bi bi-chat-dots" style="font-size:2em;"></i>
+    </button>
+    <div id="chatbot-sidebar" style="display:none;">
+        <div id="chatbot-header" class="d-flex justify-content-between align-items-center">
+            <span>Resume Assistant</span>
+            <button id="chatbot-close" class="btn btn-sm btn-outline-light ms-2" title="Close" style="border-radius:50%;"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <div id="chatbot-messages"></div>
+        <form id="chatbot-form" autocomplete="off">
+            <input type="text" id="chatbot-input" placeholder="Ask me anything about resumes..." class="form-control" />
+            <button type="submit" class="btn btn-primary w-100 mt-2">Send</button>
+        </form>
+        <div id="chatbot-loading" style="display:none;" class="text-center mt-2">
+            <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+            <div class="small text-muted">Bot is thinking...</div>
+        </div>
+        <div id="chatbot-suggestions" class="mt-3">
+            <span class="suggestion-bubble">Write my summary</span>
+            <span class="suggestion-bubble">Suggest skills</span>
+            <span class="suggestion-bubble">How to describe experience?</span>
+            <span class="suggestion-bubble">Best resume template?</span>
+        </div>
+    </div>
+    <style>
+        #chatbot-fab {
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+        #chatbot-fab:hover {
+            background: #1e3c72;
+        }
+        #chatbot-sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 370px;
+            height: 100vh;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            box-shadow: -2px 0 16px rgba(30,60,114,0.12);
+            z-index: 1200;
+            display: flex;
+            flex-direction: column;
+            border-top-left-radius: 18px;
+            border-bottom-left-radius: 18px;
+            transition: transform 0.3s, opacity 0.3s;
+        }
+        #chatbot-header {
+            background: #2563eb;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.2em;
+            padding: 18px 24px;
+            border-top-left-radius: 18px;
+        }
+        #chatbot-close {
+            color: #fff;
+            border: none;
+            background: transparent;
+        }
+        #chatbot-close:hover {
+            background: #ffd700;
+            color: #181f2a;
+        }
+        #chatbot-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 18px 18px 0 18px;
+            background: transparent;
+        }
+        .chat-bubble {
+            max-width: 80%;
+            margin-bottom: 14px;
+            padding: 12px 18px;
+            border-radius: 18px;
+            font-size: 1em;
+            line-height: 1.5;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(30,60,114,0.07);
+        }
+        .chat-bubble.bot {
+            background: #f1f5fb;
+            color: #1e3c72;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            margin-right: auto;
+        }
+        .chat-bubble.user {
+            background: #2563eb;
+            color: #fff;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+            margin-left: auto;
+        }
+        .chat-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        .chat-meta {
+            font-size: 0.8em;
+            color: #b0b8c9;
+            margin-top: 2px;
+        }
+        #chatbot-form {
+            padding: 12px 18px 0 18px;
+            background: transparent;
+        }
+        #chatbot-input {
+            border-radius: 8px;
+            border: none;
+            padding: 10px 14px;
+            font-size: 1em;
+        }
+        #chatbot-loading {
+            padding: 8px 0 0 0;
+        }
+        #chatbot-suggestions {
+            padding: 0 18px 18px 18px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .suggestion-bubble {
+            background: #fff;
+            color: #2563eb;
+            border-radius: 16px;
+            padding: 6px 14px;
+            font-size: 0.95em;
+            cursor: pointer;
+            box-shadow: 0 1px 4px rgba(30,60,114,0.08);
+            transition: background 0.2s, color 0.2s;
+        }
+        .suggestion-bubble:hover {
+            background: #2563eb;
+            color: #fff;
+        }
+        @media (max-width: 900px) {
+            #chatbot-sidebar {
+                width: 100vw;
+                position: fixed;
+                border-radius: 0;
+                min-height: 400px;
+            }
+            #chatbot-fab {
+                right: 16px;
+                bottom: 16px;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+    // Modern chat UI logic
+    const chatbotMessages = document.getElementById('chatbot-messages');
+    const chatbotForm = document.getElementById('chatbot-form');
+    const chatbotInput = document.getElementById('chatbot-input');
+    const chatbotLoading = document.getElementById('chatbot-loading');
+    const suggestions = document.querySelectorAll('.suggestion-bubble');
+    function addMessage(text, sender, timestamp) {
+        const bubble = document.createElement('div');
+        bubble.className = 'chat-bubble ' + sender;
+        const meta = document.createElement('div');
+        meta.className = 'chat-meta';
+        meta.textContent = timestamp || new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        // Render markdown as HTML for bot responses
+        if (sender === 'bot') {
+            bubble.innerHTML = '<img src="https://api.dicebear.com/7.x/bottts/svg?seed=ResumeBot" class="chat-avatar" />' +
+                '<span>' + marked.parse(text) + '</span>';
+        } else {
+            bubble.innerHTML = '<img src="https://api.dicebear.com/7.x/avataaars/svg?seed=User" class="chat-avatar" />' +
+                '<span>' + text + '</span>';
+        }
+        bubble.appendChild(meta);
+        chatbotMessages.appendChild(bubble);
+        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+    }
+    chatbotForm.onsubmit = async (e) => {
+        e.preventDefault();
+        const msg = chatbotInput.value.trim();
+        if (!msg) return;
+        addMessage(msg, 'user');
+        chatbotInput.value = '';
+        chatbotLoading.style.display = '';
+        try {
+            const res = await fetch('/chatbot', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({message: msg})
+            });
+            const data = await res.json();
+            addMessage(data.reply || 'Sorry, I could not generate a response.', 'bot');
+        } catch (err) {
+            addMessage('Sorry, there was an error.', 'bot');
+        }
+        chatbotLoading.style.display = 'none';
+    };
+    suggestions.forEach(s => s.onclick = () => {
+        chatbotInput.value = s.textContent;
+        chatbotForm.dispatchEvent(new Event('submit'));
+    });
+    // Initial welcome message
+    if (!chatbotMessages.hasChildNodes()) {
+        addMessage('Hi! I can help you with resume tips, suggestions, and answer your questions. Try asking: "How do I write a good summary?"', 'bot');
+    }
+    // FAB and sidebar toggle logic
+    const chatbotFab = document.getElementById('chatbot-fab');
+    const chatbotSidebar = document.getElementById('chatbot-sidebar');
+    const chatbotClose = document.getElementById('chatbot-close');
+    chatbotFab.onclick = () => {
+        chatbotSidebar.style.display = '';
+        chatbotFab.style.display = 'none';
+    };
+    chatbotClose.onclick = () => {
+        chatbotSidebar.style.display = 'none';
+        chatbotFab.style.display = '';
+    };
+    </script>
+    <!-- Toast Notifications -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 2000">
+      <div id="toastContainer"></div>
+    </div>
+    <script>
+    // Toast notification function
+    function showToast(message, type = 'info') {
+      const colors = {info: 'bg-info text-dark', success: 'bg-success text-white', error: 'bg-danger text-white'};
+      const toast = document.createElement('div');
+      toast.className = `toast align-items-center ${colors[type] || colors.info} border-0 fade show`;
+      toast.setAttribute('role', 'alert');
+      toast.setAttribute('aria-live', 'assertive');
+      toast.setAttribute('aria-atomic', 'true');
+      toast.innerHTML = `
+        <div class="d-flex">
+          <div class="toast-body">${message}</div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>`;
+      document.getElementById('toastContainer').appendChild(toast);
+      setTimeout(() => {
+        toast.classList.remove('show');
+        toast.classList.add('hide');
+        setTimeout(() => toast.remove(), 500);
+      }, 3500);
+    }
+    // Show upgrade success toast if redirected from upgrade
+    if (window.location.search.includes('upgraded=1')) {
+      showToast('Upgrade successful! Enjoy premium features.', 'success');
+    }
+    </script>
+    <!-- Footer Banner Ad -->
+    {% if not is_premium %}
+    {{ footer_banner_ad() }}
+    {% endif %}
+    
+    <footer class="footer mt-auto py-3 bg-dark text-light text-center">
+      <div class="container">
+        <span>&copy; <span id="footer-year"></span> ResumeBuilder. All rights reserved. | <a href="mailto:support@vibelink.spot" class="text-warning">Contact</a></span>
+      </div>
+    </footer>
+    <script>
+      // Always update footer year
+      document.getElementById('footer-year').textContent = new Date().getFullYear();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

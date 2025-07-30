@@ -1,0 +1,141 @@
+<!-- Google AdSense Configuration -->
+<!-- Replace YOUR_ADSENSE_PUBLISHER_ID with your actual AdSense publisher ID -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-YOUR_ADSENSE_PUBLISHER_ID"
+     crossorigin="anonymous"></script>
+
+<!-- AdSense Auto Ads -->
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({
+          google_ad_client: "ca-pub-YOUR_ADSENSE_PUBLISHER_ID",
+          enable_page_level_ads: true
+     });
+</script>
+
+<!-- Ad Units -->
+{% macro display_ad(ad_unit_id, ad_slot, ad_format='auto', responsive='true') %}
+<div class="ad-container text-center my-3">
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-YOUR_ADSENSE_PUBLISHER_ID"
+         data-ad-slot="{{ ad_slot }}"
+         data-ad-format="{{ ad_format }}"
+         data-full-width-responsive="{{ responsive }}"></ins>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+</div>
+{% endmacro %}
+
+<!-- Header Banner Ad -->
+{% macro header_banner_ad() %}
+<div class="ad-header-banner">
+    {{ display_ad('header-banner', 'YOUR_HEADER_BANNER_SLOT', 'auto', 'true') }}
+</div>
+{% endmacro %}
+
+<!-- Sidebar Ad -->
+{% macro sidebar_ad() %}
+<div class="ad-sidebar">
+    {{ display_ad('sidebar', 'YOUR_SIDEBAR_SLOT', 'auto', 'true') }}
+</div>
+{% endmacro %}
+
+<!-- Footer Banner Ad -->
+{% macro footer_banner_ad() %}
+<div class="ad-footer-banner">
+    {{ display_ad('footer-banner', 'YOUR_FOOTER_BANNER_SLOT', 'auto', 'true') }}
+</div>
+{% endmacro %}
+
+<!-- In-Content Ad -->
+{% macro in_content_ad() %}
+<div class="ad-in-content">
+    {{ display_ad('in-content', 'YOUR_IN_CONTENT_SLOT', 'auto', 'true') }}
+</div>
+{% endmacro %}
+
+<!-- Premium User Ad-Free Notice -->
+{% macro ad_free_notice() %}
+{% if not is_premium %}
+<div class="ad-free-notice text-center p-2 bg-light border rounded">
+    <small class="text-muted">
+        <i class="bi bi-star-fill text-warning"></i>
+        Upgrade to Premium to remove ads and unlock all features!
+        <a href="{{ url_for('upgrade') }}" class="btn btn-sm btn-primary ms-2">Upgrade Now</a>
+    </small>
+</div>
+{% endif %}
+{% endmacro %}
+
+<!-- AdSense CSS Styles -->
+<style>
+.ad-container {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 15px 0;
+    min-height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ad-header-banner {
+    margin-bottom: 20px;
+}
+
+.ad-sidebar {
+    margin: 15px 0;
+}
+
+.ad-footer-banner {
+    margin-top: 20px;
+}
+
+.ad-in-content {
+    margin: 25px 0;
+}
+
+/* Hide ads for premium users */
+.premium-user .ad-container {
+    display: none !important;
+}
+
+/* Responsive ad adjustments */
+@media (max-width: 768px) {
+    .ad-container {
+        margin: 10px 0;
+        padding: 5px;
+    }
+    
+    .ad-sidebar {
+        margin: 10px 0;
+    }
+}
+
+/* Ad loading animation */
+.ad-container:empty::before {
+    content: "Loading advertisement...";
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* AdSense compliance */
+.ad-container {
+    position: relative;
+}
+
+.ad-container::after {
+    content: "Advertisement";
+    position: absolute;
+    top: -8px;
+    left: 10px;
+    background: #fff;
+    padding: 0 5px;
+    font-size: 10px;
+    color: #6c757d;
+    border: 1px solid #e9ecef;
+    border-radius: 3px;
+}
+</style> 

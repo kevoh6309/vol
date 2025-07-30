@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Team - ResumeBuilder{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12 col-md-8 mx-auto">
+            <div class="card shadow-sm mt-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Team: {{ team.name }}</h5>
+                    <a href="/teams" class="btn btn-outline-secondary btn-sm">Back</a>
+                </div>
+                <div class="card-body">
+                    <h6>Owner: {{ team.owner.username }}</h6>
+                    <hr>
+                    <h6>Members</h6>
+                    <ul class="list-group mb-3">
+                        {% for m in members %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>{{ m.user.username if m.user else m.invited_email }} ({{ m.role }})</span>
+                            {% if is_owner %}
+                            <form action="/remove-team-member/{{ m.id }}" method="POST" style="display:inline;">
+                                <button type="submit" class="btn btn-outline-danger btn-sm">Remove</button>
+                            </form>
+                            {% endif %}
+                        </li>
+                        {% else %}
+                        <li class="list-group-item text-muted">No members yet.</li>
+                        {% endfor %}
+                    </ul>
+                    {% if is_owner %}
+                    <form method="POST" action="/invite-team-member/{{ team.id }}" class="row g-2 align-items-end">
+                        <div class="col-md-6">
+                            <label class="form-label">Invite by Email</label>
+                            <input type="email" class="form-control" name="email" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Role</label>
+                            <select class="form-select" name="role">
+                                <option value="member">Member</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-success w-100">Invite</button>
+                        </div>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

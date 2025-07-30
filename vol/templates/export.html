@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Export | Resume Builder{% endblock %}
+{% block content %}
+<h2 class="mb-4">Export Resume</h2>
+<h2>Export Options</h2>
+<ul class="list-group mb-3">
+  <li class="list-group-item">PDF (Free, Watermarked)</li>
+  <li class="list-group-item {% if not is_premium %}disabled{% endif %}">Word (.docx) {% if not is_premium %}<span class="text-warning">(Premium)</span>{% endif %}</li>
+  <li class="list-group-item {% if not is_premium %}disabled{% endif %}">PDF (No Watermark) {% if not is_premium %}<span class="text-warning">(Premium)</span>{% endif %}</li>
+</ul>
+{% if not is_premium %}
+  <a href="/upgrade" class="btn btn-warning">Upgrade to unlock premium export options</a>
+{% endif %}
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="card shadow-sm transition h-100">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title mb-3"><i class="bi bi-file-earmark-pdf me-2 text-danger"></i>Export as PDF</h5>
+        <a href="/download-resume/{{ resume_id }}?format=pdf" class="btn btn-danger w-100 mb-2">Download PDF (Free <i class='bi bi-water'></i>)</a>
+        <button class="btn btn-outline-secondary w-100 mb-2" disabled>PDF (No Watermark <i class='bi bi-lock-fill text-warning'></i> Premium)</button>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card shadow-sm transition h-100">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title mb-3"><i class="bi bi-file-earmark-word me-2 text-primary"></i>Export as Word (.docx)</h5>
+        <a href="/download-resume/{{ resume_id }}?format=word" class="btn btn-primary w-100 mb-2">Download .docx (Free <i class='bi bi-water'></i>)</a>
+        <button class="btn btn-outline-secondary w-100 mb-2" disabled>Word (No Watermark <i class='bi bi-lock-fill text-warning'></i> Premium)</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="alert alert-info mt-4 text-center">
+  <i class="bi bi-lock-fill text-warning"></i> <strong>Upgrade to Premium</strong> to remove watermarks and unlock more export options!
+</div>
+<script>
+document.getElementById('exportWord').onclick = function() {
+  // For demo, just download a sample docx file
+  const blob = new Blob(["This is a sample Word document. In production, generate .docx from resume data."], {type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'resume.docx';
+  a.click();
+};
+document.getElementById('exportLinkedIn').onclick = function() {
+  alert('Direct LinkedIn upload coming soon!');
+};
+</script>
+{% endblock %} 

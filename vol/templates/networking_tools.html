@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block title %}Networking Tools | Resume Builder{% endblock %}
+{% block content %}
+<h2 class="mb-4">Networking Tools</h2>
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="card shadow-sm transition h-100">
+      <div class="card-body">
+        <h5 class="card-title mb-3"><i class="bi bi-envelope-at-fill me-2 text-primary"></i>Email Template Generator</h5>
+        <form id="emailForm">
+          <div class="mb-3">
+            <label class="form-label">Purpose</label>
+            <select class="form-select" id="emailPurpose">
+              <option value="intro">Introduction</option>
+              <option value="followup">Follow-up</option>
+              <option value="thankyou">Thank You</option>
+              <option value="referral">Referral Request</option>
+              <option value="networking" disabled>Networking <i class='bi bi-lock-fill text-warning'></i> (Premium)</option>
+              <option value="jobinquiry" disabled>Job Inquiry <i class='bi bi-lock-fill text-warning'></i> (Premium)</option>
+            </select>
+            <div class="form-text text-muted">Premium templates <i class='bi bi-lock-fill text-warning'></i> require an upgrade.</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Recipient Name</label>
+            <input type="text" class="form-control" id="emailRecipient" placeholder="e.g. Jane Doe">
+          </div>
+          <div class="mb-3">
+            <button class="btn btn-outline-primary">Generate Email</button>
+            <button class="btn btn-outline-secondary ms-2" {% if not is_premium %}disabled{% endif %}>Premium Templates</button>
+            {% if not is_premium %}
+              <span class="text-warning ms-2">Upgrade to unlock premium networking templates.</span>
+            {% endif %}
+          </div>
+        </form>
+        <div id="emailResult" class="mt-3"></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card shadow-sm transition h-100">
+      <div class="card-body">
+        <h5 class="card-title mb-3"><i class="bi bi-linkedin me-2 text-info"></i>LinkedIn Connection Message</h5>
+        <form id="linkedinForm">
+          <div class="mb-3">
+            <label class="form-label">Recipient Name</label>
+            <input type="text" class="form-control" id="linkedinRecipient" placeholder="e.g. John Smith">
+          </div>
+          <select class="form-select mb-2" id="linkedinType">
+            <option value="connect">Connect</option>
+            <option value="followup">Follow-up</option>
+            <option value="referral" disabled>Referral <i class='bi bi-lock-fill text-warning'></i> (Premium)</option>
+            <option value="thankyou" disabled>Thank You <i class='bi bi-lock-fill text-warning'></i> (Premium)</option>
+          </select>
+          <div class="form-text text-muted">Premium LinkedIn templates <i class='bi bi-lock-fill text-warning'></i> require an upgrade.</div>
+          <button type="submit" class="btn btn-info w-100">Generate Message</button>
+        </form>
+        <div id="linkedinResult" class="mt-3"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="alert alert-info mt-4 text-center">
+  <i class="bi bi-lock-fill text-warning"></i> <strong>Upgrade to Premium</strong> to unlock more email and LinkedIn templates!
+</div>
+<script>
+document.getElementById('emailForm').onsubmit = async function(e) {
+  e.preventDefault();
+  try {
+    const purpose = document.getElementById('emailPurpose').value;
+    const recipient = document.getElementById('emailRecipient').value.trim();
+    const btn = this.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Generating...';
+    const prompt = `Write a professional ${purpose.replace('intro','introduction')} email to ${recipient || 'a new contact'}.`;
+    const res = await fetch('/chatbot', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({message: prompt})
+    });
+    const data = await res.json();
+    document.getElementById('emailResult').innerHTML = `<div class='alert alert-info'><strong>Email Template:</strong><br>${data.reply}</div>`;
+    btn.disabled = false;
+    btn.innerHTML = 'Generate Email';
+  } catch (error) {
+    console.error('Error generating email:', error);
+    document.getElementById('emailResult').innerHTML = `<div class='alert alert-danger'>Error generating email. Please try again.</div>`;
+    const btn = this.querySelector('button[type="submit"]');
+    btn.disabled = false;
+    btn.innerHTML = 'Generate Email';
+  }
+};
+document.getElementById('linkedinForm').onsubmit = async function(e) {
+  e.preventDefault();
+  try {
+    const recipient = document.getElementById('linkedinRecipient').value.trim();
+    const type = document.getElementById('linkedinType').value;
+    const btn = this.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Generating...';
+    const prompt = `Write a short, friendly LinkedIn connection message to ${recipient || 'a professional contact'}.`;
+    const res = await fetch('/chatbot', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({message: prompt})
+    });
+    const data = await res.json();
+    document.getElementById('linkedinResult').innerHTML = `<div class='alert alert-info'><strong>LinkedIn Message:</strong><br>${data.reply}</div>`;
+    btn.disabled = false;
+    btn.innerHTML = 'Generate Message';
+  } catch (error) {
+    console.error('Error generating LinkedIn message:', error);
+    document.getElementById('linkedinResult').innerHTML = `<div class='alert alert-danger'>Error generating LinkedIn message. Please try again.</div>`;
+    const btn = this.querySelector('button[type="submit"]');
+    btn.disabled = false;
+    btn.innerHTML = 'Generate Message';
+  }
+};
+</script>
+{% endblock %} 

@@ -1,0 +1,13 @@
+<svg width="300" height="400" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="400" fill="#ffffff" stroke="#e0e0e0" stroke-width="2"/>
+  <rect x="20" y="20" width="260" height="360" fill="#e3f2fd" stroke="#2196f3" stroke-width="1"/>
+  <text x="40" y="60" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#1976d2">Modern Blue Cover Letter</text>
+  <text x="40" y="80" font-family="Arial, sans-serif" font-size="12" fill="#42a5f5">Clean and contemporary design</text>
+  <rect x="40" y="120" width="220" height="2" fill="#2196f3"/>
+  <text x="40" y="150" font-family="Arial, sans-serif" font-size="10" fill="#333">Dear Hiring Manager,</text>
+  <text x="40" y="170" font-family="Arial, sans-serif" font-size="10" fill="#333">I am writing to express my interest...</text>
+  <text x="40" y="190" font-family="Arial, sans-serif" font-size="10" fill="#333">With my experience in...</text>
+  <text x="40" y="210" font-family="Arial, sans-serif" font-size="10" fill="#333">I believe I would be a valuable...</text>
+  <text x="40" y="250" font-family="Arial, sans-serif" font-size="10" fill="#333">Sincerely,</text>
+  <text x="40" y="270" font-family="Arial, sans-serif" font-size="10" fill="#333">[Your Name]</text>
+</svg> 

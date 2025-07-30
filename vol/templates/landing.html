@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Resume Builder | Home{% endblock %}
+{% block content %}
+<div class="row align-items-center" style="min-height: 60vh;">
+  <div class="col-md-7">
+    <h1 class="display-4 fw-bold mb-3">Build a Professional Resume in Minutes</h1>
+    <p class="lead mb-4">Create, customize, and download beautiful resumes with AI-powered assistance. Choose from modern templates, save your work, and get expert tips—all in one place.</p>
+    <ul class="list-unstyled mb-4">
+      <li class="mb-2"><span class="badge bg-primary me-2">AI Assistant</span> Get instant tips and suggestions as you build your resume.</li>
+      <li class="mb-2"><span class="badge bg-success me-2">Multiple Templates</span> Choose from classic and modern designs.</li>
+      <li class="mb-2"><span class="badge bg-warning text-dark me-2">PDF Export</span> Download your resume in beautiful PDF format.</li>
+      <li class="mb-2"><span class="badge bg-info text-dark me-2">Secure & Private</span> Your data is safe and only accessible to you.</li>
+    </ul>
+    <a href="/register" class="btn btn-primary btn-lg me-2">Get Started</a>
+    <a href="/login" class="btn btn-outline-primary btn-lg">Login</a>
+    
+    <!-- Ad-Free Notice -->
+    {{ ad_free_notice() }}
+  </div>
+  <div class="col-md-5 d-none d-md-block">
+    <img src="/static/resume-illustration.png" alt="Resume Illustration" class="img-fluid rounded shadow transition" style="max-height: 340px;" />
+  </div>
+</div>
+
+<!-- In-Content Ad -->
+{{ in_content_ad() }}
+
+<section class="my-5">
+  <h3 class="text-center mb-4">What Our Users Say</h3>
+  <div class="row justify-content-center">
+    <div class="col-md-4">
+      <div class="card shadow-sm mb-3">
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-2">
+            <img src="/static/avatar1.png" class="rounded-circle me-2" width="48" height="48" alt="User 1">
+            <span class="fw-bold">Jane Doe <span class="badge bg-warning text-dark ms-1">Premium</span></span>
+          </div>
+          <blockquote class="blockquote mb-0">“ResumeBuilder made my job search so much easier. The premium templates are stunning!”</blockquote>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm mb-3">
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-2">
+            <img src="/static/avatar2.png" class="rounded-circle me-2" width="48" height="48" alt="User 2">
+            <span class="fw-bold">John Smith</span>
+          </div>
+          <blockquote class="blockquote mb-0">“I landed 3 interviews in a week after using the AI suggestions. Highly recommend!”</blockquote>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm mb-3">
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-2">
+            <img src="/static/avatar3.png" class="rounded-circle me-2" width="48" height="48" alt="User 3">
+            <span class="fw-bold">Aisha K.</span>
+          </div>
+          <blockquote class="blockquote mb-0">“The portfolio website hosting is a game changer. Love the branding options!”</blockquote>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %} 

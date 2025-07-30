@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Checker - ResumeBuilder Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .checker-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 0;
+        }
+        .checker-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .checker-result {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0 auto 1rem;
+        }
+        .score-excellent { background: #28a745; color: white; }
+        .score-good { background: #ffc107; color: black; }
+        .score-fair { background: #fd7e14; color: white; }
+        .score-poor { background: #dc3545; color: white; }
+        .suggestion-item {
+            background: white;
+            border-left: 4px solid #007bff;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 0 5px 5px 0;
+        }
+        .suggestion-critical { border-left-color: #dc3545; }
+        .suggestion-important { border-left-color: #fd7e14; }
+        .suggestion-helpful { border-left-color: #28a745; }
+    </style>
+</head>
+<body>
+    {% extends "base.html" %}
+    
+    {% block content %}
+    <div class="checker-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h1 class="display-4 mb-4">
+                        <i class="fas fa-search-plus me-3"></i>
+                        Resume Checker
+                    </h1>
+                    <p class="lead mb-5">Get instant feedback on your resume with our AI-powered analysis</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="checker-card">
+                    <h3 class="mb-4">
+                        <i class="fas fa-upload me-2"></i>
+                        Upload Your Resume
+                    </h3>
+                    
+                    <form id="resumeCheckerForm" enctype="multipart/form-data">
+                        <div class="mb-4">
+                            <label for="resumeFile" class="form-label">Select Resume File</label>
+                            <input type="file" class="form-control" id="resumeFile" name="resume" accept=".pdf,.doc,.docx" required>
+                            <div class="form-text">Supported formats: PDF, DOC, DOCX (Max 5MB)</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="jobTitle" class="form-label">Target Job Title (Optional)</label>
+                            <input type="text" class="form-control" id="jobTitle" name="jobTitle" placeholder="e.g., Software Engineer, Marketing Manager">
+                            <div class="form-text">This helps us provide more targeted feedback</div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-magic me-2"></i>
+                            Analyze Resume
+                        </button>
+                    </form>
+                </div>
+
+                <div id="checkerResults" class="checker-card" style="display: none;">
+                    <h3 class="mb-4">
+                        <i class="fas fa-chart-line me-2"></i>
+                        Analysis Results
+                    </h3>
+                    
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            <div id="scoreCircle" class="score-circle score-excellent">
+                                85
+                            </div>
+                            <h5>Overall Score</h5>
+                            <p class="text-muted">Your resume quality score</p>
+                        </div>
+                        
+                        <div class="col-md-8">
+                            <div class="checker-result">
+                                <h6><i class="fas fa-info-circle me-2"></i>Summary</h6>
+                                <p id="summaryText">Your resume shows good structure and relevant experience. Here are some areas for improvement...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <h5><i class="fas fa-lightbulb me-2"></i>Suggestions & Improvements</h5>
+                        <div id="suggestionsList">
+                            <!-- Suggestions will be populated here -->
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <h5><i class="fas fa-chart-bar me-2"></i>Detailed Analysis</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="checker-result">
+                                    <h6>Content Quality</h6>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar bg-success" style="width: 85%"></div>
+                                    </div>
+                                    <small class="text-muted">85% - Good content structure</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="checker-result">
+                                    <h6>ATS Optimization</h6>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar bg-warning" style="width: 70%"></div>
+                                    </div>
+                                    <small class="text-muted">70% - Could be improved</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 text-center">
+                        <button class="btn btn-outline-primary me-2" onclick="downloadReport()">
+                            <i class="fas fa-download me-2"></i>
+                            Download Report
+                        </button>
+                        <button class="btn btn-primary" onclick="improveResume()">
+                            <i class="fas fa-edit me-2"></i>
+                            Improve Resume
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('resumeCheckerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Analyzing...';
+            submitBtn.disabled = true;
+            
+            // Simulate analysis (replace with actual API call)
+            setTimeout(() => {
+                showResults();
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }, 3000);
+        });
+
+        function showResults() {
+            document.getElementById('checkerResults').style.display = 'block';
+            
+            // Populate suggestions
+            const suggestions = [
+                {
+                    type: 'critical',
+                    title: 'Missing Contact Information',
+                    description: 'Add your phone number and professional email address'
+                },
+                {
+                    type: 'important',
+                    title: 'Weak Action Verbs',
+                    description: 'Replace passive language with strong action verbs'
+                },
+                {
+                    type: 'helpful',
+                    title: 'Add Quantifiable Achievements',
+                    description: 'Include specific numbers and metrics to demonstrate impact'
+                }
+            ];
+            
+            const suggestionsList = document.getElementById('suggestionsList');
+            suggestionsList.innerHTML = suggestions.map(suggestion => `
+                <div class="suggestion-item suggestion-${suggestion.type}">
+                    <h6>${suggestion.title}</h6>
+                    <p class="mb-0">${suggestion.description}</p>
+                </div>
+            `).join('');
+        }
+
+        function downloadReport() {
+            // Implement report download functionality
+            alert('Report download feature coming soon!');
+        }
+
+        function improveResume() {
+            // Redirect to resume builder
+            window.location.href = '/create-resume';
+        }
+    </script>
+    {% endblock %}
+</body>
+</html> 

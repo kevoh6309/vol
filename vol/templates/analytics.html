@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics - ResumeBuilder{% endblock %}
+
+{% block content %}
+<style>
+.analytics-bg {
+    background: linear-gradient(120deg, #e0eafc 0%, #f5f7fa 100%);
+    min-height: 100vh;
+    padding-top: 40px;
+}
+.card, .card.shadow-sm {
+    border-radius: 16px !important;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.07) !important;
+}
+</style>
+<div class="analytics-bg">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="h3 mb-4">Analytics</h1>
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header"><i class="bi bi-pie-chart"></i> Application Status</div>
+                            <div class="card-body">
+                                <canvas id="statusPie"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header"><i class="bi bi-graph-up"></i> Activity Over Time</div>
+                            <div class="card-body">
+                                <canvas id="activityLine"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header"><i class="bi bi-bar-chart"></i> Most Used Templates</div>
+                    <div class="card-body">
+                        <table class="table table-hover">
+                            <thead><tr><th>Template</th><th>Count</th></tr></thead>
+                            <tbody>
+                                {% for tpl, count in template_usage.items() %}
+                                <tr><td>{{ tpl }}</td><td>{{ count }}</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% if not is_premium %}
+                <div class="card shadow-sm border-warning">
+                    <div class="card-header bg-warning text-dark"><i class="bi bi-lock-fill"></i> Premium Analytics</div>
+                    <div class="card-body text-center">
+                        <p>Upgrade to Premium to unlock advanced analytics, trends, and export features!</p>
+                        <a href="/upgrade" class="btn btn-warning"><i class="bi bi-arrow-up"></i> Upgrade Now</a>
+                    </div>
+                </div>
+                {% else %}
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header"><i class="bi bi-bar-chart-steps"></i> Premium Analytics</div>
+                    <div class="card-body">
+                        <p>Advanced trends, export, and insights go here.</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const statusPie = new Chart(document.getElementById('statusPie'), {
+    type: 'pie',
+    data: {
+        labels: {{ status_labels|tojson }},
+        datasets: [{
+            data: {{ status_counts|tojson }},
+            backgroundColor: ['#0d6efd','#198754','#ffc107','#dc3545','#6c757d']
+        }]
+    },
+    options: {responsive: true}
+});
+const activityLine = new Chart(document.getElementById('activityLine'), {
+    type: 'line',
+    data: {
+        labels: {{ activity_dates|tojson }},
+        datasets: [{
+            label: 'Activity',
+            data: {{ activity_counts|tojson }},
+            fill: true,
+            borderColor: '#0d6efd',
+            backgroundColor: 'rgba(13,110,253,0.1)'
+        }]
+    },
+    options: {responsive: true}
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,480 @@
+{% extends "base.html" %}
+
+{% block title %}Mock Interview - ResumeBuilder{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">Mock Interview</h1>
+                <div>
+                    <span class="badge bg-primary me-2" id="timer">Time: 00:00</span>
+                    <span class="badge bg-info" id="questionCounter">Question 1 of {{ question_count }}</span>
+                </div>
+            </div>
+
+            <!-- Interview Interface -->
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-video"></i> Interview Session</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Question Display -->
+                    <div id="questionSection">
+                        <div class="text-center mb-4">
+                            <h3 id="currentQuestion" class="mb-4"></h3>
+                            <div class="progress mb-3" style="height: 8px;">
+                                <div class="progress-bar" id="interviewProgress" style="width: 0%"></div>
+                            </div>
+                            <small class="text-muted">Take your time to think and provide a comprehensive answer</small>
+                        </div>
+
+                        <!-- Answer Input -->
+                        <div class="mb-4">
+                            <label class="form-label">Your Answer:</label>
+                            <textarea class="form-control" id="userAnswer" rows="8" 
+                                      placeholder="Type your answer here. Remember to use the STAR method for behavioral questions..."></textarea>
+                            <div class="form-text">
+                                <i class="fas fa-lightbulb"></i> 
+                                <strong>Tip:</strong> Use specific examples and quantifiable results to make your answer more impactful.
+                            </div>
+                        </div>
+
+                        <!-- Navigation -->
+                        <div class="d-flex justify-content-between">
+                            <button class="btn btn-outline-secondary" id="prevBtn" onclick="previousQuestion()" disabled>
+                                <i class="fas fa-arrow-left"></i> Previous
+                            </button>
+                            <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()">
+                                Next <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Feedback Section -->
+                    <div id="feedbackSection" style="display: none;">
+                        <div class="text-center mb-4">
+                            <h4><i class="fas fa-chart-bar"></i> Question Analysis</h4>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card border-success">
+                                    <div class="card-header bg-success text-white">
+                                        <h6 class="mb-0"><i class="fas fa-check-circle"></i> Strengths</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul id="strengthsList" class="list-unstyled mb-0">
+                                            <!-- Strengths will be populated here -->
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card border-warning">
+                                    <div class="card-header bg-warning text-white">
+                                        <h6 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Areas for Improvement</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul id="improvementsList" class="list-unstyled mb-0">
+                                            <!-- Improvements will be populated here -->
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <h6><i class="fas fa-star"></i> Sample Answer</h6>
+                            <div class="bg-light p-3 rounded" id="sampleAnswer">
+                                <!-- Sample answer will be populated here -->
+                            </div>
+                        </div>
+
+                        <div class="mt-4 text-center">
+                            <button class="btn btn-success" onclick="continueInterview()">
+                                <i class="fas fa-check"></i> Continue to Next Question
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Results Section -->
+                    <div id="resultsSection" style="display: none;">
+                        <div class="text-center mb-4">
+                            <h3><i class="fas fa-trophy"></i> Interview Complete!</h3>
+                            <div class="display-4 fw-bold text-primary" id="finalScore">85%</div>
+                            <p class="text-muted">Overall Performance Score</p>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-4 text-center">
+                                <div class="h4 text-success" id="questionsAnswered">10</div>
+                                <small class="text-muted">Questions Answered</small>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <div class="h4 text-info" id="timeSpent">25 min</div>
+                                <small class="text-muted">Time Spent</small>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <div class="h4 text-warning" id="avgScore">82%</div>
+                                <small class="text-muted">Average Score</small>
+                            </div>
+                        </div>
+
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h6 class="mb-0"><i class="fas fa-chart-line"></i> Performance Breakdown</h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="performanceChart">
+                                    <!-- Performance breakdown will be shown here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <button class="btn btn-primary me-2" onclick="saveResults()">
+                                <i class="fas fa-save"></i> Save Results
+                            </button>
+                            <button class="btn btn-outline-secondary me-2" onclick="reviewAnswers()">
+                                <i class="fas fa-eye"></i> Review Answers
+                            </button>
+                            <button class="btn btn-success" onclick="startNewInterview()">
+                                <i class="fas fa-redo"></i> Start New Interview
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Review Answers Modal -->
+<div class="modal fade" id="reviewModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Review Your Answers</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="reviewContent">
+                <!-- Review content will be populated here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+}
+
+.progress {
+    border-radius: 10px;
+}
+
+.progress-bar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+#userAnswer {
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.timeline-item {
+    border-left: 3px solid #007bff;
+    padding-left: 20px;
+    margin-bottom: 20px;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let interviewData = {
+    questions: {{ questions|tojson }},
+    currentIndex: 0,
+    answers: [],
+    scores: [],
+    startTime: new Date(),
+    timeLimit: {{ question_count * 3 }} // 3 minutes per question
+};
+
+let timerInterval;
+
+// Initialize interview
+document.addEventListener('DOMContentLoaded', function() {
+    startTimer();
+    showQuestion();
+    updateProgress();
+});
+
+function startTimer() {
+    timerInterval = setInterval(updateTimer, 1000);
+}
+
+function updateTimer() {
+    const elapsed = Math.floor((new Date() - interviewData.startTime) / 1000);
+    const minutes = Math.floor(elapsed / 60);
+    const seconds = elapsed % 60;
+    document.getElementById('timer').textContent = `Time: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    
+    // Check if time limit exceeded
+    if (elapsed > interviewData.timeLimit * 60) {
+        completeInterview();
+    }
+}
+
+function showQuestion() {
+    const question = interviewData.questions[interviewData.currentIndex];
+    document.getElementById('currentQuestion').textContent = question.question;
+    document.getElementById('questionCounter').textContent = `Question ${interviewData.currentIndex + 1} of ${interviewData.questions.length}`;
+    
+    // Load previous answer if exists
+    if (interviewData.answers[interviewData.currentIndex]) {
+        document.getElementById('userAnswer').value = interviewData.answers[interviewData.currentIndex];
+    } else {
+        document.getElementById('userAnswer').value = '';
+    }
+    
+    // Update navigation buttons
+    document.getElementById('prevBtn').disabled = interviewData.currentIndex === 0;
+    document.getElementById('nextBtn').textContent = interviewData.currentIndex === interviewData.questions.length - 1 ? 'Finish' : 'Next';
+}
+
+function updateProgress() {
+    const progress = ((interviewData.currentIndex + 1) / interviewData.questions.length) * 100;
+    document.getElementById('interviewProgress').style.width = progress + '%';
+}
+
+function nextQuestion() {
+    // Save current answer
+    const answer = document.getElementById('userAnswer').value.trim();
+    if (!answer) {
+        alert('Please provide an answer before continuing.');
+        return;
+    }
+    
+    interviewData.answers[interviewData.currentIndex] = answer;
+    
+    if (interviewData.currentIndex === interviewData.questions.length - 1) {
+        // Last question - show feedback
+        showFeedback();
+    } else {
+        // Move to next question
+        interviewData.currentIndex++;
+        showQuestion();
+        updateProgress();
+    }
+}
+
+function previousQuestion() {
+    if (interviewData.currentIndex > 0) {
+        interviewData.currentIndex--;
+        showQuestion();
+        updateProgress();
+    }
+}
+
+function showFeedback() {
+    document.getElementById('questionSection').style.display = 'none';
+    document.getElementById('feedbackSection').style.display = 'block';
+    
+    const question = interviewData.questions[interviewData.currentIndex];
+    const answer = interviewData.answers[interviewData.currentIndex];
+    
+    // Analyze answer and generate feedback
+    const feedback = analyzeAnswer(answer, question);
+    
+    // Populate strengths
+    const strengthsList = document.getElementById('strengthsList');
+    strengthsList.innerHTML = feedback.strengths.map(strength => `<li><i class="fas fa-check text-success me-2"></i>${strength}</li>`).join('');
+    
+    // Populate improvements
+    const improvementsList = document.getElementById('improvementsList');
+    improvementsList.innerHTML = feedback.improvements.map(improvement => `<li><i class="fas fa-arrow-up text-warning me-2"></i>${improvement}</li>`).join('');
+    
+    // Show sample answer
+    document.getElementById('sampleAnswer').textContent = question.sample_answer || 
+        'A well-structured answer using specific examples and quantifiable results.';
+    
+    // Calculate score for this question
+    const score = calculateQuestionScore(answer, feedback);
+    interviewData.scores[interviewData.currentIndex] = score;
+}
+
+function continueInterview() {
+    if (interviewData.currentIndex === interviewData.questions.length - 1) {
+        completeInterview();
+    } else {
+        interviewData.currentIndex++;
+        document.getElementById('questionSection').style.display = 'block';
+        document.getElementById('feedbackSection').style.display = 'none';
+        showQuestion();
+        updateProgress();
+    }
+}
+
+function completeInterview() {
+    clearInterval(timerInterval);
+    
+    document.getElementById('questionSection').style.display = 'none';
+    document.getElementById('feedbackSection').style.display = 'none';
+    document.getElementById('resultsSection').style.display = 'block';
+    
+    // Calculate final results
+    const totalScore = interviewData.scores.reduce((sum, score) => sum + score, 0);
+    const averageScore = totalScore / interviewData.scores.length;
+    const timeSpent = Math.floor((new Date() - interviewData.startTime) / 1000 / 60);
+    
+    document.getElementById('finalScore').textContent = `${Math.round(averageScore)}%`;
+    document.getElementById('questionsAnswered').textContent = interviewData.questions.length;
+    document.getElementById('timeSpent').textContent = `${timeSpent} min`;
+    document.getElementById('avgScore').textContent = `${Math.round(averageScore)}%`;
+    
+    // Save session
+    saveInterviewSession(averageScore, timeSpent);
+}
+
+function analyzeAnswer(answer, question) {
+    const feedback = {
+        strengths: [],
+        improvements: []
+    };
+    
+    // Analyze answer length
+    if (answer.length > 200) {
+        feedback.strengths.push('Comprehensive answer with good detail');
+    } else if (answer.length < 100) {
+        feedback.improvements.push('Answer could be more detailed with specific examples');
+    }
+    
+    // Check for action words
+    const actionWords = ['developed', 'implemented', 'managed', 'created', 'improved', 'increased', 'led', 'achieved'];
+    const foundActionWords = actionWords.filter(word => answer.toLowerCase().includes(word));
+    if (foundActionWords.length > 2) {
+        feedback.strengths.push('Good use of action verbs');
+    } else {
+        feedback.improvements.push('Include more action verbs to make your experience more impactful');
+    }
+    
+    // Check for specific examples
+    if (answer.includes('example') || answer.includes('instance') || answer.includes('time when')) {
+        feedback.strengths.push('Includes specific examples');
+    } else {
+        feedback.improvements.push('Provide specific examples to support your points');
+    }
+    
+    // Check for quantifiable results
+    if (/\d+%|\d+ percent|\d+ people|\d+ dollars/i.test(answer)) {
+        feedback.strengths.push('Includes quantifiable results');
+    } else {
+        feedback.improvements.push('Add quantifiable results to make your achievements more concrete');
+    }
+    
+    // Ensure we have at least some feedback
+    if (feedback.strengths.length === 0) {
+        feedback.strengths.push('Good effort on answering the question');
+    }
+    if (feedback.improvements.length === 0) {
+        feedback.improvements.push('Continue practicing to improve your interview skills');
+    }
+    
+    return feedback;
+}
+
+function calculateQuestionScore(answer, feedback) {
+    let score = 70; // Base score
+    
+    // Length bonus
+    if (answer.length > 200) score += 10;
+    else if (answer.length > 100) score += 5;
+    
+    // Action words bonus
+    const actionWords = ['developed', 'implemented', 'managed', 'created', 'improved', 'increased', 'led', 'achieved'];
+    const foundActionWords = actionWords.filter(word => answer.toLowerCase().includes(word));
+    score += Math.min(10, foundActionWords.length * 2);
+    
+    // Examples bonus
+    if (answer.includes('example') || answer.includes('instance')) score += 5;
+    
+    // Quantifiable results bonus
+    if (/\d+%|\d+ percent|\d+ people|\d+ dollars/i.test(answer)) score += 5;
+    
+    return Math.min(100, score);
+}
+
+function saveInterviewSession(score, duration) {
+    const sessionData = {
+        category: 'mixed',
+        questions: interviewData.questions.map(q => q.question),
+        answers: interviewData.answers,
+        score: score,
+        duration: duration
+    };
+    
+    fetch('/api/save-practice-session', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(sessionData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('Session saved successfully');
+        }
+    });
+}
+
+function saveResults() {
+    // Results are already saved when completing the interview
+    alert('Results have been saved to your profile!');
+}
+
+function reviewAnswers() {
+    const reviewContent = document.getElementById('reviewContent');
+    let html = '<div class="timeline">';
+    
+    for (let i = 0; i < interviewData.questions.length; i++) {
+        const question = interviewData.questions[i];
+        const answer = interviewData.answers[i];
+        const score = interviewData.scores[i] || 0;
+        
+        html += `
+        <div class="timeline-item">
+            <h6>Question ${i + 1}: ${question.question}</h6>
+            <div class="mb-2">
+                <strong>Your Answer:</strong>
+                <div class="bg-light p-2 rounded mt-1">${answer}</div>
+            </div>
+            <div class="mb-2">
+                <strong>Score:</strong> ${Math.round(score)}%
+            </div>
+            ${question.sample_answer ? `
+            <div>
+                <strong>Sample Answer:</strong>
+                <div class="bg-light p-2 rounded mt-1">${question.sample_answer}</div>
+            </div>
+            ` : ''}
+        </div>
+        `;
+    }
+    
+    html += '</div>';
+    reviewContent.innerHTML = html;
+    
+    new bootstrap.Modal(document.getElementById('reviewModal')).show();
+}
+
+function startNewInterview() {
+    window.location.href = '/interview-prep-advanced';
+}
+</script>
+{% endblock %} 

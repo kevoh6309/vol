@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Job Description Generator | Resume Builder{% endblock %}
+{% block content %}
+<h2 class="mb-4">Job Description Generator</h2>
+<div class="card shadow-sm transition mb-4">
+  <div class="card-body">
+    <h5 class="card-title mb-3"><i class="bi bi-clipboard-data me-2 text-primary"></i>Generate a Job Description</h5>
+    <form id="jobDescForm">
+      <div class="mb-3">
+        <label class="form-label">Job Title</label>
+        <input type="text" class="form-control" id="jobDescTitle" placeholder="e.g. Data Analyst" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Company</label>
+        <input type="text" class="form-control" id="jobDescCompany" placeholder="e.g. Acme Corp" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Requirements/Details</label>
+        <textarea class="form-control" id="jobDescReqs" rows="2" placeholder="e.g. 3+ years experience, Python, teamwork" required></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary w-100">Generate Job Description</button>
+    </form>
+    <div id="jobDescResult" class="mt-4"></div>
+  </div>
+</div>
+<script>
+document.getElementById('jobDescForm').onsubmit = async function(e) {
+  e.preventDefault();
+  const title = document.getElementById('jobDescTitle').value.trim();
+  const company = document.getElementById('jobDescCompany').value.trim();
+  const reqs = document.getElementById('jobDescReqs').value.trim();
+  const btn = this.querySelector('button[type="submit"]');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Generating...';
+  const prompt = `Write a professional job description for the position of ${title} at ${company}. Requirements: ${reqs}`;
+  const res = await fetch('/chatbot', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({message: prompt})
+  });
+  const data = await res.json();
+  document.getElementById('jobDescResult').innerHTML = `<div class='alert alert-info'><strong>Job Description:</strong><br><pre style='white-space:pre-wrap;'>${data.reply}</pre></div>`;
+  btn.disabled = false;
+  btn.innerHTML = 'Generate Job Description';
+};
+</script>
+{% endblock %} 

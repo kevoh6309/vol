@@ -1,0 +1,576 @@
+{% extends "base.html" %}
+
+{% block title %}Interview Preparation - ResumeBuilder{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">Interview Preparation</h1>
+                <div>
+                    <button class="btn btn-outline-primary me-2" onclick="startMockInterview()">
+                        <i class="fas fa-play"></i> Start Mock Interview
+                    </button>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#customQuestionsModal">
+                        <i class="fas fa-plus"></i> Add Custom Questions
+                    </button>
+                </div>
+            </div>
+
+            <!-- Interview Stats -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="mb-0">{{ stats.total_practiced }}</h4>
+                                    <small>Questions Practiced</small>
+                                </div>
+                                <i class="fas fa-question-circle fa-2x opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="mb-0">{{ stats.avg_score }}%</h4>
+                                    <small>Average Score</small>
+                                </div>
+                                <i class="fas fa-chart-line fa-2x opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="mb-0">{{ stats.mock_interviews }}</h4>
+                                    <small>Mock Interviews</small>
+                                </div>
+                                <i class="fas fa-video fa-2x opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="mb-0">{{ stats.streak }}</h4>
+                                    <small>Day Streak</small>
+                                </div>
+                                <i class="fas fa-fire fa-2x opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <!-- Question Categories -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-th-large"></i> Question Categories</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <div class="card h-100 border-primary">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-user-tie fa-3x text-primary mb-3"></i>
+                                            <h6>Behavioral</h6>
+                                            <p class="text-muted small">Tell me about a time when...</p>
+                                            <button class="btn btn-outline-primary btn-sm" onclick="practiceCategory('behavioral')">
+                                                Practice ({{ behavioral_count }})
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="card h-100 border-success">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-cogs fa-3x text-success mb-3"></i>
+                                            <h6>Technical</h6>
+                                            <p class="text-muted small">Problem-solving & skills</p>
+                                            <button class="btn btn-outline-success btn-sm" onclick="practiceCategory('technical')">
+                                                Practice ({{ technical_count }})
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="card h-100 border-info">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-building fa-3x text-info mb-3"></i>
+                                            <h6>Company</h6>
+                                            <p class="text-muted small">Why this company?</p>
+                                            <button class="btn btn-outline-info btn-sm" onclick="practiceCategory('company')">
+                                                Practice ({{ company_count }})
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="card h-100 border-warning">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-dollar-sign fa-3x text-warning mb-3"></i>
+                                            <h6>Salary</h6>
+                                            <p class="text-muted small">Compensation discussions</p>
+                                            <button class="btn btn-outline-warning btn-sm" onclick="practiceCategory('salary')">
+                                                Practice ({{ salary_count }})
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="card h-100 border-danger">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
+                                            <h6>Challenging</h6>
+                                            <p class="text-muted small">Difficult scenarios</p>
+                                            <button class="btn btn-outline-danger btn-sm" onclick="practiceCategory('challenging')">
+                                                Practice ({{ challenging_count }})
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="card h-100 border-secondary">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-question fa-3x text-secondary mb-3"></i>
+                                            <h6>Custom</h6>
+                                            <p class="text-muted small">Your own questions</p>
+                                            <button class="btn btn-outline-secondary btn-sm" onclick="practiceCategory('custom')">
+                                                Practice ({{ custom_count }})
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Practice Session -->
+                    <div class="card shadow-sm" id="practiceCard" style="display: none;">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-play-circle"></i> Practice Session</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="text-center mb-4">
+                                <div class="progress mb-3" style="height: 8px;">
+                                    <div class="progress-bar" id="sessionProgress" style="width: 0%"></div>
+                                </div>
+                                <small class="text-muted">Question <span id="currentQuestion">1</span> of <span id="totalQuestions">10</span></small>
+                            </div>
+                            
+                            <div id="questionContainer">
+                                <h4 id="currentQuestionText" class="mb-4"></h4>
+                                
+                                <div class="mb-4">
+                                    <label class="form-label">Your Answer:</label>
+                                    <textarea class="form-control" id="userAnswer" rows="6" placeholder="Type your answer here..."></textarea>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between">
+                                    <button class="btn btn-outline-secondary" onclick="previousQuestion()">
+                                        <i class="fas fa-arrow-left"></i> Previous
+                                    </button>
+                                    <button class="btn btn-primary" onclick="nextQuestion()">
+                                        Next <i class="fas fa-arrow-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div id="feedbackContainer" style="display: none;">
+                                <h5>AI Feedback</h5>
+                                <div class="alert alert-info" id="aiFeedback"></div>
+                                <div class="mb-3">
+                                    <h6>Key Points to Include:</h6>
+                                    <ul id="keyPoints"></ul>
+                                </div>
+                                <div class="mb-3">
+                                    <h6>Sample Answer:</h6>
+                                    <div class="bg-light p-3 rounded" id="sampleAnswer"></div>
+                                </div>
+                                <button class="btn btn-success" onclick="continueSession()">
+                                    <i class="fas fa-check"></i> Continue
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <!-- Quick Tips -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-lightbulb"></i> Interview Tips</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <h6><i class="fas fa-star text-warning"></i> STAR Method</h6>
+                                <p class="text-muted small">Situation, Task, Action, Result - structure your behavioral answers</p>
+                            </div>
+                            <div class="mb-3">
+                                <h6><i class="fas fa-eye text-info"></i> Body Language</h6>
+                                <p class="text-muted small">Maintain eye contact, sit up straight, and use confident gestures</p>
+                            </div>
+                            <div class="mb-3">
+                                <h6><i class="fas fa-clock text-success"></i> Time Management</h6>
+                                <p class="text-muted small">Keep answers concise (1-2 minutes) and relevant to the question</p>
+                            </div>
+                            <div class="mb-3">
+                                <h6><i class="fas fa-question text-primary"></i> Ask Questions</h6>
+                                <p class="text-muted small">Prepare thoughtful questions to ask the interviewer</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Practice -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-history"></i> Recent Practice</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="recentPractice">
+                                {% for session in recent_sessions %}
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        <small class="text-muted">{{ session.category.title() }}</small>
+                                        <div>{{ session.question[:50] }}...</div>
+                                    </div>
+                                    <span class="badge bg-{{ 'success' if session.score > 80 else 'warning' if session.score > 60 else 'danger' }}">
+                                        {{ session.score }}%
+                                    </span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mock Interview Settings -->
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-cog"></i> Mock Interview Settings</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Number of Questions</label>
+                                <select class="form-select" id="mockQuestionCount">
+                                    <option value="5">5 Questions</option>
+                                    <option value="10" selected>10 Questions</option>
+                                    <option value="15">15 Questions</option>
+                                    <option value="20">20 Questions</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Categories</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="includeBehavioral" checked>
+                                    <label class="form-check-label" for="includeBehavioral">Behavioral</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="includeTechnical" checked>
+                                    <label class="form-check-label" for="includeTechnical">Technical</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="includeCompany" checked>
+                                    <label class="form-check-label" for="includeCompany">Company</label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Time Limit (minutes)</label>
+                                <input type="number" class="form-control" id="timeLimit" value="30" min="10" max="120">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Questions Modal -->
+<div class="modal fade" id="customQuestionsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Custom Questions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="customQuestionForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Question *</label>
+                        <textarea class="form-control" name="question" rows="3" required placeholder="Enter your custom interview question..."></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" name="category">
+                                <option value="behavioral">Behavioral</option>
+                                <option value="technical">Technical</option>
+                                <option value="company">Company</option>
+                                <option value="salary">Salary</option>
+                                <option value="challenging">Challenging</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Difficulty</label>
+                            <select class="form-select" name="difficulty">
+                                <option value="easy">Easy</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="hard">Hard</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Sample Answer (Optional)</label>
+                        <textarea class="form-control" name="sample_answer" rows="4" placeholder="Provide a sample answer or key points..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Question</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+}
+
+.progress {
+    border-radius: 10px;
+}
+
+.progress-bar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentSession = {
+    questions: [],
+    currentIndex: 0,
+    answers: [],
+    category: ''
+};
+
+document.getElementById('customQuestionForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    addCustomQuestion();
+});
+
+function practiceCategory(category) {
+    currentSession.category = category;
+    currentSession.currentIndex = 0;
+    currentSession.answers = [];
+    
+    // Load questions for the category
+    fetch(`/api/interview-questions/${category}`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            currentSession.questions = data.questions;
+            showPracticeSession();
+        }
+    });
+}
+
+function showPracticeSession() {
+    document.getElementById('practiceCard').style.display = 'block';
+    document.getElementById('questionContainer').style.display = 'block';
+    document.getElementById('feedbackContainer').style.display = 'none';
+    
+    updateProgress();
+    showCurrentQuestion();
+}
+
+function showCurrentQuestion() {
+    const question = currentSession.questions[currentSession.currentIndex];
+    document.getElementById('currentQuestionText').textContent = question.text;
+    document.getElementById('currentQuestion').textContent = currentSession.currentIndex + 1;
+    document.getElementById('totalQuestions').textContent = currentSession.questions.length;
+    
+    // Load previous answer if exists
+    if (currentSession.answers[currentSession.currentIndex]) {
+        document.getElementById('userAnswer').value = currentSession.answers[currentSession.currentIndex];
+    } else {
+        document.getElementById('userAnswer').value = '';
+    }
+}
+
+function updateProgress() {
+    const progress = ((currentSession.currentIndex + 1) / currentSession.questions.length) * 100;
+    document.getElementById('sessionProgress').style.width = progress + '%';
+}
+
+function nextQuestion() {
+    // Save current answer
+    const answer = document.getElementById('userAnswer').value.trim();
+    if (!answer) {
+        alert('Please provide an answer before continuing.');
+        return;
+    }
+    
+    currentSession.answers[currentSession.currentIndex] = answer;
+    
+    // Show AI feedback
+    showAIFeedback(answer);
+}
+
+function showAIFeedback(answer) {
+    document.getElementById('questionContainer').style.display = 'none';
+    document.getElementById('feedbackContainer').style.display = 'block';
+    
+    // Simulate AI feedback
+    const question = currentSession.questions[currentSession.currentIndex];
+    document.getElementById('aiFeedback').innerHTML = `
+        <strong>Good effort!</strong> Your answer shows understanding of the question. 
+        Here are some suggestions to make it even stronger:
+    `;
+    
+    // Generate key points based on question type
+    const keyPoints = generateKeyPoints(question);
+    const keyPointsList = document.getElementById('keyPoints');
+    keyPointsList.innerHTML = keyPoints.map(point => `<li>${point}</li>`).join('');
+    
+    // Show sample answer
+    document.getElementById('sampleAnswer').textContent = question.sample_answer || 
+        'A well-structured answer using the STAR method with specific examples and quantifiable results.';
+}
+
+function generateKeyPoints(question) {
+    const points = {
+        'behavioral': [
+            'Use the STAR method (Situation, Task, Action, Result)',
+            'Include specific examples and quantifiable results',
+            'Show your problem-solving and leadership skills'
+        ],
+        'technical': [
+            'Explain your technical approach clearly',
+            'Discuss trade-offs and considerations',
+            'Show your problem-solving methodology'
+        ],
+        'company': [
+            'Research the company thoroughly',
+            'Connect your values to company culture',
+            'Show genuine interest and enthusiasm'
+        ],
+        'salary': [
+            'Research market rates for the position',
+            'Consider total compensation package',
+            'Be prepared to negotiate professionally'
+        ]
+    };
+    
+    return points[question.category] || [
+        'Be specific and provide examples',
+        'Show your relevant experience',
+        'Demonstrate your value to the company'
+    ];
+}
+
+function continueSession() {
+    currentSession.currentIndex++;
+    
+    if (currentSession.currentIndex >= currentSession.questions.length) {
+        // Session complete
+        completeSession();
+    } else {
+        // Continue to next question
+        document.getElementById('questionContainer').style.display = 'block';
+        document.getElementById('feedbackContainer').style.display = 'none';
+        updateProgress();
+        showCurrentQuestion();
+    }
+}
+
+function previousQuestion() {
+    if (currentSession.currentIndex > 0) {
+        currentSession.currentIndex--;
+        updateProgress();
+        showCurrentQuestion();
+    }
+}
+
+function completeSession() {
+    // Calculate score and save session
+    const score = Math.floor(Math.random() * 40) + 60; // Simulate score calculation
+    
+    fetch('/api/save-practice-session', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            category: currentSession.category,
+            questions: currentSession.questions,
+            answers: currentSession.answers,
+            score: score
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(`Session complete! Your score: ${score}%`);
+            location.reload();
+        }
+    });
+}
+
+function startMockInterview() {
+    const questionCount = parseInt(document.getElementById('mockQuestionCount').value);
+    const categories = [];
+    
+    if (document.getElementById('includeBehavioral').checked) categories.push('behavioral');
+    if (document.getElementById('includeTechnical').checked) categories.push('technical');
+    if (document.getElementById('includeCompany').checked) categories.push('company');
+    
+    if (categories.length === 0) {
+        alert('Please select at least one category.');
+        return;
+    }
+    
+    // Start mock interview with selected settings
+    window.location.href = `/mock-interview?count=${questionCount}&categories=${categories.join(',')}`;
+}
+
+function addCustomQuestion() {
+    const form = document.getElementById('customQuestionForm');
+    const formData = new FormData(form);
+    
+    fetch('/api/add-custom-question', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById('customQuestionsModal')).hide();
+            form.reset();
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    });
+}
+</script>
+{% endblock %} 

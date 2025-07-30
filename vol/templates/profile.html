@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+{% block title %}Profile | Resume Builder{% endblock %}
+{% block content %}
+<style>
+.profile-bg {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e0eafc 100%);
+    min-height: 100vh;
+    padding-top: 40px;
+}
+.card, .card.shadow-sm {
+    border-radius: 18px !important;
+    box-shadow: 0 4px 32px rgba(0,0,0,0.09) !important;
+}
+</style>
+<div class="profile-bg">
+    <div class="container py-4">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="bi bi-person me-2"></i>Profile Settings
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 text-center mb-4">
+                                <div class="position-relative">
+                                    {% if user.profile_image %}
+                                    <img id="profile-img" src="{{ user.profile_image }}" class="rounded-circle mb-3" alt="Profile Picture" style="width: 150px; height: 150px; object-fit: cover;">
+                                    <form method="post" action="{{ url_for('remove_profile_image') }}" style="display:inline;">
+                                        {{ csrf_token() }}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger position-absolute top-0 end-0" title="Remove profile image"><i class="bi bi-x"></i></button>
+                                    </form>
+                                    {% else %}
+                                    <img id="profile-img" src="/static/avatar1.png" class="rounded-circle mb-3" alt="Profile Picture" style="width: 150px; height: 150px; object-fit: cover;">
+                                    {% endif %}
+                                    <button class="btn btn-sm btn-outline-primary position-absolute bottom-0 end-0" onclick="document.getElementById('profile-image-input').click();">
+                                        <i class="bi bi-camera"></i>
+                                    </button>
+                                </div>
+                                <!-- Hidden file input -->
+                                <form id="profile-image-form" action="{{ url_for('upload_profile_image') }}" method="post" enctype="multipart/form-data" style="display: none;">
+                                    {{ csrf_token() }}
+                                    <input type="file" id="profile-image-input" name="profile_image" accept="image/*" onchange="this.form.submit();">
+                                </form>
+                                <h5>{{ user.username }}</h5>
+                                <p class="text-muted">{{ user.email }}</p>
+                                {% if is_premium %}
+                                <span class="badge bg-warning">
+                                    <i class="bi bi-crown me-1"></i>Premium Member
+                                </span>
+                                {% else %}
+                                <span class="badge bg-secondary">
+                                    <i class="bi bi-person me-1"></i>Free Member
+                                </span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-8">
+                                <form method="post" action="{{ url_for('profile') }}">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Username</label>
+                                            <input type="text" class="form-control" value="{{ user.username }}" readonly>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Email</label>
+                                            <input type="email" class="form-control" value="{{ user.email }}" readonly>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Member Since</label>
+                                            <input type="text" class="form-control" value="{{ user.created_at.strftime('%B %d, %Y') if user.created_at else 'N/A' }}" readonly>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Account Status</label>
+                                            <input type="text" class="form-control" value="{{ 'Active' if user.is_active else 'Inactive' }}" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Profile Image</label>
+                                        <div class="d-flex justify-content-center gap-3">
+                                            {% if user.profile_image %}
+                                            <img src="{{ user.profile_image }}" class="rounded-circle avatar-select border border-3 border-primary" style="width: 60px; height: 60px; object-fit: cover;">
+                                            {% else %}
+                                            <img src="/static/avatar1.png" class="rounded-circle avatar-select border border-3 border-primary" style="width: 60px; height: 60px; object-fit: cover;">
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <style>
+                                        .avatar-select { transition: box-shadow 0.2s; }
+                                        .avatar-select:hover { box-shadow: 0 0 0 4px #0d6efd33; }
+                                    </style>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Account Actions -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card border-primary">
+                            <div class="card-header bg-primary text-white">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-shield me-2"></i>Security
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <a href="{{ url_for('change_password') }}" class="btn btn-outline-primary w-100 mb-2">
+                                    <i class="bi bi-key me-2"></i>Change Password
+                                </a>
+                                <a href="{{ url_for('forgot_password') }}" class="btn btn-outline-secondary w-100">
+                                    <i class="bi bi-lock me-2"></i>Reset Password
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card border-warning">
+                            <div class="card-header bg-warning text-dark">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-exclamation-triangle me-2"></i>Danger Zone
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <button class="btn btn-outline-danger w-100" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                                    <i class="bi bi-trash me-2"></i>Delete Account
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Account Statistics -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-chart-bar me-2"></i>Account Statistics
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-3">
+                                <div class="border rounded p-3">
+                                    <i class="fas fa-file-alt fa-2x text-primary mb-2"></i>
+                                    <h5>{{ user.resumes|length }}</h5>
+                                    <small class="text-muted">Resumes Created</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="border rounded p-3">
+                                    <i class="fas fa-download fa-2x text-success mb-2"></i>
+                                    <h5>0</h5>
+                                    <small class="text-muted">Downloads</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="border rounded p-3">
+                                    <i class="fas fa-calendar fa-2x text-info mb-2"></i>
+                                    <h5>{{ ((user.created_at - user.created_at.replace(day=1)).days if user.created_at else 0) }}</h5>
+                                    <small class="text-muted">Days Active</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="border rounded p-3">
+                                    <i class="fas fa-star fa-2x text-warning mb-2"></i>
+                                    <h5>{{ 'Premium' if is_premium else 'Free' }}</h5>
+                                    <small class="text-muted">Plan</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Account Modal -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Delete Account
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Warning:</strong> This action cannot be undone.</p>
+                <p>Deleting your account will:</p>
+                <ul>
+                    <li>Permanently delete all your resumes</li>
+                    <li>Cancel any active subscriptions</li>
+                    <li>Remove all your data from our servers</li>
+                </ul>
+                <p>Are you sure you want to continue?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" action="{{ url_for('delete_account') }}" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-2"></i>Delete Account
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Resume/CV Builder</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body { background: #f8f9fa; }
+        .container { max-width: 700px; margin-top: 40px; background: #fff; padding: 32px 32px 24px 32px; border-radius: 12px; box-shadow: 0 2px 16px rgba(0,0,0,0.07); }
+        h1 { font-weight: 700; margin-bottom: 24px; }
+        .form-label { font-weight: 500; }
+        .form-section { margin-bottom: 24px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="progress mb-4" style="height: 8px;">
+            <div class="progress-bar bg-primary transition" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <h1 class="text-center mb-4">Resume/CV Builder</h1>
+        <form method="POST" action="/create-resume" novalidate id="resumeForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="row g-3">
+                <div class="col-md-6 mb-3 position-relative">
+                    <label class="form-label">Name</label>
+                    <span class="ms-1 text-muted" data-bs-toggle="tooltip" title="Your full name."><i class="bi bi-person"></i></span>
+                    <input type="text" name="name" class="form-control" required placeholder="e.g. John Doe">
+                    <div class="invalid-feedback">Please enter your name.</div>
+                </div>
+                <div class="col-md-6 mb-3 position-relative">
+                    <label class="form-label">Email</label>
+                    <span class="ms-1 text-muted" data-bs-toggle="tooltip" title="Your email address."><i class="bi bi-envelope"></i></span>
+                    <input type="email" name="email" class="form-control" required placeholder="e.g. john@email.com">
+                    <div class="invalid-feedback">Please enter a valid email.</div>
+                </div>
+                <div class="col-md-6 mb-3 position-relative">
+                    <label class="form-label">Phone</label>
+                    <span class="ms-1 text-muted" data-bs-toggle="tooltip" title="Your phone number."><i class="bi bi-telephone"></i></span>
+                    <input type="text" name="phone" class="form-control" required placeholder="e.g. +1234567890">
+                    <div class="invalid-feedback">Please enter your phone number.</div>
+                </div>
+                <div class="col-md-6 mb-3 position-relative">
+                    <label class="form-label">Address</label>
+                    <span class="ms-1 text-muted" data-bs-toggle="tooltip" title="Your address (optional)."><i class="bi bi-geo-alt"></i></span>
+                    <input type="text" name="address" class="form-control" placeholder="e.g. Nairobi, Kenya">
+                </div>
+                <div class="col-md-6 mb-3 position-relative">
+                    <label class="form-label">LinkedIn</label>
+                    <span class="ms-1 text-muted" data-bs-toggle="tooltip" title="Your LinkedIn profile URL (optional)."><i class="bi bi-linkedin"></i></span>
+                    <input type="text" name="linkedin" class="form-control" placeholder="e.g. linkedin.com/in/yourname">
+                </div>
+                <div class="col-12 mb-3 position-relative">
+                    <label class="form-label">Professional Summary</label>
+                    <span class="ms-1 text-muted" data-bs-toggle="tooltip" title="Brief summary about yourself."><i class="bi bi-card-text"></i></span>
+                    <div class="input-group">
+                        <textarea name="summary" id="summaryField" class="form-control" rows="2" required placeholder="Brief summary about yourself"></textarea>
+                        <button type="button" class="btn btn-outline-primary" id="suggestSummary" title="Suggest summary"><i class="bi bi-magic"></i></button>
+                    </div>
+                    <div class="invalid-feedback">Please enter a summary.</div>
+                </div>
+                <div class="col-12 mb-3 position-relative">
+                    <label class="form-label">Education</label>
+                    <span class="ms-1 text-muted" data-bs-toggle="tooltip" title="Your education background."><i class="bi bi-mortarboard"></i></span>
+                    <textarea name="education" class="form-control" rows="2" required placeholder="e.g. BSc in Computer Science, University, 2018-2022"></textarea>
+                    <div class="invalid-feedback">Please enter your education.</div>
+                </div>
+                <div class="col-12 mb-3 position-relative">
+                    <label class="form-label">Experience</label>
+                    <span class="ms-1 text-muted" data-bs-toggle="tooltip" title="Your work experience."><i class="bi bi-briefcase"></i></span>
+                    <div class="input-group">
+                        <textarea name="experience" id="experienceField" class="form-control" rows="2" required placeholder="e.g. Software Engineer at XYZ, 2022-present"></textarea>
+                        <button type="button" class="btn btn-outline-primary" id="suggestExperience" title="Suggest experience"><i class="bi bi-magic"></i></button>
+                    </div>
+                    <div class="invalid-feedback">Please enter your experience.</div>
+                </div>
+                <div class="col-12 mb-3 position-relative">
+                    <label class="form-label">Skills</label>
+                    <span class="ms-1 text-muted" data-bs-toggle="tooltip" title="Your key skills."><i class="bi bi-lightning"></i></span>
+                    <div class="input-group">
+                        <textarea name="skills" id="skillsField" class="form-control" rows="2" required placeholder="e.g. Python, JavaScript, Teamwork"></textarea>
+                        <button type="button" class="btn btn-outline-primary" id="suggestSkills" title="Suggest skills"><i class="bi bi-magic"></i></button>
+                    </div>
+                    <div class="invalid-feedback">Please enter your skills.</div>
+                </div>
+                <div class="col-12 mb-3 position-relative">
+                    <label class="form-label">Certifications & Awards</label>
+                    <span class="ms-1 text-muted" data-bs-toggle="tooltip" title="Relevant certifications or awards (optional)."><i class="bi bi-award"></i></span>
+                    <textarea name="certifications" class="form-control" rows="2" placeholder="e.g. AWS Certified, Employee of the Month"></textarea>
+                </div>
+                <div class="col-12 mb-3 position-relative">
+                    <label class="form-label">Languages</label>
+                    <span class="ms-1 text-muted" data-bs-toggle="tooltip" title="Languages you speak."><i class="bi bi-translate"></i></span>
+                    <textarea name="languages" class="form-control" rows="2" required placeholder="e.g. English, French, Swahili"></textarea>
+                    <div class="invalid-feedback">Please enter your languages.</div>
+                </div>
+                <div class="col-md-6 mb-3 position-relative">
+                    <label class="form-label">Template:</label>
+                    <span class="ms-1 text-muted" data-bs-toggle="tooltip" title="Choose your resume template."><i class="bi bi-palette"></i></span>
+                    <select class="form-select" name="template">
+                        <option value="classic">Classic (Free)</option>
+                        <option value="modern">Modern (Free)</option>
+                        <option value="elegant" {% if not is_premium %}disabled{% endif %}>Elegant (Premium)</option>
+                        <option value="creative" {% if not is_premium %}disabled{% endif %}>Creative (Premium)</option>
+                        <option value="minimal" {% if not is_premium %}disabled{% endif %}>Minimal (Premium)</option>
+                    </select>
+                    {% if not is_premium %}
+                        <div class="form-text text-warning">Upgrade to unlock premium templates.</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6 mb-3 position-relative">
+                    <label class="form-label">PDF Engine:</label>
+                    <span class="ms-1 text-muted" data-bs-toggle="tooltip" title="Choose your PDF engine."><i class="bi bi-file-earmark-pdf"></i></span>
+                    <select class="form-select" name="pdf_engine">
+                        <option value="weasyprint">WeasyPrint (HTML/CSS)</option>
+                        <option value="reportlab">ReportLab (Fast/Basic)</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 mt-3">Preview Resume</button>
+        </form>
+    </div>
+    <button id="chatbot-fab" class="btn btn-primary rounded-circle" style="position:fixed;bottom:32px;right:32px;z-index:1100;width:60px;height:60px;box-shadow:0 4px 16px rgba(30,60,114,0.18);display:flex;align-items:center;justify-content:center;">
+        <i class="bi bi-chat-dots" style="font-size:2em;"></i>
+    </button>
+    <div id="chatbot-sidebar" style="display:none;">
+        <div id="chatbot-header" class="d-flex justify-content-between align-items-center">
+            <span>Resume Assistant</span>
+            <button id="chatbot-close" class="btn btn-sm btn-outline-light ms-2" title="Close" style="border-radius:50%;"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <div id="chatbot-messages"></div>
+        <form id="chatbot-form" autocomplete="off">
+            <input type="text" id="chatbot-input" placeholder="Ask me anything about resumes..." class="form-control" />
+            <button type="submit" class="btn btn-primary w-100 mt-2">Send</button>
+        </form>
+        <div id="chatbot-loading" style="display:none;" class="text-center mt-2">
+            <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+            <div class="small text-muted">Bot is thinking...</div>
+        </div>
+        <div id="chatbot-suggestions" class="mt-3">
+            <span class="suggestion-bubble">Write my summary</span>
+            <span class="suggestion-bubble">Suggest skills</span>
+            <span class="suggestion-bubble">How to describe experience?</span>
+            <span class="suggestion-bubble">Best resume template?</span>
+        </div>
+    </div>
+    <style>
+        #chatbot-fab {
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+        #chatbot-fab:hover {
+            background: #1e3c72;
+        }
+        #chatbot-sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 370px;
+            height: 100vh;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            box-shadow: -2px 0 16px rgba(30,60,114,0.12);
+            z-index: 1200;
+            display: flex;
+            flex-direction: column;
+            border-top-left-radius: 18px;
+            border-bottom-left-radius: 18px;
+            transition: transform 0.3s, opacity 0.3s;
+        }
+        #chatbot-header {
+            background: #2563eb;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.2em;
+            padding: 18px 24px;
+            border-top-left-radius: 18px;
+        }
+        #chatbot-close {
+            color: #fff;
+            border: none;
+            background: transparent;
+        }
+        #chatbot-close:hover {
+            background: #ffd700;
+            color: #181f2a;
+        }
+        #chatbot-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 18px 18px 0 18px;
+            background: transparent;
+        }
+        .chat-bubble {
+            max-width: 80%;
+            margin-bottom: 14px;
+            padding: 12px 18px;
+            border-radius: 18px;
+            font-size: 1em;
+            line-height: 1.5;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(30,60,114,0.07);
+        }
+        .chat-bubble.bot {
+            background: #f1f5fb;
+            color: #1e3c72;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            margin-right: auto;
+        }
+        .chat-bubble.user {
+            background: #2563eb;
+            color: #fff;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+            margin-left: auto;
+        }
+        .chat-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        .chat-meta {
+            font-size: 0.8em;
+            color: #b0b8c9;
+            margin-top: 2px;
+        }
+        #chatbot-form {
+            padding: 12px 18px 0 18px;
+            background: transparent;
+        }
+        #chatbot-input {
+            border-radius: 8px;
+            border: none;
+            padding: 10px 14px;
+            font-size: 1em;
+        }
+        #chatbot-loading {
+            padding: 8px 0 0 0;
+        }
+        #chatbot-suggestions {
+            padding: 0 18px 18px 18px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .suggestion-bubble {
+            background: #fff;
+            color: #2563eb;
+            border-radius: 16px;
+            padding: 6px 14px;
+            font-size: 0.95em;
+            cursor: pointer;
+            box-shadow: 0 1px 4px rgba(30,60,114,0.08);
+            transition: background 0.2s, color 0.2s;
+        }
+        .suggestion-bubble:hover {
+            background: #2563eb;
+            color: #fff;
+        }
+        @media (max-width: 900px) {
+            #chatbot-sidebar {
+                width: 100vw;
+                position: fixed;
+                border-radius: 0;
+                min-height: 400px;
+            }
+            #chatbot-fab {
+                right: 16px;
+                bottom: 16px;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    // Modern chat UI logic
+    const chatbotMessages = document.getElementById('chatbot-messages');
+    const chatbotForm = document.getElementById('chatbot-form');
+    const chatbotInput = document.getElementById('chatbot-input');
+    const chatbotLoading = document.getElementById('chatbot-loading');
+    const suggestions = document.querySelectorAll('.suggestion-bubble');
+    function addMessage(text, sender, timestamp) {
+        const bubble = document.createElement('div');
+        bubble.className = 'chat-bubble ' + sender;
+        const meta = document.createElement('div');
+        meta.className = 'chat-meta';
+        meta.textContent = timestamp || new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        bubble.innerHTML = (sender === 'bot' ? '<img src="https://api.dicebear.com/7.x/bottts/svg?seed=ResumeBot" class="chat-avatar" />' : '<img src="https://api.dicebear.com/7.x/avataaars/svg?seed=User" class="chat-avatar" />') +
+            '<span>' + text + '</span>';
+        bubble.appendChild(meta);
+        chatbotMessages.appendChild(bubble);
+        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+    }
+    chatbotForm.onsubmit = async (e) => {
+        e.preventDefault();
+        const msg = chatbotInput.value.trim();
+        if (!msg) return;
+        addMessage(msg, 'user');
+        chatbotInput.value = '';
+        chatbotLoading.style.display = '';
+        try {
+            const res = await fetch('/chatbot', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({message: msg, section: window.currentSection || 'general', page: 'resume_form'})
+            });
+            const data = await res.json();
+            addMessage(data.reply || 'Sorry, I could not generate a response.', 'bot');
+        } catch (err) {
+            addMessage('Sorry, there was an error.', 'bot');
+        }
+        chatbotLoading.style.display = 'none';
+    };
+    suggestions.forEach(s => s.onclick = () => {
+        chatbotInput.value = s.textContent;
+        chatbotForm.dispatchEvent(new Event('submit'));
+    });
+    // Initial welcome message
+    if (!chatbotMessages.hasChildNodes()) {
+        addMessage('Hi! I can help you with resume tips, suggestions, and answer your questions. Try asking: "How do I write a good summary?"', 'bot');
+    }
+    // Enable tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    // Real-time validation
+    const form = document.getElementById('resumeForm');
+    form.addEventListener('input', function(e) {
+        form.name.classList.toggle('is-invalid', !form.name.value.trim());
+        form.email.classList.toggle('is-invalid', !form.email.value.includes('@'));
+        form.phone.classList.toggle('is-invalid', !form.phone.value.trim());
+        form.summary.classList.toggle('is-invalid', !form.summary.value.trim());
+        form.education.classList.toggle('is-invalid', !form.education.value.trim());
+        form.experience.classList.toggle('is-invalid', !form.experience.value.trim());
+        form.skills.classList.toggle('is-invalid', !form.skills.value.trim());
+        form.languages.classList.toggle('is-invalid', !form.languages.value.trim());
+    });
+    // FAB and sidebar toggle logic
+    const chatbotFab = document.getElementById('chatbot-fab');
+    const chatbotSidebar = document.getElementById('chatbot-sidebar');
+    const chatbotClose = document.getElementById('chatbot-close');
+    chatbotFab.onclick = () => {
+        chatbotSidebar.style.display = '';
+        chatbotFab.style.display = 'none';
+    };
+    chatbotClose.onclick = () => {
+        chatbotSidebar.style.display = 'none';
+        chatbotFab.style.display = '';
+    };
+    // Suggest buttons for AI-powered section writing
+    document.getElementById('suggestSummary').onclick = async function() {
+        window.currentSection = 'summary';
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+        const res = await fetch('/chatbot', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({message: 'Write a professional summary for my resume.', section: 'summary', page: 'resume_form'})
+        });
+        const data = await res.json();
+        document.getElementById('summaryField').value = data.reply;
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-magic"></i>';
+    };
+    document.getElementById('suggestExperience').onclick = async function() {
+        window.currentSection = 'experience';
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+        const res = await fetch('/chatbot', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({message: 'Suggest a work experience entry for my resume.', section: 'experience', page: 'resume_form'})
+        });
+        const data = await res.json();
+        document.getElementById('experienceField').value = data.reply;
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-magic"></i>';
+    };
+    document.getElementById('suggestSkills').onclick = async function() {
+        window.currentSection = 'skills';
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+        const res = await fetch('/chatbot', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({message: 'Suggest a list of skills for my resume.', section: 'skills', page: 'resume_form'})
+        });
+        const data = await res.json();
+        document.getElementById('skillsField').value = data.reply;
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-magic"></i>';
+    };
+    </script>
+</body>
+</html> 

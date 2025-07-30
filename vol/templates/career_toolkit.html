@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}Career Toolkit | Resume Builder{% endblock %}
+{% block content %}
+<h2 class="mb-4">Career Toolkit</h2>
+<div class="row g-4">
+  <div class="col-md-6 col-lg-4">
+    <div class="card shadow-sm transition h-100">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title mb-2"><i class="bi bi-briefcase-fill me-2 text-primary"></i>Portfolio Builder</h5>
+        <p class="mb-3">Showcase your projects, achievements, and skills in a beautiful online portfolio.</p>
+        <a href="/portfolio" class="btn btn-outline-primary mt-auto">Open Portfolio Builder</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6 col-lg-4">
+    <div class="card shadow-sm transition h-100">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title mb-2"><i class="bi bi-globe2 me-2 text-success"></i>Personal Website Generator</h5>
+        <p class="mb-3">Create a personal website with your resume, portfolio, and contact info in one click.</p>
+        <a href="/website-generator" class="btn btn-outline-success mt-auto">Create Website</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6 col-lg-4">
+    <div class="card shadow-sm transition h-100">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title mb-2"><i class="bi bi-mic-fill me-2 text-warning"></i>Interview Prep</h5>
+        <p class="mb-3">Practice with AI-powered mock interviews and get instant feedback on your answers.</p>
+        <a href="/interview-prep" class="btn btn-outline-warning mt-auto">Start Interview Prep</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6 col-lg-4">
+    <div class="card shadow-sm transition h-100">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title mb-2"><i class="bi bi-list-task me-2 text-info"></i>Job Tracker</h5>
+        <p class="mb-3">Track your job applications, interviews, and offers in one place.</p>
+        <a href="/job-application-tracker" class="btn btn-outline-info mt-auto">Open Job Tracker</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6 col-lg-4">
+    <div class="card shadow-sm transition h-100">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title mb-2"><i class="bi bi-people-fill me-2 text-secondary"></i>Networking Tools</h5>
+        <p class="mb-3">Smart email templates, LinkedIn suggestions, and more to grow your network.</p>
+        <a href="/networking-tools" class="btn btn-outline-secondary mt-auto">Open Networking Tools</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title">Resume Review</h5>
+        <p class="card-text">Get expert feedback on your resume.</p>
+        <a href="#" class="btn btn-outline-secondary w-100 mb-2 {% if not is_premium %}disabled{% endif %}">Premium Review</a>
+        {% if not is_premium %}
+          <span class="text-warning">Upgrade to unlock professional resume review.</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title">Affiliate Links</h5>
+        <p class="card-text">Access exclusive job boards and career services.</p>
+        <a href="#" class="btn btn-outline-secondary w-100 mb-2 {% if not is_premium %}disabled{% endif %}">Premium Affiliates</a>
+        {% if not is_premium %}
+          <span class="text-warning">Upgrade to unlock affiliate offers and discounts.</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 
