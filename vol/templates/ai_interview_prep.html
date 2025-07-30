@@ -1,0 +1,561 @@
+{% extends 'base.html' %}
+{% block title %}AI Interview Preparation - ResumeBuilder Pro{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="h2 mb-1">
+                                <i class="bi bi-camera-video text-primary me-2"></i>
+                                AI Interview Preparation
+                            </h1>
+                            <p class="text-muted mb-0">Practice with AI-powered mock interviews and get personalized feedback</p>
+                        </div>
+                        <div class="text-end">
+                            <div class="badge bg-success fs-6 px-3 py-2">
+                                <i class="bi bi-robot me-1"></i>
+                                AI-Powered
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interview Setup -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">
+                        <i class="bi bi-gear me-2"></i>
+                        Interview Setup
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="interviewSetupForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Job Title *</label>
+                                <input type="text" class="form-control" id="jobTitle" placeholder="e.g. Software Engineer" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Company</label>
+                                <input type="text" class="form-control" id="company" placeholder="e.g. Google">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Interview Type *</label>
+                                <select class="form-select" id="interviewType" required>
+                                    <option value="">Select type</option>
+                                    <option value="technical">Technical Interview</option>
+                                    <option value="behavioral">Behavioral Interview</option>
+                                    <option value="general">General Interview</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Experience Level</label>
+                                <select class="form-select" id="experienceLevel">
+                                    <option value="entry">Entry Level</option>
+                                    <option value="mid">Mid Level</option>
+                                    <option value="senior">Senior Level</option>
+                                    <option value="lead">Lead/Manager</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-play-circle me-2"></i>
+                                    Start Mock Interview
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">
+                        <i class="bi bi-lightbulb me-2"></i>
+                        Quick Tips
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="interviewTips">
+                        <p class="text-muted">Select an interview type to see tips</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mock Interview Interface -->
+    <div class="row mb-4" id="mockInterviewSection" style="display: none;">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-chat-dots me-2"></i>
+                        Mock Interview
+                    </h5>
+                    <div>
+                        <span class="badge bg-primary me-2" id="questionCounter">Question 1 of 10</span>
+                        <span class="badge bg-success" id="timer">00:00</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="questionDisplay" class="mb-4">
+                        <h4 id="currentQuestion" class="mb-3">Loading question...</h4>
+                        <div class="progress mb-3" style="height: 6px;">
+                            <div class="progress-bar" id="questionProgress" style="width: 10%"></div>
+                        </div>
+                    </div>
+                    
+                    <div id="answerSection">
+                        <label class="form-label">Your Answer:</label>
+                        <textarea class="form-control" id="answerText" rows="6" placeholder="Type your answer here..."></textarea>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <small class="text-muted" id="answerCounter">0 characters</small>
+                            <div>
+                                <button class="btn btn-outline-secondary me-2" id="skipQuestion">
+                                    <i class="bi bi-skip-forward me-1"></i>
+                                    Skip
+                                </button>
+                                <button class="btn btn-primary" id="submitAnswer">
+                                    <i class="bi bi-send me-1"></i>
+                                    Submit Answer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">
+                        <i class="bi bi-graph-up me-2"></i>
+                        Performance
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <div class="position-relative d-inline-block">
+                            <svg width="120" height="120" class="progress-ring">
+                                <circle cx="60" cy="60" r="50" stroke="#e9ecef" stroke-width="8" fill="transparent"/>
+                                <circle cx="60" cy="60" r="50" stroke="#667eea" stroke-width="8" fill="transparent" 
+                                        stroke-dasharray="314" stroke-dashoffset="251.2" class="progress-ring-circle"/>
+                            </svg>
+                            <div class="position-absolute top-50 start-50 translate-middle">
+                                <h3 class="mb-0" id="overallScore">0</h3>
+                                <small class="text-muted">Score</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>Questions Answered</span>
+                            <span id="questionsAnswered">0/10</span>
+                        </div>
+                        <div class="progress" style="height: 4px;">
+                            <div class="progress-bar" id="questionsProgress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>Average Score</span>
+                            <span id="averageScore">0.0</span>
+                        </div>
+                        <div class="progress" style="height: 4px;">
+                            <div class="progress-bar bg-success" id="scoreProgress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Section -->
+    <div class="row mb-4" id="feedbackSection" style="display: none;">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">
+                        <i class="bi bi-chat-square-text me-2"></i>
+                        AI Feedback
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="feedbackContent">
+                        <!-- Feedback will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interview History -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">
+                        <i class="bi bi-clock-history me-2"></i>
+                        Interview History
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Job Title</th>
+                                    <th>Type</th>
+                                    <th>Score</th>
+                                    <th>Questions</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="interviewHistory">
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">No interview history yet</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.progress-ring {
+    transform: rotate(-90deg);
+}
+
+.progress-ring-circle {
+    transition: stroke-dashoffset 0.35s;
+    transform-origin: 50% 50%;
+}
+
+.feedback-card {
+    border-left: 4px solid #667eea;
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.score-excellent { color: #198754; }
+.score-good { color: #0d6efd; }
+.score-average { color: #fd7e14; }
+.score-poor { color: #dc3545; }
+
+.answer-highlight {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 1rem;
+    border-radius: 4px;
+    margin: 1rem 0;
+}
+</style>
+
+<script>
+let currentQuestions = [];
+let currentQuestionIndex = 0;
+let interviewScores = [];
+let startTime = null;
+let timerInterval = null;
+
+// Interview Setup
+document.getElementById('interviewSetupForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    startMockInterview();
+});
+
+// Interview Type Change
+document.getElementById('interviewType').addEventListener('change', function() {
+    updateInterviewTips();
+});
+
+function updateInterviewTips() {
+    const type = document.getElementById('interviewType').value;
+    const tipsContainer = document.getElementById('interviewTips');
+    
+    const tips = {
+        'technical': [
+            'Practice coding on a whiteboard or paper',
+            'Explain your thought process out loud',
+            'Ask clarifying questions before starting',
+            'Consider edge cases and optimization',
+            'Be honest about what you don\'t know'
+        ],
+        'behavioral': [
+            'Use the STAR method (Situation, Task, Action, Result)',
+            'Prepare specific examples from your experience',
+            'Quantify your achievements when possible',
+            'Show enthusiasm and passion',
+            'Practice your responses beforehand'
+        ],
+        'general': [
+            'Research the company thoroughly',
+            'Prepare thoughtful questions to ask',
+            'Dress appropriately for the company culture',
+            'Arrive early and be prepared',
+            'Follow up with a thank-you email'
+        ]
+    };
+    
+    if (type && tips[type]) {
+        tipsContainer.innerHTML = `
+            <ul class="list-unstyled mb-0">
+                ${tips[type].map(tip => `<li><i class="bi bi-check-circle text-success me-2"></i>${tip}</li>`).join('')}
+            </ul>
+        `;
+    } else {
+        tipsContainer.innerHTML = '<p class="text-muted">Select an interview type to see tips</p>';
+    }
+}
+
+async function startMockInterview() {
+    const jobTitle = document.getElementById('jobTitle').value;
+    const company = document.getElementById('company').value;
+    const interviewType = document.getElementById('interviewType').value;
+    
+    if (!jobTitle || !interviewType) {
+        showToast('Please fill in all required fields', 'error');
+        return;
+    }
+    
+    try {
+        showLoading(document.querySelector('#interviewSetupForm button[type="submit"]'));
+        
+        const response = await fetch('/ai-interview-prep', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                job_title: jobTitle,
+                company: company,
+                interview_type: interviewType
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            currentQuestions = data.questions;
+            currentQuestionIndex = 0;
+            interviewScores = [];
+            
+            document.getElementById('mockInterviewSection').style.display = 'block';
+            document.getElementById('mockInterviewSection').scrollIntoView({ behavior: 'smooth' });
+            
+            displayQuestion();
+            startTimer();
+            
+            showToast('Mock interview started!', 'success');
+        } else {
+            showToast('Failed to start interview', 'error');
+        }
+        
+    } catch (error) {
+        console.error('Error starting interview:', error);
+        showToast('Failed to start interview', 'error');
+    } finally {
+        hideLoading(document.querySelector('#interviewSetupForm button[type="submit"]'));
+    }
+}
+
+function displayQuestion() {
+    if (currentQuestionIndex < currentQuestions.length) {
+        const question = currentQuestions[currentQuestionIndex];
+        document.getElementById('currentQuestion').textContent = question;
+        document.getElementById('questionCounter').textContent = `Question ${currentQuestionIndex + 1} of ${currentQuestions.length}`;
+        document.getElementById('questionProgress').style.width = `${((currentQuestionIndex + 1) / currentQuestions.length) * 100}%`;
+        document.getElementById('answerText').value = '';
+        updateAnswerCounter();
+    } else {
+        finishInterview();
+    }
+}
+
+function updateAnswerCounter() {
+    const textarea = document.getElementById('answerText');
+    const counter = document.getElementById('answerCounter');
+    textarea.addEventListener('input', function() {
+        counter.textContent = `${this.value.length} characters`;
+    });
+}
+
+function startTimer() {
+    startTime = new Date();
+    timerInterval = setInterval(updateTimer, 1000);
+}
+
+function updateTimer() {
+    const now = new Date();
+    const diff = Math.floor((now - startTime) / 1000);
+    const minutes = Math.floor(diff / 60);
+    const seconds = diff % 60;
+    document.getElementById('timer').textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+async function submitAnswer() {
+    const answer = document.getElementById('answerText').value.trim();
+    if (!answer) {
+        showToast('Please provide an answer', 'warning');
+        return;
+    }
+    
+    const jobTitle = document.getElementById('jobTitle').value;
+    const question = currentQuestions[currentQuestionIndex];
+    
+    try {
+        showLoading(document.getElementById('submitAnswer'));
+        
+        const response = await fetch('/api/practice-interview', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                question: question,
+                answer: answer,
+                job_title: jobTitle
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            interviewScores.push(data.score);
+            updatePerformance();
+            showAnswerFeedback(data.feedback);
+            
+            currentQuestionIndex++;
+            setTimeout(displayQuestion, 2000);
+        } else {
+            showToast('Failed to analyze answer', 'error');
+        }
+        
+    } catch (error) {
+        console.error('Error submitting answer:', error);
+        showToast('Failed to analyze answer', 'error');
+    } finally {
+        hideLoading(document.getElementById('submitAnswer'));
+    }
+}
+
+function showAnswerFeedback(feedback) {
+    const feedbackSection = document.getElementById('feedbackSection');
+    const feedbackContent = document.getElementById('feedbackContent');
+    
+    feedbackContent.innerHTML = `
+        <div class="feedback-card">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="mb-0">Answer Feedback</h6>
+                <span class="badge bg-primary">Score: ${feedback.score}/10</span>
+            </div>
+            <div class="answer-highlight">
+                <strong>Question:</strong> ${currentQuestions[currentQuestionIndex]}
+            </div>
+            <div class="mb-3">
+                <strong>Suggestions:</strong>
+                <ul class="mb-0">
+                    ${feedback.suggestions.map(suggestion => `<li>${suggestion}</li>`).join('')}
+                </ul>
+            </div>
+        </div>
+    `;
+    
+    feedbackSection.style.display = 'block';
+    feedbackSection.scrollIntoView({ behavior: 'smooth' });
+}
+
+function updatePerformance() {
+    const answered = currentQuestionIndex + 1;
+    const total = currentQuestions.length;
+    const average = interviewScores.length > 0 ? (interviewScores.reduce((a, b) => a + b, 0) / interviewScores.length).toFixed(1) : 0;
+    
+    document.getElementById('questionsAnswered').textContent = `${answered}/${total}`;
+    document.getElementById('questionsProgress').style.width = `${(answered / total) * 100}%`;
+    document.getElementById('averageScore').textContent = average;
+    document.getElementById('scoreProgress').style.width = `${(average / 10) * 100}%`;
+    
+    // Update overall score
+    const overallScore = Math.round(average);
+    document.getElementById('overallScore').textContent = overallScore;
+    
+    // Update progress ring
+    const circle = document.querySelector('.progress-ring-circle');
+    const radius = circle.r.baseVal.value;
+    const circumference = radius * 2 * Math.PI;
+    const offset = circumference - (overallScore / 10 * circumference);
+    circle.style.strokeDashoffset = offset;
+}
+
+function finishInterview() {
+    clearInterval(timerInterval);
+    
+    const totalTime = Math.floor((new Date() - startTime) / 1000);
+    const averageScore = interviewScores.length > 0 ? (interviewScores.reduce((a, b) => a + b, 0) / interviewScores.length).toFixed(1) : 0;
+    
+    document.getElementById('mockInterviewSection').style.display = 'none';
+    
+    showToast(`Interview completed! Average score: ${averageScore}/10`, 'success');
+    
+    // Save interview to history
+    saveInterviewToHistory(averageScore, totalTime);
+}
+
+function saveInterviewToHistory(score, time) {
+    const jobTitle = document.getElementById('jobTitle').value;
+    const interviewType = document.getElementById('interviewType').value;
+    const date = new Date().toLocaleDateString();
+    
+    const historyRow = `
+        <tr>
+            <td>${date}</td>
+            <td>${jobTitle}</td>
+            <td><span class="badge bg-primary">${interviewType}</span></td>
+            <td><span class="badge bg-success">${score}/10</span></td>
+            <td>${currentQuestions.length}</td>
+            <td>
+                <button class="btn btn-sm btn-outline-primary">View Details</button>
+            </td>
+        </tr>
+    `;
+    
+    const historyTable = document.getElementById('interviewHistory');
+    if (historyTable.querySelector('td[colspan]')) {
+        historyTable.innerHTML = historyRow;
+    } else {
+        historyTable.insertAdjacentHTML('afterbegin', historyRow);
+    }
+}
+
+// Event listeners
+document.getElementById('submitAnswer').addEventListener('click', submitAnswer);
+document.getElementById('skipQuestion').addEventListener('click', function() {
+    currentQuestionIndex++;
+    displayQuestion();
+});
+
+// Initialize
+updateInterviewTips();
+</script>
+{% endblock %}
