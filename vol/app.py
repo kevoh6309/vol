@@ -1996,6 +1996,220 @@ def security_monitoring(response):
     
     return response
 
+@app.route('/api/auto-save-resume', methods=['POST'])
+@login_required
+def auto_save_resume():
+    """Auto-save resume data via AJAX"""
+    try:
+        data = request.form.to_dict()
+        
+        # Validate required fields
+        required_fields = ['name', 'email', 'phone', 'summary', 'education', 'experience', 'skills', 'languages']
+        for field in required_fields:
+            if not data.get(field):
+                return jsonify({'success': False, 'error': f'Missing required field: {field}'}), 400
+        
+        # Check if resume exists (by name and user)
+        existing_resume = Resume.query.filter_by(
+            name=data['name'], 
+            user_id=current_user.id
+        ).first()
+        
+        if existing_resume:
+            # Update existing resume
+            existing_resume.email = sanitize_input(data['email'])
+            existing_resume.phone = sanitize_input(data['phone'])
+            existing_resume.address = sanitize_input(data.get('address', ''))
+            existing_resume.linkedin = sanitize_input(data.get('linkedin', ''))
+            existing_resume.summary = sanitize_input(data['summary'])
+            existing_resume.education = sanitize_input(data['education'])
+            existing_resume.experience = sanitize_input(data['experience'])
+            existing_resume.skills = sanitize_input(data['skills'])
+            existing_resume.certifications = sanitize_input(data.get('certifications', ''))
+            existing_resume.languages = sanitize_input(data['languages'])
+            existing_resume.template = sanitize_input(data.get('template', 'modern'))
+            existing_resume.updated_at = datetime.now(timezone.utc)
+            
+            db.session.commit()
+            logger.info(f"Auto-saved existing resume: {existing_resume.name} for user {current_user.id}")
+            
+            return jsonify({
+                'success': True, 
+                'message': 'Resume auto-saved successfully',
+                'resume_id': existing_resume.id,
+                'action': 'updated'
+            })
+        else:
+            # Create new resume
+            new_resume = Resume(
+                name=sanitize_input(data['name']),
+                email=sanitize_input(data['email']),
+                phone=sanitize_input(data['phone']),
+                address=sanitize_input(data.get('address', '')),
+                linkedin=sanitize_input(data.get('linkedin', '')),
+                summary=sanitize_input(data['summary']),
+                education=sanitize_input(data['education']),
+                experience=sanitize_input(data['experience']),
+                skills=sanitize_input(data['skills']),
+                certifications=sanitize_input(data.get('certifications', '')),
+                languages=sanitize_input(data['languages']),
+                template=sanitize_input(data.get('template', 'modern')),
+                pdf_engine=data.get('pdf_engine', 'weasyprint'),
+                user_id=current_user.id
+            )
+            
+            db.session.add(new_resume)
+            db.session.commit()
+            logger.info(f"Auto-saved new resume: {new_resume.name} for user {current_user.id}")
+            
+            return jsonify({
+                'success': True, 
+                'message': 'Resume auto-saved successfully',
+                'resume_id': new_resume.id,
+                'action': 'created'
+            })
+            
+    except Exception as e:
+        logger.error(f"Auto-save error: {e}")
+        db.session.rollback()
+        return jsonify({'success': False, 'error': 'Failed to auto-save resume'}), 500
+
+@app.route('/api/resume-stats', methods=['GET'])
+@login_required
+def get_resume_stats():
+    """Get resume statistics for dashboard"""
+    try:
+        user_resumes = Resume.query.filter_by(user_id=current_user.id).all()
+        
+        stats = {
+            'total_resumes': len(user_resumes),
+            'recent_activity': [],
+            'template_usage': {},
+            'completion_rate': 0
+        }
+        
+        # Calculate completion rate
+        if user_resumes:
+            completed = sum(1 for r in user_resumes if r.summary and r.experience and r.skills)
+            stats['completion_rate'] = round((completed / len(user_resumes)) * 100, 1)
+        
+        # Template usage
+        for resume in user_resumes:
+            template = resume.template or 'modern'
+            stats['template_usage'][template] = stats['template_usage'].get(template, 0) + 1
+        
+        # Recent activity (last 5 resumes)
+        recent_resumes = sorted(user_resumes, key=lambda x: x.updated_at or x.created_at, reverse=True)[:5]
+        for resume in recent_resumes:
+            stats['recent_activity'].append({
+                'id': resume.id,
+                'name': resume.name,
+                'action': 'updated' if resume.updated_at else 'created',
+                'date': (resume.updated_at or resume.created_at).strftime('%Y-%m-%d %H:%M'),
+                'template': resume.template or 'modern'
+            })
+        
+        return jsonify(stats)
+        
+    except Exception as e:
+        logger.error(f"Error getting resume stats: {e}")
+        return jsonify({'error': 'Failed to get statistics'}), 500
+
+@app.route('/api/ai-suggestions', methods=['POST'])
+@login_required
+def get_ai_suggestions():
+    """Get AI-powered suggestions for resume sections"""
+    try:
+        data = request.get_json()
+        section = data.get('section')
+        context = data.get('context', '')
+        
+        if not section:
+            return jsonify({'error': 'Section is required'}), 400
+        
+        # AI suggestion prompts
+        prompts = {
+            'summary': f"Write a professional summary for a resume. Context: {context}",
+            'experience': f"Suggest work experience descriptions. Context: {context}",
+            'skills': f"Suggest relevant skills for a resume. Context: {context}",
+            'education': f"Suggest education section content. Context: {context}"
+        }
+        
+        if section not in prompts:
+            return jsonify({'error': 'Invalid section'}), 400
+        
+        # Use AI to generate suggestions
+        try:
+            suggestion = generate_ai_suggestion(prompts[section])
+            return jsonify({
+                'success': True,
+                'suggestion': suggestion,
+                'section': section
+            })
+        except Exception as ai_error:
+            logger.error(f"AI suggestion error: {ai_error}")
+            return jsonify({
+                'success': False,
+                'error': 'AI suggestions temporarily unavailable',
+                'fallback': get_fallback_suggestion(section)
+            })
+            
+    except Exception as e:
+        logger.error(f"AI suggestions error: {e}")
+        return jsonify({'error': 'Failed to get suggestions'}), 500
+
+def generate_ai_suggestion(prompt):
+    """Generate AI suggestion using available APIs"""
+    try:
+        # Try Gemini first
+        if os.getenv('GEMINI_API_KEY'):
+            import google.generativeai as genai
+            genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
+            model = genai.GenerativeModel('gemini-pro')
+            response = model.generate_content(prompt)
+            return response.text.strip()
+        
+        # Try Cohere
+        elif os.getenv('COHERE_API_KEY'):
+            import cohere
+            co = cohere.Client(os.getenv('COHERE_API_KEY'))
+            response = co.generate(
+                model='command',
+                prompt=prompt,
+                max_tokens=200,
+                temperature=0.7
+            )
+            return response.generations[0].text.strip()
+        
+        # Try OpenRouter
+        elif os.getenv('OPENROUTER_API_KEY'):
+            import openai
+            openai.api_key = os.getenv('OPENROUTER_API_KEY')
+            openai.api_base = "https://openrouter.ai/api/v1"
+            response = openai.ChatCompletion.create(
+                model="openai/gpt-3.5-turbo",
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=200
+            )
+            return response.choices[0].message.content.strip()
+        
+        else:
+            raise Exception("No AI API keys configured")
+            
+    except Exception as e:
+        logger.error(f"AI generation error: {e}")
+        raise e
+
+def get_fallback_suggestion(section):
+    """Get fallback suggestions when AI is unavailable"""
+    fallbacks = {
+        'summary': "Experienced professional with strong skills in [your field]. Proven track record of [key achievements]. Passionate about [your interests] and committed to delivering exceptional results.",
+        'experience': "• Led and managed [specific project/team]\n• Increased [metric] by [percentage]\n• Collaborated with cross-functional teams\n• Implemented [specific solution]",
+        'skills': "Technical Skills: [List your technical skills]\nSoft Skills: Communication, Leadership, Problem-solving\nTools: [List relevant tools and software]",
+        'education': "Bachelor's Degree in [Field] - [University Name] (Year)\nRelevant Coursework: [List relevant courses]\nGPA: [if applicable]"
+    }
+    return fallbacks.get(section, "Please provide more context for better suggestions.")
+
 if __name__ == '__main__':
     logger.info("Starting Flask application...")
     app.run(debug=True, host='0.0.0.0', port=5000) 

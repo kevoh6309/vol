@@ -1,100 +1,195 @@
 {% extends 'base.html' %}
 {% block title %}ResumeBuilder Pro - Professional Resume Builder with AI{% endblock %}
 {% block content %}
-
 <!-- Hero Section -->
-<section class="hero-section py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 80vh; display: flex; align-items: center;">
+<section class="hero-section position-relative overflow-hidden">
     <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-6 text-white">
-                <h1 class="display-3 fw-bold mb-4">Build Professional Resumes That Get You Hired</h1>
-                <p class="lead mb-4">Create stunning resumes with AI-powered suggestions, modern templates, and expert guidance. Stand out from the crowd and land your dream job.</p>
-                <div class="d-flex flex-wrap gap-3 mb-4">
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-check-circle-fill text-success me-2"></i>
-                        <span>AI-Powered Suggestions</span>
-                    </div>
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-check-circle-fill text-success me-2"></i>
-                        <span>ATS-Optimized Templates</span>
-                    </div>
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-check-circle-fill text-success me-2"></i>
-                        <span>Real-time Preview</span>
-                    </div>
-                </div>
-                <div class="d-flex flex-wrap gap-3">
-                    <a href="/register" class="btn btn-light btn-lg px-4 py-3 fw-bold">
-                        <i class="bi bi-rocket-takeoff me-2"></i>Start Building Free
-                    </a>
-                    <a href="#features" class="btn btn-outline-light btn-lg px-4 py-3">
-                        <i class="bi bi-play-circle me-2"></i>See How It Works
-                    </a>
-                </div>
-            </div>
-            <div class="col-lg-6 d-none d-lg-block">
-                <div class="position-relative">
-                    <img src="/static/resume-illustration.png" alt="Professional Resume Builder" class="img-fluid rounded-3 shadow-lg" style="max-height: 500px;">
-                    <div class="position-absolute top-0 start-0 bg-white rounded-3 p-3 shadow-lg" style="transform: translate(-20px, -20px);">
-                        <div class="d-flex align-items-center">
-                            <i class="bi bi-star-fill text-warning me-2"></i>
-                            <span class="fw-bold">4.9/5 Rating</span>
+        <div class="row align-items-center min-vh-100">
+            <div class="col-lg-6">
+                <div class="hero-content">
+                    <h1 class="display-3 fw-bold text-gradient mb-4">
+                        Build Professional Resumes with 
+                        <span class="text-primary">AI-Powered</span> Intelligence
+                    </h1>
+                    <p class="lead text-muted mb-4">
+                        Create stunning, ATS-optimized resumes in minutes. Our AI helps you craft compelling content, 
+                        choose the perfect template, and land your dream job faster.
+                    </p>
+                    <div class="hero-stats d-flex gap-4 mb-4">
+                        <div class="stat-item text-center">
+                            <h3 class="fw-bold text-primary mb-1">50K+</h3>
+                            <small class="text-muted">Resumes Created</small>
+                        </div>
+                        <div class="stat-item text-center">
+                            <h3 class="fw-bold text-success mb-1">95%</h3>
+                            <small class="text-muted">Success Rate</small>
+                        </div>
+                        <div class="stat-item text-center">
+                            <h3 class="fw-bold text-warning mb-1">4.9★</h3>
+                            <small class="text-muted">User Rating</small>
                         </div>
                     </div>
-                    <div class="position-absolute bottom-0 end-0 bg-primary text-white rounded-3 p-3 shadow-lg" style="transform: translate(20px, 20px);">
-                        <div class="text-center">
-                            <div class="fw-bold">10,000+</div>
-                            <small>Resumes Created</small>
+                    <div class="hero-buttons d-flex gap-3 flex-wrap">
+                        <a href="{{ url_for('create_resume') }}" class="btn btn-primary btn-lg px-4 py-3">
+                            <i class="bi bi-plus-circle me-2"></i>
+                            Create Free Resume
+                        </a>
+                        <a href="#features" class="btn btn-outline-primary btn-lg px-4 py-3">
+                            <i class="bi bi-play-circle me-2"></i>
+                            Watch Demo
+                        </a>
+                    </div>
+                    <div class="trust-badges mt-4">
+                        <small class="text-muted">
+                            <i class="bi bi-shield-check me-1"></i>
+                            Secure & Private • 
+                            <i class="bi bi-lightning me-1"></i>
+                            No Credit Card Required
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="hero-visual text-center">
+                    <div class="resume-preview position-relative">
+                        <div class="resume-card shadow-lg">
+                            <div class="resume-header bg-primary text-white p-3">
+                                <h4 class="mb-1">John Doe</h4>
+                                <p class="mb-0">Software Engineer</p>
+                            </div>
+                            <div class="resume-body p-4">
+                                <div class="section mb-3">
+                                    <h6 class="text-primary">Experience</h6>
+                                    <p class="small mb-1">Senior Developer at TechCorp</p>
+                                    <p class="small text-muted">Led team of 5 developers...</p>
+                                </div>
+                                <div class="section">
+                                    <h6 class="text-primary">Skills</h6>
+                                    <div class="skill-tags">
+                                        <span class="badge bg-light text-dark me-1">Python</span>
+                                        <span class="badge bg-light text-dark me-1">React</span>
+                                        <span class="badge bg-light text-dark">AWS</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="floating-elements">
+                            <div class="floating-icon bg-success text-white" style="top: 20%; left: -10%;">
+                                <i class="bi bi-check-circle"></i>
+                            </div>
+                            <div class="floating-icon bg-warning text-white" style="top: 60%; right: -10%;">
+                                <i class="bi bi-star"></i>
+                            </div>
+                            <div class="floating-icon bg-info text-white" style="bottom: 20%; left: 10%;">
+                                <i class="bi bi-lightning"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <div class="hero-bg-shape"></div>
 </section>
 
 <!-- Features Section -->
 <section id="features" class="py-5 bg-light">
     <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="display-5 fw-bold mb-3">Why Choose ResumeBuilder Pro?</h2>
-            <p class="lead text-muted">Everything you need to create a professional resume that stands out</p>
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold mb-3">Why Choose ResumeBuilder Pro?</h2>
+                <p class="lead text-muted">Everything you need to create a winning resume</p>
+            </div>
         </div>
         
         <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                            <i class="bi bi-robot text-primary" style="font-size: 2rem;"></i>
-                        </div>
-                        <h4 class="fw-bold mb-3">AI-Powered Assistant</h4>
-                        <p class="text-muted">Get intelligent suggestions for content, keywords, and formatting to make your resume ATS-friendly and compelling.</p>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card text-center p-4 h-100">
+                    <div class="feature-icon bg-primary bg-gradient text-white rounded-circle mx-auto mb-3">
+                        <i class="bi bi-robot fs-1"></i>
                     </div>
+                    <h4 class="mb-3">AI-Powered Writing</h4>
+                    <p class="text-muted">Our advanced AI helps you write compelling content, suggests improvements, and optimizes for ATS systems.</p>
+                    <ul class="list-unstyled text-start">
+                        <li><i class="bi bi-check text-success me-2"></i>Smart content suggestions</li>
+                        <li><i class="bi bi-check text-success me-2"></i>ATS optimization</li>
+                        <li><i class="bi bi-check text-success me-2"></i>Grammar & style checking</li>
+                    </ul>
                 </div>
             </div>
             
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                            <i class="bi bi-palette text-success" style="font-size: 2rem;"></i>
-                        </div>
-                        <h4 class="fw-bold mb-3">Modern Templates</h4>
-                        <p class="text-muted">Choose from professionally designed templates that are optimized for different industries and job levels.</p>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card text-center p-4 h-100">
+                    <div class="feature-icon bg-success bg-gradient text-white rounded-circle mx-auto mb-3">
+                        <i class="bi bi-palette fs-1"></i>
                     </div>
+                    <h4 class="mb-3">Professional Templates</h4>
+                    <p class="text-muted">Choose from 20+ professionally designed templates that work across all industries and experience levels.</p>
+                    <ul class="list-unstyled text-start">
+                        <li><i class="bi bi-check text-success me-2"></i>Industry-specific designs</li>
+                        <li><i class="bi bi-check text-success me-2"></i>Customizable colors</li>
+                        <li><i class="bi bi-check text-success me-2"></i>Mobile-responsive</li>
+                    </ul>
                 </div>
             </div>
             
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                            <i class="bi bi-graph-up text-warning" style="font-size: 2rem;"></i>
-                        </div>
-                        <h4 class="fw-bold mb-3">Job Tracking</h4>
-                        <p class="text-muted">Track your job applications, interviews, and follow-ups all in one place. Never miss an opportunity again.</p>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card text-center p-4 h-100">
+                    <div class="feature-icon bg-warning bg-gradient text-white rounded-circle mx-auto mb-3">
+                        <i class="bi bi-speedometer2 fs-1"></i>
                     </div>
+                    <h4 class="mb-3">Real-time Preview</h4>
+                    <p class="text-muted">See your resume come to life as you type. Make instant changes and preview the final result immediately.</p>
+                    <ul class="list-unstyled text-start">
+                        <li><i class="bi bi-check text-success me-2"></i>Live preview</li>
+                        <li><i class="bi bi-check text-success me-2"></i>Auto-save</li>
+                        <li><i class="bi bi-check text-success me-2"></i>Multiple formats</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card text-center p-4 h-100">
+                    <div class="feature-icon bg-info bg-gradient text-white rounded-circle mx-auto mb-3">
+                        <i class="bi bi-graph-up fs-1"></i>
+                    </div>
+                    <h4 class="mb-3">Analytics & Insights</h4>
+                    <p class="text-muted">Track your resume performance, get insights on improvements, and monitor your job search progress.</p>
+                    <ul class="list-unstyled text-start">
+                        <li><i class="bi bi-check text-success me-2"></i>Performance tracking</li>
+                        <li><i class="bi bi-check text-success me-2"></i>Improvement suggestions</li>
+                        <li><i class="bi bi-check text-success me-2"></i>Progress analytics</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card text-center p-4 h-100">
+                    <div class="feature-icon bg-danger bg-gradient text-white rounded-circle mx-auto mb-3">
+                        <i class="bi bi-shield-check fs-1"></i>
+                    </div>
+                    <h4 class="mb-3">Enterprise Security</h4>
+                    <p class="text-muted">Your data is protected with enterprise-grade security. We never share your personal information.</p>
+                    <ul class="list-unstyled text-start">
+                        <li><i class="bi bi-check text-success me-2"></i>SSL encryption</li>
+                        <li><i class="bi bi-check text-success me-2"></i>GDPR compliant</li>
+                        <li><i class="bi bi-check text-success me-2"></i>Regular backups</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card text-center p-4 h-100">
+                    <div class="feature-icon bg-secondary bg-gradient text-white rounded-circle mx-auto mb-3">
+                        <i class="bi bi-headset fs-1"></i>
+                    </div>
+                    <h4 class="mb-3">24/7 Support</h4>
+                    <p class="text-muted">Get help whenever you need it. Our support team is available around the clock to assist you.</p>
+                    <ul class="list-unstyled text-start">
+                        <li><i class="bi bi-check text-success me-2"></i>Live chat support</li>
+                        <li><i class="bi bi-check text-success me-2"></i>Email assistance</li>
+                        <li><i class="bi bi-check text-success me-2"></i>Video tutorials</li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -104,34 +199,45 @@
 <!-- How It Works Section -->
 <section class="py-5">
     <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="display-5 fw-bold mb-3">How It Works</h2>
-            <p class="lead text-muted">Create your professional resume in just 3 simple steps</p>
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold mb-3">How It Works</h2>
+                <p class="lead text-muted">Create your professional resume in just 3 simple steps</p>
+            </div>
         </div>
         
         <div class="row g-4">
-            <div class="col-md-4 text-center">
-                <div class="position-relative mb-4">
-                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center fw-bold" style="width: 60px; height: 60px; font-size: 1.5rem;">1</div>
+            <div class="col-lg-4">
+                <div class="step-card text-center p-4">
+                    <div class="step-number bg-primary text-white rounded-circle mx-auto mb-3">1</div>
+                    <h4 class="mb-3">Fill Your Details</h4>
+                    <p class="text-muted">Enter your information using our intuitive form. Our AI will help you write compelling content.</p>
+                    <div class="step-icon mt-3">
+                        <i class="bi bi-pencil-square text-primary fs-1"></i>
+                    </div>
                 </div>
-                <h4 class="fw-bold mb-3">Fill Your Details</h4>
-                <p class="text-muted">Enter your personal information, work experience, education, and skills in our intuitive form.</p>
             </div>
             
-            <div class="col-md-4 text-center">
-                <div class="position-relative mb-4">
-                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center fw-bold" style="width: 60px; height: 60px; font-size: 1.5rem;">2</div>
+            <div class="col-lg-4">
+                <div class="step-card text-center p-4">
+                    <div class="step-number bg-success text-white rounded-circle mx-auto mb-3">2</div>
+                    <h4 class="mb-3">Choose Template</h4>
+                    <p class="text-muted">Select from our collection of professional templates designed for your industry and experience level.</p>
+                    <div class="step-icon mt-3">
+                        <i class="bi bi-palette text-success fs-1"></i>
+                    </div>
                 </div>
-                <h4 class="fw-bold mb-3">Choose Template</h4>
-                <p class="text-muted">Select from our collection of professional templates designed for different industries and experience levels.</p>
             </div>
             
-            <div class="col-md-4 text-center">
-                <div class="position-relative mb-4">
-                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center fw-bold" style="width: 60px; height: 60px; font-size: 1.5rem;">3</div>
+            <div class="col-lg-4">
+                <div class="step-card text-center p-4">
+                    <div class="step-number bg-warning text-white rounded-circle mx-auto mb-3">3</div>
+                    <h4 class="mb-3">Download & Apply</h4>
+                    <p class="text-muted">Download your resume in PDF or Word format and start applying to your dream jobs immediately.</p>
+                    <div class="step-icon mt-3">
+                        <i class="bi bi-download text-warning fs-1"></i>
+                    </div>
                 </div>
-                <h4 class="fw-bold mb-3">Download & Apply</h4>
-                <p class="text-muted">Download your professional resume in multiple formats and start applying to your dream jobs.</p>
             </div>
         </div>
     </div>
@@ -140,75 +246,124 @@
 <!-- Testimonials Section -->
 <section class="py-5 bg-light">
     <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="display-5 fw-bold mb-3">What Our Users Say</h2>
-            <p class="lead text-muted">Join thousands of professionals who have landed their dream jobs</p>
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold mb-3">What Our Users Say</h2>
+                <p class="lead text-muted">Join thousands of professionals who landed their dream jobs</p>
+            </div>
         </div>
         
         <div class="row g-4">
             <div class="col-lg-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-center mb-3">
-                            <img src="/static/avatar1.png" class="rounded-circle me-3" width="60" height="60" alt="Sarah Johnson">
-                            <div>
-                                <h5 class="fw-bold mb-1">Sarah Johnson</h5>
-                                <span class="badge bg-warning text-dark">Software Engineer</span>
-                            </div>
+                <div class="testimonial-card p-4 h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah" alt="Sarah" class="rounded-circle me-3" width="50">
+                        <div>
+                            <h6 class="mb-1">Sarah Johnson</h6>
+                            <small class="text-muted">Software Engineer at Google</small>
                         </div>
-                        <p class="mb-3">"ResumeBuilder Pro helped me create a stunning resume that got me interviews at top tech companies. The AI suggestions were incredibly helpful!"</p>
-                        <div class="text-warning">
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                        </div>
+                    </div>
+                    <p class="mb-3">"ResumeBuilder Pro helped me create a stunning resume that got me interviews at top tech companies. The AI suggestions were incredibly helpful!"</p>
+                    <div class="stars text-warning">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
                     </div>
                 </div>
             </div>
             
             <div class="col-lg-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-center mb-3">
-                            <img src="/static/avatar2.png" class="rounded-circle me-3" width="60" height="60" alt="Michael Chen">
-                            <div>
-                                <h5 class="fw-bold mb-1">Michael Chen</h5>
-                                <span class="badge bg-success">Marketing Manager</span>
-                            </div>
+                <div class="testimonial-card p-4 h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Mike" alt="Mike" class="rounded-circle me-3" width="50">
+                        <div>
+                            <h6 class="mb-1">Mike Chen</h6>
+                            <small class="text-muted">Marketing Manager at Apple</small>
                         </div>
-                        <p class="mb-3">"The job tracking feature is a game-changer. I landed my dream job within 2 weeks of using ResumeBuilder Pro!"</p>
-                        <div class="text-warning">
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                        </div>
+                    </div>
+                    <p class="mb-3">"The templates are professional and the real-time preview feature saved me hours. I got my dream job within 2 weeks of using this tool!"</p>
+                    <div class="stars text-warning">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
                     </div>
                 </div>
             </div>
             
             <div class="col-lg-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-center mb-3">
-                            <img src="/static/avatar3.png" class="rounded-circle me-3" width="60" height="60" alt="Emily Rodriguez">
-                            <div>
-                                <h5 class="fw-bold mb-1">Emily Rodriguez</h5>
-                                <span class="badge bg-info">UX Designer</span>
-                            </div>
-                        </div>
-                        <p class="mb-3">"The modern templates are beautiful and professional. I love how easy it is to customize everything to match my personal brand."</p>
-                        <div class="text-warning">
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
+                <div class="testimonial-card p-4 h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Emily" alt="Emily" class="rounded-circle me-3" width="50">
+                        <div>
+                            <h6 class="mb-1">Emily Rodriguez</h6>
+                            <small class="text-muted">UX Designer at Netflix</small>
                         </div>
                     </div>
+                    <p class="mb-3">"As a designer, I appreciate the beautiful templates and customization options. The AI suggestions helped me highlight my achievements perfectly."</p>
+                    <div class="stars text-warning">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Pricing Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold mb-3">Choose Your Plan</h2>
+                <p class="lead text-muted">Start free, upgrade when you're ready</p>
+            </div>
+        </div>
+        
+        <div class="row g-4 justify-content-center">
+            <div class="col-lg-4 col-md-6">
+                <div class="pricing-card p-4 text-center h-100">
+                    <h4 class="mb-3">Free</h4>
+                    <div class="price mb-3">
+                        <span class="display-4 fw-bold">$0</span>
+                        <span class="text-muted">/month</span>
+                    </div>
+                    <ul class="list-unstyled mb-4">
+                        <li class="mb-2"><i class="bi bi-check text-success me-2"></i>3 Resume Templates</li>
+                        <li class="mb-2"><i class="bi bi-check text-success me-2"></i>Basic AI Suggestions</li>
+                        <li class="mb-2"><i class="bi bi-check text-success me-2"></i>PDF Download</li>
+                        <li class="mb-2"><i class="bi bi-check text-success me-2"></i>Email Support</li>
+                        <li class="mb-2 text-muted"><i class="bi bi-x text-muted me-2"></i>Premium Templates</li>
+                        <li class="mb-2 text-muted"><i class="bi bi-x text-muted me-2"></i>Advanced Analytics</li>
+                    </ul>
+                    <a href="{{ url_for('create_resume') }}" class="btn btn-outline-primary w-100">Get Started Free</a>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="pricing-card p-4 text-center h-100 border-primary">
+                    <div class="badge bg-primary mb-3">Most Popular</div>
+                    <h4 class="mb-3">Pro</h4>
+                    <div class="price mb-3">
+                        <span class="display-4 fw-bold">$9</span>
+                        <span class="text-muted">/month</span>
+                    </div>
+                    <ul class="list-unstyled mb-4">
+                        <li class="mb-2"><i class="bi bi-check text-success me-2"></i>20+ Premium Templates</li>
+                        <li class="mb-2"><i class="bi bi-check text-success me-2"></i>Advanced AI Writing</li>
+                        <li class="mb-2"><i class="bi bi-check text-success me-2"></i>Unlimited Resumes</li>
+                        <li class="mb-2"><i class="bi bi-check text-success me-2"></i>Word & PDF Export</li>
+                        <li class="mb-2"><i class="bi bi-check text-success me-2"></i>Priority Support</li>
+                        <li class="mb-2"><i class="bi bi-check text-success me-2"></i>Analytics Dashboard</li>
+                    </ul>
+                    <a href="{{ url_for('upgrade') }}" class="btn btn-primary w-100">Start Pro Trial</a>
                 </div>
             </div>
         </div>
@@ -216,26 +371,230 @@
 </section>
 
 <!-- CTA Section -->
-<section class="py-5" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
-    <div class="container text-center text-white">
-        <h2 class="display-5 fw-bold mb-4">Ready to Land Your Dream Job?</h2>
-        <p class="lead mb-4">Join thousands of professionals who have transformed their careers with ResumeBuilder Pro</p>
-        <div class="d-flex flex-wrap justify-content-center gap-3">
-            <a href="/register" class="btn btn-light btn-lg px-5 py-3 fw-bold">
-                <i class="bi bi-rocket-takeoff me-2"></i>Start Building Free
+<section class="py-5 bg-primary text-white">
+    <div class="container text-center">
+        <h2 class="display-5 fw-bold mb-3">Ready to Land Your Dream Job?</h2>
+        <p class="lead mb-4">Join 50,000+ professionals who have already created winning resumes</p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a href="{{ url_for('create_resume') }}" class="btn btn-light btn-lg px-4">
+                <i class="bi bi-plus-circle me-2"></i>
+                Create Your Resume
             </a>
-            <a href="/login" class="btn btn-outline-light btn-lg px-5 py-3">
-                <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+            <a href="{{ url_for('register') }}" class="btn btn-outline-light btn-lg px-4">
+                <i class="bi bi-person-plus me-2"></i>
+                Sign Up Free
             </a>
         </div>
-        <p class="mt-3 text-white-50">No credit card required • Free forever plan available</p>
     </div>
 </section>
 
-<!-- Ad-Free Notice -->
-{{ ad_free_notice() }}
+<style>
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
 
-<!-- In-Content Ad -->
-{{ in_content_ad() }}
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="rgba(255,255,255,0.1)" points="0,1000 1000,0 1000,1000"/></svg>');
+    background-size: cover;
+}
 
+.text-gradient {
+    background: linear-gradient(45deg, #fff, #f8f9fa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.resume-preview {
+    position: relative;
+    animation: float 6s ease-in-out infinite;
+}
+
+.resume-card {
+    background: white;
+    border-radius: 12px;
+    max-width: 300px;
+    margin: 0 auto;
+    transform: rotate(-5deg);
+}
+
+.floating-elements {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+}
+
+.floating-icon {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: bounce 3s ease-in-out infinite;
+}
+
+.floating-icon:nth-child(2) {
+    animation-delay: 1s;
+}
+
+.floating-icon:nth-child(3) {
+    animation-delay: 2s;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(-5deg); }
+    50% { transform: translateY(-20px) rotate(-5deg); }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Feature Cards */
+.feature-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid #e9ecef;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+}
+
+.feature-icon {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Step Cards */
+.step-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+    transition: transform 0.3s ease;
+}
+
+.step-card:hover {
+    transform: translateY(-5px);
+}
+
+.step-number {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* Testimonial Cards */
+.testimonial-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+    border: 1px solid #e9ecef;
+}
+
+/* Pricing Cards */
+.pricing-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+    border: 2px solid transparent;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.pricing-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+}
+
+.pricing-card.border-primary {
+    border-color: #667eea;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-section {
+        text-align: center;
+    }
+    
+    .hero-stats {
+        justify-content: center;
+    }
+    
+    .hero-buttons {
+        justify-content: center;
+    }
+    
+    .resume-card {
+        transform: none;
+        margin-top: 2rem;
+    }
+}
+</style>
+
+<script>
+// Animate elements on scroll
+document.addEventListener('DOMContentLoaded', function() {
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+    
+    // Observe all cards
+    document.querySelectorAll('.feature-card, .step-card, .testimonial-card, .pricing-card').forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(30px)';
+        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(card);
+    });
+});
+
+// Smooth scroll for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
+</script>
 {% endblock %} 

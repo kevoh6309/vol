@@ -1,380 +1,460 @@
-{% extends "base.html" %}
-
+{% extends 'base.html' %}
 {% block title %}Dashboard - ResumeBuilder Pro{% endblock %}
-
 {% block content %}
-<style>
-.dash-bg {
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    min-height: 100vh;
-    padding-top: 20px;
-}
-.card, .card.shadow-sm {
-    border-radius: 16px !important;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.07) !important;
-    border: none !important;
-}
-.stat-card {
-    transition: transform 0.2s ease-in-out;
-}
-.stat-card:hover {
-    transform: translateY(-5px);
-}
-.progress-ring {
-    width: 80px;
-    height: 80px;
-}
-.progress-ring circle {
-    fill: none;
-    stroke-width: 4;
-    stroke-linecap: round;
-}
-.progress-ring .bg {
-    stroke: #e9ecef;
-}
-.progress-ring .progress {
-    stroke: #2563eb;
-    stroke-dasharray: 251.2;
-    stroke-dashoffset: calc(251.2 - (251.2 * var(--progress)) / 100);
-    transition: stroke-dashoffset 0.5s ease;
-}
-</style>
-
-<div class="dash-bg">
-    <div class="container-fluid">
-        <!-- Welcome Header -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h1 class="h2 mb-1">Welcome back, {{ current_user.username }}! 👋</h1>
-                        <p class="text-muted mb-0">
-                            <i class="bi bi-calendar3 me-1"></i>
-                            {{ now.strftime('%A, %B %d, %Y') }}
-                        </p>
+<div class="container-fluid py-4">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2 class="mb-1">Welcome back, {{ current_user.username }}! 👋</h2>
+                            <p class="text-muted mb-0">Here's what's happening with your resume builder</p>
+                        </div>
+                        <div class="text-end">
+                            <div class="badge bg-success fs-6 px-3 py-2">
+                                <i class="bi bi-star-fill me-1"></i>
+                                {% if is_premium %}Premium Member{% else %}Free Plan{% endif %}
+                            </div>
+                        </div>
                     </div>
-                    <div class="d-flex align-items-center gap-3">
-                        {% if is_premium %}
-                        <span class="badge bg-warning text-dark px-3 py-2">
-                            <i class="bi bi-star-fill me-1"></i>Premium Member
-                        </span>
-                        {% else %}
-                        <a href="{{ url_for('upgrade') }}" class="btn btn-warning btn-sm">
-                            <i class="bi bi-star me-1"></i>Upgrade to Premium
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary bg-gradient rounded-3 p-3">
+                                <i class="bi bi-file-earmark-text text-white fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Total Resumes</h6>
+                            <h3 class="mb-0">{{ resumes|length }}</h3>
+                            <small class="text-success">
+                                <i class="bi bi-arrow-up"></i> +12% this month
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-success bg-gradient rounded-3 p-3">
+                                <i class="bi bi-download text-white fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Downloads</h6>
+                            <h3 class="mb-0">{{ downloads_count|default(0) }}</h3>
+                            <small class="text-success">
+                                <i class="bi bi-arrow-up"></i> +8% this week
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-warning bg-gradient rounded-3 p-3">
+                                <i class="bi bi-eye text-white fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Profile Views</h6>
+                            <h3 class="mb-0">{{ profile_views|default(0) }}</h3>
+                            <small class="text-success">
+                                <i class="bi bi-arrow-up"></i> +15% this month
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-info bg-gradient rounded-3 p-3">
+                                <i class="bi bi-calendar-check text-white fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Last Updated</h6>
+                            <h3 class="mb-0">{{ last_updated|default('Today') }}</h3>
+                            <small class="text-muted">
+                                <i class="bi bi-clock"></i> 2 hours ago
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts and Analytics -->
+    <div class="row mb-4">
+        <!-- Activity Chart -->
+        <div class="col-xl-8 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">
+                        <i class="bi bi-graph-up me-2"></i>
+                        Resume Activity
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="activityChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Progress Ring -->
+        <div class="col-xl-4 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">
+                        <i class="bi bi-pie-chart me-2"></i>
+                        Profile Completion
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="position-relative d-inline-block">
+                        <svg width="120" height="120" class="progress-ring">
+                            <circle cx="60" cy="60" r="50" stroke="#e9ecef" stroke-width="8" fill="transparent"/>
+                            <circle cx="60" cy="60" r="50" stroke="#667eea" stroke-width="8" fill="transparent" 
+                                    stroke-dasharray="314" stroke-dashoffset="78.5" class="progress-ring-circle"/>
+                        </svg>
+                        <div class="position-absolute top-50 start-50 translate-middle">
+                            <h3 class="mb-0">75%</h3>
+                            <small class="text-muted">Complete</small>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Basic Info</span>
+                            <span class="text-success">✓</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Experience</span>
+                            <span class="text-success">✓</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Skills</span>
+                            <span class="text-warning">⚠</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Portfolio</span>
+                            <span class="text-muted">○</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions and Recent Activity -->
+    <div class="row">
+        <!-- Quick Actions -->
+        <div class="col-xl-4 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">
+                        <i class="bi bi-lightning me-2"></i>
+                        Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('create_resume') }}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle me-2"></i>
+                            Create New Resume
                         </a>
-                        {% endif %}
+                        <a href="{{ url_for('my_resumes') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-files me-2"></i>
+                            View All Resumes
+                        </a>
+                        <a href="{{ url_for('upgrade') }}" class="btn btn-outline-warning">
+                            <i class="bi bi-star me-2"></i>
+                            Upgrade to Premium
+                        </a>
+                        <a href="{{ url_for('profile') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-person me-2"></i>
+                            Edit Profile
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Reminders -->
-        {% if reminders %}
-        <div class="row mb-4">
-            <div class="col-12">
-                {% for r in reminders %}
-                <div class="alert alert-info d-flex align-items-center border-0 shadow-sm" role="alert">
-                    <i class="bi bi-bell-fill me-3 text-primary"></i>
-                    <div class="flex-grow-1">
-                        <strong>Reminder:</strong> {{ r.message }}
-                        <span class="text-muted ms-2">(Due: {{ r.due_date.strftime('%b %d, %Y') }})</span>
-                    </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- Ad-Free Notice -->
-        {{ ad_free_notice() }}
-
-        <!-- Statistics Cards -->
-        <div class="row mb-4">
-            <div class="col-xl-3 col-md-6 mb-3">
-                <div class="card stat-card bg-gradient-primary text-white h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h3 class="mb-1 fw-bold">{{ dashboard.resumes_created }}</h3>
-                                <p class="mb-0 opacity-75">Resumes Created</p>
-                            </div>
-                            <div class="bg-white bg-opacity-20 rounded-circle p-3">
-                                <i class="bi bi-file-earmark-text text-white" style="font-size: 1.5rem;"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-xl-3 col-md-6 mb-3">
-                <div class="card stat-card bg-gradient-success text-white h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h3 class="mb-1 fw-bold">{{ dashboard.applications_submitted }}</h3>
-                                <p class="mb-0 opacity-75">Applications</p>
-                            </div>
-                            <div class="bg-white bg-opacity-20 rounded-circle p-3">
-                                <i class="bi bi-send text-white" style="font-size: 1.5rem;"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-xl-3 col-md-6 mb-3">
-                <div class="card stat-card bg-gradient-info text-white h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h3 class="mb-1 fw-bold">{{ dashboard.interviews_attended }}</h3>
-                                <p class="mb-0 opacity-75">Interviews</p>
-                            </div>
-                            <div class="bg-white bg-opacity-20 rounded-circle p-3">
-                                <i class="bi bi-camera-video text-white" style="font-size: 1.5rem;"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-xl-3 col-md-6 mb-3">
-                <div class="card stat-card bg-gradient-warning text-white h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h3 class="mb-1 fw-bold">{{ dashboard.offers_received }}</h3>
-                                <p class="mb-0 opacity-75">Offers</p>
-                            </div>
-                            <div class="bg-white bg-opacity-20 rounded-circle p-3">
-                                <i class="bi bi-trophy text-white" style="font-size: 1.5rem;"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Progress Overview -->
-        <div class="row mb-4">
-            <div class="col-lg-8">
-                <div class="card h-100">
-                    <div class="card-header bg-transparent border-0">
-                        <h5 class="mb-0 fw-bold">
-                            <i class="bi bi-graph-up me-2 text-primary"></i>Job Search Progress
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <div class="d-flex align-items-center p-3 bg-light rounded">
-                                    <div class="progress-ring me-3" style="--progress: {{ (dashboard.applications_submitted / 10) * 100 if dashboard.applications_submitted > 0 else 0 }}">
-                                        <svg viewBox="0 0 100 100">
-                                            <circle class="bg" cx="50" cy="50" r="40"></circle>
-                                            <circle class="progress" cx="50" cy="50" r="40"></circle>
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-1">Applications</h6>
-                                        <p class="mb-0 text-muted">{{ dashboard.applications_submitted }}/10 target</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="d-flex align-items-center p-3 bg-light rounded">
-                                    <div class="progress-ring me-3" style="--progress: {{ (dashboard.interviews_attended / 5) * 100 if dashboard.interviews_attended > 0 else 0 }}">
-                                        <svg viewBox="0 0 100 100">
-                                            <circle class="bg" cx="50" cy="50" r="40"></circle>
-                                            <circle class="progress" cx="50" cy="50" r="40"></circle>
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-1">Interviews</h6>
-                                        <p class="mb-0 text-muted">{{ dashboard.interviews_attended }}/5 target</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-4">
-                <div class="card h-100">
-                    <div class="card-header bg-transparent border-0">
-                        <h5 class="mb-0 fw-bold">
-                            <i class="bi bi-lightning me-2 text-warning"></i>Quick Actions
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="d-grid gap-2">
-                            <a href="{{ url_for('create_resume') }}" class="btn btn-primary">
-                                <i class="bi bi-plus-circle me-2"></i>Create New Resume
-                            </a>
-                            <a href="{{ url_for('my_cover_letters') }}" class="btn btn-outline-primary">
-                                <i class="bi bi-envelope me-2"></i>Write Cover Letter
-                            </a>
-                            <a href="{{ url_for('job_application_tracker') }}" class="btn btn-outline-success">
-                                <i class="bi bi-graph-up me-2"></i>Track Applications
-                            </a>
-                            <a href="{{ url_for('interview_prep_advanced') }}" class="btn btn-outline-warning">
-                                <i class="bi bi-camera-video me-2"></i>Practice Interview
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+        
         <!-- Recent Activity -->
-        <div class="row">
-            <div class="col-lg-6 mb-4">
-                <div class="card h-100">
-                    <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0 fw-bold">
-                            <i class="bi bi-file-earmark-text me-2 text-primary"></i>Recent Resumes
-                        </h5>
-                        <a href="{{ url_for('my_resumes') }}" class="btn btn-sm btn-outline-primary">View All</a>
+        <div class="col-xl-8 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-clock-history me-2"></i>
+                        Recent Activity
+                    </h5>
+                    <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item border-0 d-flex align-items-center">
+                            <div class="bg-success bg-gradient rounded-circle p-2 me-3">
+                                <i class="bi bi-check text-white"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">Resume "Software Engineer" updated</h6>
+                                <small class="text-muted">2 hours ago</small>
+                            </div>
+                            <span class="badge bg-success">Updated</span>
+                        </div>
+                        <div class="list-group-item border-0 d-flex align-items-center">
+                            <div class="bg-primary bg-gradient rounded-circle p-2 me-3">
+                                <i class="bi bi-download text-white"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">Resume downloaded as PDF</h6>
+                                <small class="text-muted">1 day ago</small>
+                            </div>
+                            <span class="badge bg-primary">Downloaded</span>
+                        </div>
+                        <div class="list-group-item border-0 d-flex align-items-center">
+                            <div class="bg-info bg-gradient rounded-circle p-2 me-3">
+                                <i class="bi bi-plus text-white"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">New resume "Marketing Manager" created</h6>
+                                <small class="text-muted">3 days ago</small>
+                            </div>
+                            <span class="badge bg-info">Created</span>
+                        </div>
+                        <div class="list-group-item border-0 d-flex align-items-center">
+                            <div class="bg-warning bg-gradient rounded-circle p-2 me-3">
+                                <i class="bi bi-star text-white"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">Upgraded to Premium plan</h6>
+                                <small class="text-muted">1 week ago</small>
+                            </div>
+                            <span class="badge bg-warning">Upgraded</span>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        {% if recent_resumes %}
-                        <div class="list-group list-group-flush">
-                            {% for resume in recent_resumes %}
-                            <div class="list-group-item border-0 px-0">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h6 class="mb-1">{{ resume.name or 'Untitled Resume' }}</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resume Cards -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-file-earmark-text me-2"></i>
+                        Your Resumes
+                    </h5>
+                    <a href="{{ url_for('create_resume') }}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-plus me-1"></i>
+                        Create New
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if resumes %}
+                    <div class="row">
+                        {% for resume in resumes %}
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="card h-100 border-0 shadow-sm hover-lift">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <h6 class="card-title mb-0">{{ resume.name or 'Untitled Resume' }}</h6>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown">
+                                                <i class="bi bi-three-dots"></i>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item" href="{{ url_for('view_resume', resume_id=resume.id) }}">
+                                                    <i class="bi bi-eye me-2"></i>View
+                                                </a></li>
+                                                <li><a class="dropdown-item" href="{{ url_for('edit_resume', resume_id=resume.id) }}">
+                                                    <i class="bi bi-pencil me-2"></i>Edit
+                                                </a></li>
+                                                <li><a class="dropdown-item" href="{{ url_for('download_resume', resume_id=resume.id) }}">
+                                                    <i class="bi bi-download me-2"></i>Download
+                                                </a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item text-danger" href="{{ url_for('delete_resume', resume_id=resume.id) }}" 
+                                                       onclick="return confirm('Are you sure you want to delete this resume?')">
+                                                    <i class="bi bi-trash me-2"></i>Delete
+                                                </a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <p class="card-text text-muted small mb-3">
+                                        {{ resume.summary[:100] + '...' if resume.summary and resume.summary|length > 100 else resume.summary or 'No summary available' }}
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center">
                                         <small class="text-muted">
                                             <i class="bi bi-calendar me-1"></i>
-                                            {{ resume.updated_at.strftime('%b %d, %Y') }}
+                                            {{ resume.created_at.strftime('%b %d, %Y') if resume.created_at else 'Unknown' }}
                                         </small>
+                                        <span class="badge bg-light text-dark">{{ resume.template or 'Modern' }}</span>
                                     </div>
-                                    <div class="btn-group btn-group-sm">
-                                        <a href="{{ url_for('edit_resume', resume_id=resume.id) }}" class="btn btn-outline-primary btn-sm">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                        <a href="{{ url_for('preview_resume', resume_id=resume.id) }}" class="btn btn-outline-success btn-sm">
-                                            <i class="bi bi-eye"></i>
+                                </div>
+                                <div class="card-footer bg-transparent border-0 pt-0">
+                                    <div class="d-grid gap-2">
+                                        <a href="{{ url_for('view_resume', resume_id=resume.id) }}" class="btn btn-outline-primary btn-sm">
+                                            <i class="bi bi-eye me-1"></i>View Resume
                                         </a>
                                     </div>
                                 </div>
                             </div>
-                            {% endfor %}
                         </div>
-                        {% else %}
-                        <div class="text-center py-4">
-                            <i class="bi bi-file-earmark-text text-muted" style="font-size: 3rem;"></i>
-                            <p class="text-muted mt-2">No resumes yet. Create your first one!</p>
-                            <a href="{{ url_for('create_resume') }}" class="btn btn-primary">Create Resume</a>
-                        </div>
-                        {% endif %}
+                        {% endfor %}
                     </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-6 mb-4">
-                <div class="card h-100">
-                    <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0 fw-bold">
-                            <i class="bi bi-briefcase me-2 text-success"></i>Recent Applications
-                        </h5>
-                        <a href="{{ url_for('job_application_tracker') }}" class="btn btn-sm btn-outline-success">View All</a>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-file-earmark-text text-muted" style="font-size: 4rem;"></i>
+                        <h5 class="mt-3 text-muted">No resumes yet</h5>
+                        <p class="text-muted">Create your first professional resume to get started</p>
+                        <a href="{{ url_for('create_resume') }}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle me-2"></i>
+                            Create Your First Resume
+                        </a>
                     </div>
-                    <div class="card-body">
-                        {% if recent_jobs %}
-                        <div class="list-group list-group-flush">
-                            {% for job in recent_jobs %}
-                            <div class="list-group-item border-0 px-0">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h6 class="mb-1">{{ job.job_title }}</h6>
-                                        <small class="text-muted">{{ job.company }}</small>
-                                        <br>
-                                        <span class="badge bg-{{ 'success' if job.status == 'offer' else 'warning' if job.status == 'interview' else 'info' if job.status == 'applied' else 'secondary' }}">
-                                            {{ job.status.title() }}
-                                        </span>
-                                    </div>
-                                    <small class="text-muted">
-                                        {{ job.applied_date.strftime('%b %d') }}
-                                    </small>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                        {% else %}
-                        <div class="text-center py-4">
-                            <i class="bi bi-briefcase text-muted" style="font-size: 3rem;"></i>
-                            <p class="text-muted mt-2">No applications yet. Start tracking your job search!</p>
-                            <a href="{{ url_for('job_application_tracker') }}" class="btn btn-success">Track Applications</a>
-                        </div>
-                        {% endif %}
-                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- CSS for gradient backgrounds -->
-<style>
-.bg-gradient-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-.bg-gradient-success {
-    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-}
-.bg-gradient-info {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-.bg-gradient-warning {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-}
-</style>
-{% endblock %}
-
-{% block scripts %}
-{{ super() }}
+<!-- Chart.js for Analytics -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-const ctx = document.getElementById('dashboardChart').getContext('2d');
-const dashboardChart = new Chart(ctx, {
-    type: 'bar',
+// Activity Chart
+const ctx = document.getElementById('activityChart').getContext('2d');
+const activityChart = new Chart(ctx, {
+    type: 'line',
     data: {
-        labels: ['Resumes', 'Cover Letters', 'Applications', 'Practice Sessions'],
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
         datasets: [{
-            label: 'Count',
-            data: [
-                {{ dashboard.resumes_created|default(0) }},
-                {{ dashboard.cover_letters_created|default(0) }},
-                {{ dashboard.applications_submitted|default(0) }},
-                {{ dashboard.practice_sessions_completed|default(0) }}
-            ],
-            backgroundColor: [
-                'rgba(13,110,253,0.7)',
-                'rgba(25,135,84,0.7)',
-                'rgba(13,202,240,0.7)',
-                'rgba(255,193,7,0.7)'
-            ],
-            borderColor: [
-                'rgba(13,110,253,1)',
-                'rgba(25,135,84,1)',
-                'rgba(13,202,240,1)',
-                'rgba(255,193,7,1)'
-            ],
-            borderWidth: 1
+            label: 'Resume Views',
+            data: [12, 19, 15, 25, 22, 30, 28],
+            borderColor: '#667eea',
+            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+            tension: 0.4,
+            fill: true
+        }, {
+            label: 'Downloads',
+            data: [5, 8, 6, 12, 10, 15, 13],
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            tension: 0.4,
+            fill: true
         }]
     },
     options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
-            legend: { display: false },
-            title: { display: false }
+            legend: {
+                position: 'top',
+            }
         },
         scales: {
-            y: { beginAtZero: true, ticks: { stepSize: 1 } }
+            y: {
+                beginAtZero: true
+            }
         }
     }
 });
+
+// Progress Ring Animation
+document.addEventListener('DOMContentLoaded', function() {
+    const circle = document.querySelector('.progress-ring-circle');
+    const radius = circle.r.baseVal.value;
+    const circumference = radius * 2 * Math.PI;
+    
+    circle.style.strokeDasharray = `${circumference} ${circumference}`;
+    circle.style.strokeDashoffset = circumference;
+    
+    function setProgress(percent) {
+        const offset = circumference - (percent / 100 * circumference);
+        circle.style.strokeDashoffset = offset;
+    }
+    
+    setProgress(75);
+});
+
+// Hover effects for cards
+document.querySelectorAll('.hover-lift').forEach(card => {
+    card.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-5px)';
+        this.style.transition = 'transform 0.2s ease';
+    });
+    
+    card.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0)';
+    });
+});
 </script>
+
+<style>
+.progress-ring {
+    transform: rotate(-90deg);
+}
+
+.progress-ring-circle {
+    transition: stroke-dashoffset 0.35s;
+    transform-origin: 50% 50%;
+}
+
+.hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.card {
+    transition: all 0.3s ease;
+}
+
+.bg-gradient {
+    background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-info) 100%);
+}
+
+.bg-success.bg-gradient {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.bg-warning.bg-gradient {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.bg-info.bg-gradient {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+}
+</style>
 {% endblock %} 

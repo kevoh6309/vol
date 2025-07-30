@@ -2,400 +2,459 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Resume/CV Builder</title>
+    <title>Resume/CV Builder - ResumeBuilder Pro</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
-        body { background: #f8f9fa; }
-        .container { max-width: 700px; margin-top: 40px; background: #fff; padding: 32px 32px 24px 32px; border-radius: 12px; box-shadow: 0 2px 16px rgba(0,0,0,0.07); }
-        h1 { font-weight: 700; margin-bottom: 24px; }
-        .form-label { font-weight: 500; }
-        .form-section { margin-bottom: 24px; }
+        body { 
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        .container { 
+            max-width: 1200px; 
+            margin-top: 20px; 
+            background: #fff; 
+            padding: 32px; 
+            border-radius: 16px; 
+            box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+        }
+        h1 { 
+            font-weight: 700; 
+            margin-bottom: 24px; 
+            color: #1e3c72;
+        }
+        .form-label { 
+            font-weight: 600;
+            color: #2d3748;
+        }
+        .form-section { 
+            margin-bottom: 32px; 
+            padding: 24px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background: #f8fafc;
+        }
+        .form-section:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+        }
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e3c72;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+        }
+        .section-title i {
+            margin-right: 8px;
+            color: #667eea;
+        }
+        .preview-panel {
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .preview-content {
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .auto-save-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+        .auto-save-indicator.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .character-count {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+        .character-count.warning {
+            color: #f59e0b;
+        }
+        .character-count.danger {
+            color: #ef4444;
+        }
+        .suggestion-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .suggestion-btn:hover {
+            background: #5a67d8;
+        }
+        .template-preview {
+            border: 2px solid transparent;
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .template-preview:hover {
+            border-color: #667eea;
+            background: #f7fafc;
+        }
+        .template-preview.selected {
+            border-color: #667eea;
+            background: #ebf4ff;
+        }
+        .progress-bar {
+            height: 6px;
+            border-radius: 3px;
+            background: #e2e8f0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="progress mb-4" style="height: 8px;">
-            <div class="progress-bar bg-primary transition" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+        <!-- Progress Bar -->
+        <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="mb-0">Resume Progress</h6>
+                <span class="text-muted" id="progressText">0% Complete</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
         </div>
-        <h1 class="text-center mb-4">Resume/CV Builder</h1>
+
+        <h1 class="text-center mb-4">
+            <i class="bi bi-file-earmark-text text-primary me-2"></i>
+            Professional Resume Builder
+        </h1>
+
+        <!-- Auto-save Indicator -->
+        <div class="auto-save-indicator" id="autoSaveIndicator">
+            <i class="bi bi-check-circle me-1"></i>
+            Auto-saved
+        </div>
+
         <form method="POST" action="/create-resume" novalidate id="resumeForm">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <div class="row g-3">
-                <div class="col-md-6 mb-3 position-relative">
-                    <label class="form-label">Name</label>
-                    <span class="ms-1 text-muted" data-bs-toggle="tooltip" title="Your full name."><i class="bi bi-person"></i></span>
-                    <input type="text" name="name" class="form-control" required placeholder="e.g. John Doe">
-                    <div class="invalid-feedback">Please enter your name.</div>
-                </div>
-                <div class="col-md-6 mb-3 position-relative">
-                    <label class="form-label">Email</label>
-                    <span class="ms-1 text-muted" data-bs-toggle="tooltip" title="Your email address."><i class="bi bi-envelope"></i></span>
-                    <input type="email" name="email" class="form-control" required placeholder="e.g. john@email.com">
-                    <div class="invalid-feedback">Please enter a valid email.</div>
-                </div>
-                <div class="col-md-6 mb-3 position-relative">
-                    <label class="form-label">Phone</label>
-                    <span class="ms-1 text-muted" data-bs-toggle="tooltip" title="Your phone number."><i class="bi bi-telephone"></i></span>
-                    <input type="text" name="phone" class="form-control" required placeholder="e.g. +1234567890">
-                    <div class="invalid-feedback">Please enter your phone number.</div>
-                </div>
-                <div class="col-md-6 mb-3 position-relative">
-                    <label class="form-label">Address</label>
-                    <span class="ms-1 text-muted" data-bs-toggle="tooltip" title="Your address (optional)."><i class="bi bi-geo-alt"></i></span>
-                    <input type="text" name="address" class="form-control" placeholder="e.g. Nairobi, Kenya">
-                </div>
-                <div class="col-md-6 mb-3 position-relative">
-                    <label class="form-label">LinkedIn</label>
-                    <span class="ms-1 text-muted" data-bs-toggle="tooltip" title="Your LinkedIn profile URL (optional)."><i class="bi bi-linkedin"></i></span>
-                    <input type="text" name="linkedin" class="form-control" placeholder="e.g. linkedin.com/in/yourname">
-                </div>
-                <div class="col-12 mb-3 position-relative">
-                    <label class="form-label">Professional Summary</label>
-                    <span class="ms-1 text-muted" data-bs-toggle="tooltip" title="Brief summary about yourself."><i class="bi bi-card-text"></i></span>
-                    <div class="input-group">
-                        <textarea name="summary" id="summaryField" class="form-control" rows="2" required placeholder="Brief summary about yourself"></textarea>
-                        <button type="button" class="btn btn-outline-primary" id="suggestSummary" title="Suggest summary"><i class="bi bi-magic"></i></button>
+            
+            <div class="row">
+                <!-- Form Column -->
+                <div class="col-lg-8">
+                    <!-- Personal Information Section -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="bi bi-person-circle"></i>
+                            Personal Information
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Full Name *</label>
+                                <input type="text" name="name" class="form-control" required placeholder="e.g. John Doe" value="{{ resume.name if resume else '' }}">
+                                <div class="invalid-feedback">Please enter your full name.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email Address *</label>
+                                <input type="email" name="email" class="form-control" required placeholder="e.g. john@email.com" value="{{ resume.email if resume else '' }}">
+                                <div class="invalid-feedback">Please enter a valid email.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Phone Number *</label>
+                                <input type="text" name="phone" class="form-control" required placeholder="e.g. +1234567890" value="{{ resume.phone if resume else '' }}">
+                                <div class="invalid-feedback">Please enter your phone number.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Location</label>
+                                <input type="text" name="address" class="form-control" placeholder="e.g. New York, NY" value="{{ resume.address if resume else '' }}">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">LinkedIn Profile</label>
+                                <input type="url" name="linkedin" class="form-control" placeholder="e.g. linkedin.com/in/yourname" value="{{ resume.linkedin if resume else '' }}">
+                            </div>
+                        </div>
                     </div>
-                    <div class="invalid-feedback">Please enter a summary.</div>
-                </div>
-                <div class="col-12 mb-3 position-relative">
-                    <label class="form-label">Education</label>
-                    <span class="ms-1 text-muted" data-bs-toggle="tooltip" title="Your education background."><i class="bi bi-mortarboard"></i></span>
-                    <textarea name="education" class="form-control" rows="2" required placeholder="e.g. BSc in Computer Science, University, 2018-2022"></textarea>
-                    <div class="invalid-feedback">Please enter your education.</div>
-                </div>
-                <div class="col-12 mb-3 position-relative">
-                    <label class="form-label">Experience</label>
-                    <span class="ms-1 text-muted" data-bs-toggle="tooltip" title="Your work experience."><i class="bi bi-briefcase"></i></span>
-                    <div class="input-group">
-                        <textarea name="experience" id="experienceField" class="form-control" rows="2" required placeholder="e.g. Software Engineer at XYZ, 2022-present"></textarea>
-                        <button type="button" class="btn btn-outline-primary" id="suggestExperience" title="Suggest experience"><i class="bi bi-magic"></i></button>
+
+                    <!-- Professional Summary Section -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="bi bi-card-text"></i>
+                            Professional Summary
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Summary *</label>
+                            <div class="input-group">
+                                <textarea name="summary" id="summaryField" class="form-control" rows="4" required placeholder="Write a compelling professional summary that highlights your key strengths and career objectives..."></textarea>
+                                <button type="button" class="btn btn-outline-primary" id="suggestSummary" title="Get AI suggestions">
+                                    <i class="bi bi-magic"></i>
+                                </button>
+                            </div>
+                            <div class="character-count" id="summaryCount">0/300 characters</div>
+                            <div class="invalid-feedback">Please enter a professional summary.</div>
+                        </div>
                     </div>
-                    <div class="invalid-feedback">Please enter your experience.</div>
-                </div>
-                <div class="col-12 mb-3 position-relative">
-                    <label class="form-label">Skills</label>
-                    <span class="ms-1 text-muted" data-bs-toggle="tooltip" title="Your key skills."><i class="bi bi-lightning"></i></span>
-                    <div class="input-group">
-                        <textarea name="skills" id="skillsField" class="form-control" rows="2" required placeholder="e.g. Python, JavaScript, Teamwork"></textarea>
-                        <button type="button" class="btn btn-outline-primary" id="suggestSkills" title="Suggest skills"><i class="bi bi-magic"></i></button>
+
+                    <!-- Education Section -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="bi bi-mortarboard"></i>
+                            Education
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Education Background *</label>
+                            <textarea name="education" id="educationField" class="form-control" rows="4" required placeholder="List your educational background, including degrees, institutions, and graduation dates..."></textarea>
+                            <div class="character-count" id="educationCount">0/500 characters</div>
+                            <div class="invalid-feedback">Please enter your education information.</div>
+                        </div>
                     </div>
-                    <div class="invalid-feedback">Please enter your skills.</div>
+
+                    <!-- Experience Section -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="bi bi-briefcase"></i>
+                            Work Experience
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Professional Experience *</label>
+                            <div class="input-group">
+                                <textarea name="experience" id="experienceField" class="form-control" rows="6" required placeholder="Detail your work experience, including job titles, companies, dates, and key achievements..."></textarea>
+                                <button type="button" class="btn btn-outline-primary" id="suggestExperience" title="Get AI suggestions">
+                                    <i class="bi bi-magic"></i>
+                                </button>
+                            </div>
+                            <div class="character-count" id="experienceCount">0/800 characters</div>
+                            <div class="invalid-feedback">Please enter your work experience.</div>
+                        </div>
+                    </div>
+
+                    <!-- Skills Section -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="bi bi-lightning"></i>
+                            Skills & Competencies
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Key Skills *</label>
+                            <div class="input-group">
+                                <textarea name="skills" id="skillsField" class="form-control" rows="3" required placeholder="List your key skills, technical competencies, and areas of expertise..."></textarea>
+                                <button type="button" class="btn btn-outline-primary" id="suggestSkills" title="Get AI suggestions">
+                                    <i class="bi bi-magic"></i>
+                                </button>
+                            </div>
+                            <div class="character-count" id="skillsCount">0/400 characters</div>
+                            <div class="invalid-feedback">Please enter your skills.</div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Sections -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="bi bi-award"></i>
+                            Additional Information
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Certifications & Awards</label>
+                                <textarea name="certifications" class="form-control" rows="3" placeholder="List relevant certifications, awards, and achievements..."></textarea>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Languages *</label>
+                                <textarea name="languages" class="form-control" rows="2" required placeholder="e.g. English (Native), Spanish (Fluent), French (Intermediate)"></textarea>
+                                <div class="invalid-feedback">Please enter your languages.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Template Selection -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="bi bi-palette"></i>
+                            Choose Template
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="template-preview selected" data-template="modern">
+                                    <h6 class="mb-2">Modern</h6>
+                                    <p class="small text-muted mb-0">Clean, professional design</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="template-preview" data-template="classic">
+                                    <h6 class="mb-2">Classic</h6>
+                                    <p class="small text-muted mb-0">Traditional, formal layout</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="template-preview" data-template="creative">
+                                    <h6 class="mb-2">Creative</h6>
+                                    <p class="small text-muted mb-0">Unique, eye-catching design</p>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="template" value="modern" id="templateInput">
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex gap-3 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg px-4" id="saveBtn">
+                            <i class="bi bi-check-circle me-2"></i>
+                            Save Resume
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-lg px-4" onclick="window.history.back()">
+                            <i class="bi bi-arrow-left me-2"></i>
+                            Cancel
+                        </button>
+                    </div>
                 </div>
-                <div class="col-12 mb-3 position-relative">
-                    <label class="form-label">Certifications & Awards</label>
-                    <span class="ms-1 text-muted" data-bs-toggle="tooltip" title="Relevant certifications or awards (optional)."><i class="bi bi-award"></i></span>
-                    <textarea name="certifications" class="form-control" rows="2" placeholder="e.g. AWS Certified, Employee of the Month"></textarea>
-                </div>
-                <div class="col-12 mb-3 position-relative">
-                    <label class="form-label">Languages</label>
-                    <span class="ms-1 text-muted" data-bs-toggle="tooltip" title="Languages you speak."><i class="bi bi-translate"></i></span>
-                    <textarea name="languages" class="form-control" rows="2" required placeholder="e.g. English, French, Swahili"></textarea>
-                    <div class="invalid-feedback">Please enter your languages.</div>
-                </div>
-                <div class="col-md-6 mb-3 position-relative">
-                    <label class="form-label">Template:</label>
-                    <span class="ms-1 text-muted" data-bs-toggle="tooltip" title="Choose your resume template."><i class="bi bi-palette"></i></span>
-                    <select class="form-select" name="template">
-                        <option value="classic">Classic (Free)</option>
-                        <option value="modern">Modern (Free)</option>
-                        <option value="elegant" {% if not is_premium %}disabled{% endif %}>Elegant (Premium)</option>
-                        <option value="creative" {% if not is_premium %}disabled{% endif %}>Creative (Premium)</option>
-                        <option value="minimal" {% if not is_premium %}disabled{% endif %}>Minimal (Premium)</option>
-                    </select>
-                    {% if not is_premium %}
-                        <div class="form-text text-warning">Upgrade to unlock premium templates.</div>
-                    {% endif %}
-                </div>
-                <div class="col-md-6 mb-3 position-relative">
-                    <label class="form-label">PDF Engine:</label>
-                    <span class="ms-1 text-muted" data-bs-toggle="tooltip" title="Choose your PDF engine."><i class="bi bi-file-earmark-pdf"></i></span>
-                    <select class="form-select" name="pdf_engine">
-                        <option value="weasyprint">WeasyPrint (HTML/CSS)</option>
-                        <option value="reportlab">ReportLab (Fast/Basic)</option>
-                    </select>
+
+                <!-- Preview Column -->
+                <div class="col-lg-4">
+                    <div class="preview-panel">
+                        <h5 class="mb-3">
+                            <i class="bi bi-eye me-2"></i>
+                            Live Preview
+                        </h5>
+                        <div class="preview-content" id="resumePreview">
+                            <div class="text-center text-muted py-5">
+                                <i class="bi bi-file-earmark-text" style="font-size: 3rem;"></i>
+                                <p class="mt-3">Start filling out the form to see a live preview of your resume</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary w-100 mt-3">Preview Resume</button>
         </form>
     </div>
-    <button id="chatbot-fab" class="btn btn-primary rounded-circle" style="position:fixed;bottom:32px;right:32px;z-index:1100;width:60px;height:60px;box-shadow:0 4px 16px rgba(30,60,114,0.18);display:flex;align-items:center;justify-content:center;">
-        <i class="bi bi-chat-dots" style="font-size:2em;"></i>
-    </button>
-    <div id="chatbot-sidebar" style="display:none;">
-        <div id="chatbot-header" class="d-flex justify-content-between align-items-center">
-            <span>Resume Assistant</span>
-            <button id="chatbot-close" class="btn btn-sm btn-outline-light ms-2" title="Close" style="border-radius:50%;"><i class="bi bi-x-lg"></i></button>
-        </div>
-        <div id="chatbot-messages"></div>
-        <form id="chatbot-form" autocomplete="off">
-            <input type="text" id="chatbot-input" placeholder="Ask me anything about resumes..." class="form-control" />
-            <button type="submit" class="btn btn-primary w-100 mt-2">Send</button>
-        </form>
-        <div id="chatbot-loading" style="display:none;" class="text-center mt-2">
-            <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
-            <div class="small text-muted">Bot is thinking...</div>
-        </div>
-        <div id="chatbot-suggestions" class="mt-3">
-            <span class="suggestion-bubble">Write my summary</span>
-            <span class="suggestion-bubble">Suggest skills</span>
-            <span class="suggestion-bubble">How to describe experience?</span>
-            <span class="suggestion-bubble">Best resume template?</span>
-        </div>
-    </div>
-    <style>
-        #chatbot-fab {
-            transition: background 0.2s, box-shadow 0.2s;
-        }
-        #chatbot-fab:hover {
-            background: #1e3c72;
-        }
-        #chatbot-sidebar {
-            position: fixed;
-            top: 0;
-            right: 0;
-            width: 370px;
-            height: 100vh;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: #fff;
-            box-shadow: -2px 0 16px rgba(30,60,114,0.12);
-            z-index: 1200;
-            display: flex;
-            flex-direction: column;
-            border-top-left-radius: 18px;
-            border-bottom-left-radius: 18px;
-            transition: transform 0.3s, opacity 0.3s;
-        }
-        #chatbot-header {
-            background: #2563eb;
-            color: #fff;
-            font-weight: 700;
-            font-size: 1.2em;
-            padding: 18px 24px;
-            border-top-left-radius: 18px;
-        }
-        #chatbot-close {
-            color: #fff;
-            border: none;
-            background: transparent;
-        }
-        #chatbot-close:hover {
-            background: #ffd700;
-            color: #181f2a;
-        }
-        #chatbot-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 18px 18px 0 18px;
-            background: transparent;
-        }
-        .chat-bubble {
-            max-width: 80%;
-            margin-bottom: 14px;
-            padding: 12px 18px;
-            border-radius: 18px;
-            font-size: 1em;
-            line-height: 1.5;
-            position: relative;
-            box-shadow: 0 2px 8px rgba(30,60,114,0.07);
-        }
-        .chat-bubble.bot {
-            background: #f1f5fb;
-            color: #1e3c72;
-            align-self: flex-start;
-            border-bottom-left-radius: 4px;
-            margin-right: auto;
-        }
-        .chat-bubble.user {
-            background: #2563eb;
-            color: #fff;
-            align-self: flex-end;
-            border-bottom-right-radius: 4px;
-            margin-left: auto;
-        }
-        .chat-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-right: 8px;
-            vertical-align: middle;
-        }
-        .chat-meta {
-            font-size: 0.8em;
-            color: #b0b8c9;
-            margin-top: 2px;
-        }
-        #chatbot-form {
-            padding: 12px 18px 0 18px;
-            background: transparent;
-        }
-        #chatbot-input {
-            border-radius: 8px;
-            border: none;
-            padding: 10px 14px;
-            font-size: 1em;
-        }
-        #chatbot-loading {
-            padding: 8px 0 0 0;
-        }
-        #chatbot-suggestions {
-            padding: 0 18px 18px 18px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .suggestion-bubble {
-            background: #fff;
-            color: #2563eb;
-            border-radius: 16px;
-            padding: 6px 14px;
-            font-size: 0.95em;
-            cursor: pointer;
-            box-shadow: 0 1px 4px rgba(30,60,114,0.08);
-            transition: background 0.2s, color 0.2s;
-        }
-        .suggestion-bubble:hover {
-            background: #2563eb;
-            color: #fff;
-        }
-        @media (max-width: 900px) {
-            #chatbot-sidebar {
-                width: 100vw;
-                position: fixed;
-                border-radius: 0;
-                min-height: 400px;
-            }
-            #chatbot-fab {
-                right: 16px;
-                bottom: 16px;
-            }
-        }
-    </style>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-    // Modern chat UI logic
-    const chatbotMessages = document.getElementById('chatbot-messages');
-    const chatbotForm = document.getElementById('chatbot-form');
-    const chatbotInput = document.getElementById('chatbot-input');
-    const chatbotLoading = document.getElementById('chatbot-loading');
-    const suggestions = document.querySelectorAll('.suggestion-bubble');
-    function addMessage(text, sender, timestamp) {
-        const bubble = document.createElement('div');
-        bubble.className = 'chat-bubble ' + sender;
-        const meta = document.createElement('div');
-        meta.className = 'chat-meta';
-        meta.textContent = timestamp || new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        bubble.innerHTML = (sender === 'bot' ? '<img src="https://api.dicebear.com/7.x/bottts/svg?seed=ResumeBot" class="chat-avatar" />' : '<img src="https://api.dicebear.com/7.x/avataaars/svg?seed=User" class="chat-avatar" />') +
-            '<span>' + text + '</span>';
-        bubble.appendChild(meta);
-        chatbotMessages.appendChild(bubble);
-        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
-    }
-    chatbotForm.onsubmit = async (e) => {
-        e.preventDefault();
-        const msg = chatbotInput.value.trim();
-        if (!msg) return;
-        addMessage(msg, 'user');
-        chatbotInput.value = '';
-        chatbotLoading.style.display = '';
-        try {
-            const res = await fetch('/chatbot', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({message: msg, section: window.currentSection || 'general', page: 'resume_form'})
+        // Initialize character counting
+        setupCharacterCount(document.getElementById('summaryField'), 300);
+        setupCharacterCount(document.getElementById('educationField'), 500);
+        setupCharacterCount(document.getElementById('experienceField'), 800);
+        setupCharacterCount(document.getElementById('skillsField'), 400);
+
+        // Template selection
+        document.querySelectorAll('.template-preview').forEach(preview => {
+            preview.addEventListener('click', function() {
+                document.querySelectorAll('.template-preview').forEach(p => p.classList.remove('selected'));
+                this.classList.add('selected');
+                document.getElementById('templateInput').value = this.dataset.template;
+                updatePreview();
             });
-            const data = await res.json();
-            addMessage(data.reply || 'Sorry, I could not generate a response.', 'bot');
-        } catch (err) {
-            addMessage('Sorry, there was an error.', 'bot');
+        });
+
+        // Auto-save setup
+        setupAutoSave('resumeForm', '/api/auto-save-resume');
+
+        // Progress tracking
+        function updateProgress() {
+            const requiredFields = ['name', 'email', 'phone', 'summary', 'education', 'experience', 'skills', 'languages'];
+            let completed = 0;
+            
+            requiredFields.forEach(field => {
+                const element = document.querySelector(`[name="${field}"]`);
+                if (element && element.value.trim()) {
+                    completed++;
+                }
+            });
+            
+            const percentage = Math.round((completed / requiredFields.length) * 100);
+            document.getElementById('progressFill').style.width = percentage + '%';
+            document.getElementById('progressText').textContent = percentage + '% Complete';
         }
-        chatbotLoading.style.display = 'none';
-    };
-    suggestions.forEach(s => s.onclick = () => {
-        chatbotInput.value = s.textContent;
-        chatbotForm.dispatchEvent(new Event('submit'));
-    });
-    // Initial welcome message
-    if (!chatbotMessages.hasChildNodes()) {
-        addMessage('Hi! I can help you with resume tips, suggestions, and answer your questions. Try asking: "How do I write a good summary?"', 'bot');
-    }
-    // Enable tooltips
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-      return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
-    // Real-time validation
-    const form = document.getElementById('resumeForm');
-    form.addEventListener('input', function(e) {
-        form.name.classList.toggle('is-invalid', !form.name.value.trim());
-        form.email.classList.toggle('is-invalid', !form.email.value.includes('@'));
-        form.phone.classList.toggle('is-invalid', !form.phone.value.trim());
-        form.summary.classList.toggle('is-invalid', !form.summary.value.trim());
-        form.education.classList.toggle('is-invalid', !form.education.value.trim());
-        form.experience.classList.toggle('is-invalid', !form.experience.value.trim());
-        form.skills.classList.toggle('is-invalid', !form.skills.value.trim());
-        form.languages.classList.toggle('is-invalid', !form.languages.value.trim());
-    });
-    // FAB and sidebar toggle logic
-    const chatbotFab = document.getElementById('chatbot-fab');
-    const chatbotSidebar = document.getElementById('chatbot-sidebar');
-    const chatbotClose = document.getElementById('chatbot-close');
-    chatbotFab.onclick = () => {
-        chatbotSidebar.style.display = '';
-        chatbotFab.style.display = 'none';
-    };
-    chatbotClose.onclick = () => {
-        chatbotSidebar.style.display = 'none';
-        chatbotFab.style.display = '';
-    };
-    // Suggest buttons for AI-powered section writing
-    document.getElementById('suggestSummary').onclick = async function() {
-        window.currentSection = 'summary';
-        const btn = this;
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
-        const res = await fetch('/chatbot', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({message: 'Write a professional summary for my resume.', section: 'summary', page: 'resume_form'})
+
+        // Real-time preview
+        function updatePreview() {
+            const name = document.querySelector('[name="name"]').value || 'Your Name';
+            const email = document.querySelector('[name="email"]').value || 'your.email@example.com';
+            const phone = document.querySelector('[name="phone"]').value || '(123) 456-7890';
+            const summary = document.querySelector('[name="summary"]').value || 'Professional summary will appear here...';
+            const education = document.querySelector('[name="education"]').value || 'Education details will appear here...';
+            const experience = document.querySelector('[name="experience"]').value || 'Work experience will appear here...';
+            const skills = document.querySelector('[name="skills"]').value || 'Skills will appear here...';
+
+            const preview = document.getElementById('resumePreview');
+            preview.innerHTML = `
+                <div class="border-bottom pb-3 mb-3">
+                    <h4 class="mb-1">${name}</h4>
+                    <p class="text-muted mb-1">${email} • ${phone}</p>
+                </div>
+                <div class="mb-3">
+                    <h6 class="text-primary">Professional Summary</h6>
+                    <p class="small">${summary}</p>
+                </div>
+                <div class="mb-3">
+                    <h6 class="text-primary">Education</h6>
+                    <p class="small">${education}</p>
+                </div>
+                <div class="mb-3">
+                    <h6 class="text-primary">Experience</h6>
+                    <p class="small">${experience}</p>
+                </div>
+                <div class="mb-3">
+                    <h6 class="text-primary">Skills</h6>
+                    <p class="small">${skills}</p>
+                </div>
+            `;
+        }
+
+        // Update preview and progress on input
+        document.querySelectorAll('input, textarea').forEach(input => {
+            input.addEventListener('input', () => {
+                updatePreview();
+                updateProgress();
+            });
         });
-        const data = await res.json();
-        document.getElementById('summaryField').value = data.reply;
-        btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-magic"></i>';
-    };
-    document.getElementById('suggestExperience').onclick = async function() {
-        window.currentSection = 'experience';
-        const btn = this;
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
-        const res = await fetch('/chatbot', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({message: 'Suggest a work experience entry for my resume.', section: 'experience', page: 'resume_form'})
+
+        // Form validation
+        document.getElementById('resumeForm').addEventListener('submit', function(e) {
+            if (!validateForm(this)) {
+                e.preventDefault();
+                showToast('Please fill in all required fields', 'error');
+            } else {
+                showLoading(document.getElementById('saveBtn'));
+            }
         });
-        const data = await res.json();
-        document.getElementById('experienceField').value = data.reply;
-        btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-magic"></i>';
-    };
-    document.getElementById('suggestSkills').onclick = async function() {
-        window.currentSection = 'skills';
-        const btn = this;
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
-        const res = await fetch('/chatbot', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({message: 'Suggest a list of skills for my resume.', section: 'skills', page: 'resume_form'})
+
+        // AI suggestion buttons
+        document.getElementById('suggestSummary').addEventListener('click', function() {
+            showToast('AI suggestions coming soon!', 'info');
         });
-        const data = await res.json();
-        document.getElementById('skillsField').value = data.reply;
-        btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-magic"></i>';
-    };
+
+        document.getElementById('suggestExperience').addEventListener('click', function() {
+            showToast('AI suggestions coming soon!', 'info');
+        });
+
+        document.getElementById('suggestSkills').addEventListener('click', function() {
+            showToast('AI suggestions coming soon!', 'info');
+        });
+
+        // Initialize
+        updateProgress();
+        updatePreview();
     </script>
 </body>
 </html> 
