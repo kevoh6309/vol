@@ -1,8 +1,11 @@
 import os
-from dotenv import load_dotenv
-
-# Load environment variables from .env file
-load_dotenv()
+try:
+    from dotenv import load_dotenv
+    # Load environment variables from .env file
+    load_dotenv()
+except ImportError:
+    # If dotenv is not available, continue without it
+    pass
 
 class Config:
     # Flask Configuration
