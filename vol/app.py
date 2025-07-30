@@ -2047,7 +2047,7 @@ def auto_save_resume():
                 linkedin=sanitize_input(data.get('linkedin', '')),
                 summary=sanitize_input(data['summary']),
                 education=sanitize_input(data['education']),
-                experience=sanitize_input(data['experience'])
+                experience=sanitize_input(data['experience']),
                 skills=sanitize_input(data['skills']),
                 certifications=sanitize_input(data.get('certifications', '')),
                 languages=sanitize_input(data['languages']),
