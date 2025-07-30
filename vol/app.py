@@ -78,7 +78,7 @@ except ImportError:
         
         # Application Configuration
         APP_NAME = os.getenv('APP_NAME', 'ResumeBuilder Pro')
-        APP_URL = os.getenv('APP_URL', 'http://localhost:5000')
+        APP_URL = os.getenv('APP_URL', 'https://resume-builder-saas.railway.app')
         
         # Logging Configuration
         LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
@@ -90,7 +90,7 @@ except ImportError:
     
     class ProductionConfig(Config):
         DEBUG = False
-        APP_URL = os.getenv('APP_URL', 'https://yourdomain.com')
+        APP_URL = os.getenv('APP_URL', 'https://resume-builder-saas.railway.app')
         SESSION_COOKIE_SECURE = True
     
     config = {
