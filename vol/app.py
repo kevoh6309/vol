@@ -83,7 +83,13 @@ def get_weasyprint():
         return HTML
     else:
         return None
-from docx import Document
+# Try to import python-docx, but make it optional
+try:
+    from docx import Document
+    DOCX_AVAILABLE = True
+except ImportError:
+    DOCX_AVAILABLE = False
+    print("Warning: python-docx not available. Word document generation will be disabled.")
 import logging
 from logging.handlers import RotatingFileHandler
 
@@ -579,6 +585,10 @@ def download_resume(resume_id):
     format = request.args.get('format', 'pdf')
     if format == 'word':
         # Generate Word document
+        if not DOCX_AVAILABLE:
+            flash('Word document generation is currently unavailable. Please try downloading as PDF instead.', 'warning')
+            return redirect(url_for('my_resumes'))
+        
         doc = Document()
         doc.add_heading(resume.name or 'Resume', 0)
         doc.add_paragraph(f"Email: {resume.email}")
@@ -698,6 +708,10 @@ def download_cover_letter(cover_id):
     db.session.commit()
     format = request.args.get('format', 'pdf')
     if format == 'word':
+        if not DOCX_AVAILABLE:
+            flash('Word document generation is currently unavailable. Please try downloading as PDF instead.', 'warning')
+            return redirect(url_for('my_cover_letters'))
+        
         doc = Document()
         doc.add_heading(cover.title or 'Cover Letter', 0)
         doc.add_paragraph(f"Job Title: {cover.job_title}")
