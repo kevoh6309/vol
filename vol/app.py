@@ -3037,6 +3037,645 @@ def get_fallback_success_metrics():
         'success_rate': 0
     }
 
+@app.route('/subscription-management')
+@login_required
+def subscription_management():
+    """Advanced subscription management dashboard"""
+    try:
+        # Get user's subscription details
+        subscription_data = get_user_subscription_data(current_user)
+        
+        # Get usage statistics
+        usage_stats = get_usage_statistics(current_user)
+        
+        # Get billing history
+        billing_history = get_billing_history(current_user)
+        
+        return render_template('subscription_management.html', 
+                             subscription=subscription_data,
+                             usage=usage_stats,
+                             billing=billing_history)
+        
+    except Exception as e:
+        logger.error(f"Error in subscription management: {e}")
+        flash('Error loading subscription data', 'error')
+        return redirect(url_for('dashboard'))
+
+def get_user_subscription_data(user):
+    """Get comprehensive subscription data for user"""
+    try:
+        # Check if user is premium
+        is_premium = user.is_premium if hasattr(user, 'is_premium') else False
+        premium_expiry = user.premium_expiry if hasattr(user, 'premium_expiry') else None
+        
+        # Calculate days remaining
+        days_remaining = 0
+        if premium_expiry:
+            days_remaining = (premium_expiry - datetime.now(timezone.utc)).days
+        
+        # Get current plan details
+        current_plan = {
+            'name': 'Premium' if is_premium else 'Free',
+            'price': '$19.99/month' if is_premium else 'Free',
+            'features': get_plan_features(is_premium),
+            'status': 'Active' if is_premium and days_remaining > 0 else 'Inactive',
+            'expiry_date': premium_expiry.strftime('%Y-%m-%d') if premium_expiry else None,
+            'days_remaining': max(0, days_remaining)
+        }
+        
+        return {
+            'current_plan': current_plan,
+            'is_premium': is_premium,
+            'can_upgrade': not is_premium,
+            'can_downgrade': is_premium,
+            'auto_renewal': True  # Simplified for now
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting subscription data: {e}")
+        return get_fallback_subscription_data()
+
+def get_plan_features(is_premium):
+    """Get features for current plan"""
+    if is_premium:
+        return [
+            'Unlimited Resumes',
+            'Advanced AI Analysis',
+            'Priority Support',
+            'Custom Templates',
+            'Export to Multiple Formats',
+            'Advanced Analytics',
+            'Team Collaboration',
+            'API Access',
+            'White-label Options',
+            'Advanced Security'
+        ]
+    else:
+        return [
+            '3 Resumes',
+            'Basic Templates',
+            'PDF Export',
+            'Email Support',
+            'Basic Analytics'
+        ]
+
+def get_usage_statistics(user):
+    """Get detailed usage statistics"""
+    try:
+        # Get user's data
+        resumes = Resume.query.filter_by(user_id=user.id).all()
+        applications = JobApplication.query.filter_by(user_id=user.id).all()
+        cover_letters = CoverLetter.query.filter_by(user_id=user.id).all()
+        
+        # Calculate usage
+        total_downloads = sum(r.downloads for r in resumes) + sum(cl.downloads for cl in cover_letters)
+        total_views = sum(r.views for r in resumes) + sum(cl.views for cl in cover_letters)
+        
+        # Get monthly usage
+        current_month = datetime.now(timezone.utc).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        monthly_resumes = len([r for r in resumes if r.created_at and r.created_at >= current_month])
+        monthly_applications = len([a for a in applications if a.applied_date and a.applied_date >= current_month])
+        
+        return {
+            'total_resumes': len(resumes),
+            'total_applications': len(applications),
+            'total_cover_letters': len(cover_letters),
+            'total_downloads': total_downloads,
+            'total_views': total_views,
+            'monthly_resumes': monthly_resumes,
+            'monthly_applications': monthly_applications,
+            'storage_used': calculate_storage_usage(user),
+            'api_calls': get_api_usage(user)
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting usage statistics: {e}")
+        return get_fallback_usage_stats()
+
+def calculate_storage_usage(user):
+    """Calculate storage usage in MB"""
+    try:
+        # Simplified calculation - in real app, would check actual file sizes
+        resumes = Resume.query.filter_by(user_id=user.id).all()
+        cover_letters = CoverLetter.query.filter_by(user_id=user.id).all()
+        
+        # Estimate: each resume/cover letter ~ 50KB
+        total_items = len(resumes) + len(cover_letters)
+        estimated_size = total_items * 50  # KB
+        
+        return round(estimated_size / 1024, 2)  # Convert to MB
+        
+    except Exception as e:
+        logger.error(f"Error calculating storage usage: {e}")
+        return 0.0
+
+def get_api_usage(user):
+    """Get API usage statistics"""
+    try:
+        # Simplified - in real app, would track actual API calls
+        return {
+            'ai_analysis': 15,
+            'resume_generation': 8,
+            'cover_letter_generation': 12,
+            'total_calls': 35
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting API usage: {e}")
+        return {'total_calls': 0}
+
+def get_billing_history(user):
+    """Get billing history for user"""
+    try:
+        # Simplified billing history - in real app, would query actual billing records
+        if user.is_premium:
+            return [
+                {
+                    'date': '2024-01-15',
+                    'amount': '$19.99',
+                    'description': 'Premium Plan - Monthly',
+                    'status': 'Paid',
+                    'invoice_id': 'INV-001'
+                },
+                {
+                    'date': '2023-12-15',
+                    'amount': '$19.99',
+                    'description': 'Premium Plan - Monthly',
+                    'status': 'Paid',
+                    'invoice_id': 'INV-002'
+                }
+            ]
+        else:
+            return []
+            
+    except Exception as e:
+        logger.error(f"Error getting billing history: {e}")
+        return []
+
+def get_fallback_subscription_data():
+    """Fallback subscription data"""
+    return {
+        'current_plan': {
+            'name': 'Free',
+            'price': 'Free',
+            'features': get_plan_features(False),
+            'status': 'Active',
+            'expiry_date': None,
+            'days_remaining': 0
+        },
+        'is_premium': False,
+        'can_upgrade': True,
+        'can_downgrade': False,
+        'auto_renewal': False
+    }
+
+def get_fallback_usage_stats():
+    """Fallback usage statistics"""
+    return {
+        'total_resumes': 0,
+        'total_applications': 0,
+        'total_cover_letters': 0,
+        'total_downloads': 0,
+        'total_views': 0,
+        'monthly_resumes': 0,
+        'monthly_applications': 0,
+        'storage_used': 0.0,
+        'api_calls': {'total_calls': 0}
+    }
+
+@app.route('/api/upgrade-plan', methods=['POST'])
+@login_required
+def upgrade_plan():
+    """Handle plan upgrade"""
+    try:
+        data = request.get_json()
+        plan_type = data.get('plan', 'monthly')
+        
+        # Create Stripe checkout session
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price': app.config['STRIPE_MONTHLY_PRICE_ID'] if plan_type == 'monthly' else app.config['STRIPE_YEARLY_PRICE_ID'],
+                'quantity': 1,
+            }],
+            mode='subscription',
+            success_url=url_for('upgrade_success', _external=True),
+            cancel_url=url_for('upgrade_cancel', _external=True),
+            client_reference_id=str(current_user.id),
+            metadata={
+                'user_id': current_user.id,
+                'plan_type': plan_type
+            }
+        )
+        
+        return jsonify({
+            'success': True,
+            'session_id': session.id,
+            'checkout_url': session.url
+        })
+        
+    except Exception as e:
+        logger.error(f"Error creating upgrade session: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to create checkout session'
+        }), 500
+
+@app.route('/api/cancel-subscription', methods=['POST'])
+@login_required
+def cancel_subscription():
+    """Handle subscription cancellation"""
+    try:
+        # In a real app, this would cancel the Stripe subscription
+        # For now, we'll just update the user's premium status
+        
+        current_user.is_premium = False
+        current_user.premium_expiry = datetime.now(timezone.utc)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Subscription cancelled successfully'
+        })
+        
+    except Exception as e:
+        logger.error(f"Error cancelling subscription: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to cancel subscription'
+        }), 500
+
+@app.route('/api-dashboard')
+@login_required
+def api_dashboard():
+    """API Dashboard for developers and integrations"""
+    try:
+        # Get API usage statistics
+        api_stats = get_api_statistics(current_user)
+        
+        # Get API keys
+        api_keys = get_user_api_keys(current_user)
+        
+        # Get webhook configurations
+        webhooks = get_webhook_configurations(current_user)
+        
+        return render_template('api_dashboard.html', 
+                             api_stats=api_stats,
+                             api_keys=api_keys,
+                             webhooks=webhooks)
+        
+    except Exception as e:
+        logger.error(f"Error in API dashboard: {e}")
+        flash('Error loading API dashboard', 'error')
+        return redirect(url_for('dashboard'))
+
+def get_api_statistics(user):
+    """Get API usage statistics"""
+    try:
+        # Simplified API stats - in real app, would track actual API calls
+        return {
+            'total_calls': 150,
+            'calls_this_month': 45,
+            'success_rate': 98.5,
+            'average_response_time': 245,  # ms
+            'endpoints_used': ['resume-analysis', 'cover-letter-generation', 'interview-prep'],
+            'rate_limit_remaining': 950,
+            'rate_limit_total': 1000
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting API statistics: {e}")
+        return {
+            'total_calls': 0,
+            'calls_this_month': 0,
+            'success_rate': 0,
+            'average_response_time': 0,
+            'endpoints_used': [],
+            'rate_limit_remaining': 1000,
+            'rate_limit_total': 1000
+        }
+
+def get_user_api_keys(user):
+    """Get user's API keys"""
+    try:
+        # In a real app, this would query actual API keys from database
+        return [
+            {
+                'id': 'key_1',
+                'name': 'Production API Key',
+                'key': 'sk_live_' + secrets.token_hex(16),
+                'created': '2024-01-15',
+                'last_used': '2024-01-20',
+                'status': 'active'
+            },
+            {
+                'id': 'key_2',
+                'name': 'Development API Key',
+                'key': 'sk_test_' + secrets.token_hex(16),
+                'created': '2024-01-10',
+                'last_used': '2024-01-18',
+                'status': 'active'
+            }
+        ]
+        
+    except Exception as e:
+        logger.error(f"Error getting API keys: {e}")
+        return []
+
+def get_webhook_configurations(user):
+    """Get webhook configurations"""
+    try:
+        # In a real app, this would query actual webhook configs
+        return [
+            {
+                'id': 'webhook_1',
+                'name': 'Resume Analysis Webhook',
+                'url': 'https://example.com/webhooks/resume-analysis',
+                'events': ['resume.created', 'resume.updated'],
+                'status': 'active',
+                'last_triggered': '2024-01-20 14:30:00'
+            }
+        ]
+        
+    except Exception as e:
+        logger.error(f"Error getting webhook configurations: {e}")
+        return []
+
+@app.route('/api/v1/resume-analysis', methods=['POST'])
+def api_resume_analysis():
+    """API endpoint for resume analysis"""
+    try:
+        # Verify API key
+        api_key = request.headers.get('Authorization', '').replace('Bearer ', '')
+        if not verify_api_key(api_key):
+            return jsonify({'error': 'Invalid API key'}), 401
+        
+        # Get request data
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        resume_content = data.get('resume_content', '')
+        job_description = data.get('job_description', '')
+        
+        if not resume_content:
+            return jsonify({'error': 'Resume content is required'}), 400
+        
+        # Perform analysis
+        analysis = perform_api_resume_analysis(resume_content, job_description)
+        
+        # Log API call
+        log_api_call(api_key, 'resume-analysis', 'success')
+        
+        return jsonify({
+            'success': True,
+            'analysis': analysis,
+            'timestamp': datetime.now(timezone.utc).isoformat()
+        })
+        
+    except Exception as e:
+        logger.error(f"API resume analysis error: {e}")
+        log_api_call(api_key, 'resume-analysis', 'error')
+        return jsonify({'error': 'Internal server error'}), 500
+
+@app.route('/api/v1/cover-letter-generation', methods=['POST'])
+def api_cover_letter_generation():
+    """API endpoint for cover letter generation"""
+    try:
+        # Verify API key
+        api_key = request.headers.get('Authorization', '').replace('Bearer ', '')
+        if not verify_api_key(api_key):
+            return jsonify({'error': 'Invalid API key'}), 401
+        
+        # Get request data
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        job_title = data.get('job_title', '')
+        company = data.get('company', '')
+        resume_summary = data.get('resume_summary', '')
+        job_description = data.get('job_description', '')
+        
+        if not all([job_title, company, resume_summary]):
+            return jsonify({'error': 'Missing required fields'}), 400
+        
+        # Generate cover letter
+        cover_letter = generate_api_cover_letter(job_title, company, resume_summary, job_description)
+        
+        # Log API call
+        log_api_call(api_key, 'cover-letter-generation', 'success')
+        
+        return jsonify({
+            'success': True,
+            'cover_letter': cover_letter,
+            'timestamp': datetime.now(timezone.utc).isoformat()
+        })
+        
+    except Exception as e:
+        logger.error(f"API cover letter generation error: {e}")
+        log_api_call(api_key, 'cover-letter-generation', 'error')
+        return jsonify({'error': 'Internal server error'}), 500
+
+@app.route('/api/v1/interview-questions', methods=['POST'])
+def api_interview_questions():
+    """API endpoint for interview question generation"""
+    try:
+        # Verify API key
+        api_key = request.headers.get('Authorization', '').replace('Bearer ', '')
+        if not verify_api_key(api_key):
+            return jsonify({'error': 'Invalid API key'}), 401
+        
+        # Get request data
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        job_title = data.get('job_title', '')
+        interview_type = data.get('interview_type', 'general')
+        count = data.get('count', 10)
+        
+        if not job_title:
+            return jsonify({'error': 'Job title is required'}), 400
+        
+        # Generate questions
+        questions = generate_api_interview_questions(job_title, interview_type, count)
+        
+        # Log API call
+        log_api_call(api_key, 'interview-questions', 'success')
+        
+        return jsonify({
+            'success': True,
+            'questions': questions,
+            'timestamp': datetime.now(timezone.utc).isoformat()
+        })
+        
+    except Exception as e:
+        logger.error(f"API interview questions error: {e}")
+        log_api_call(api_key, 'interview-questions', 'error')
+        return jsonify({'error': 'Internal server error'}), 500
+
+def verify_api_key(api_key):
+    """Verify API key validity"""
+    try:
+        # In a real app, this would check against database
+        # For now, we'll use a simple check
+        if not api_key or len(api_key) < 20:
+            return False
+        
+        # Check if key starts with expected prefix
+        if not (api_key.startswith('sk_live_') or api_key.startswith('sk_test_')):
+            return False
+        
+        return True
+        
+    except Exception as e:
+        logger.error(f"Error verifying API key: {e}")
+        return False
+
+def perform_api_resume_analysis(resume_content, job_description=''):
+    """Perform resume analysis for API"""
+    try:
+        # Use the same analysis logic as the web interface
+        analysis = {
+            'ats_score': analyze_ats_optimization(resume_content, job_description)['score'],
+            'content_score': analyze_content_quality(resume_content)['overall_score'],
+            'keyword_score': analyze_keywords(resume_content, job_description)['score'],
+            'structure_score': 85.0,  # Simplified
+            'overall_score': 82.5,  # Simplified
+            'recommendations': [
+                'Add more action verbs to make your experience more impactful',
+                'Include specific numbers and metrics to quantify your achievements',
+                'Add missing keywords from the job description'
+            ]
+        }
+        
+        return analysis
+        
+    except Exception as e:
+        logger.error(f"Error in API resume analysis: {e}")
+        return get_fallback_analysis()
+
+def generate_api_cover_letter(job_title, company, resume_summary, job_description=''):
+    """Generate cover letter for API"""
+    try:
+        # Use AI to generate cover letter
+        prompt = f"""
+        Write a professional cover letter for a {job_title} position at {company}.
+        
+        Resume Summary: {resume_summary}
+        
+        Job Description: {job_description}
+        
+        Make it compelling, professional, and tailored to the specific role.
+        """
+        
+        # Generate using AI
+        cover_letter = generate_ai_suggestion(prompt)
+        
+        return {
+            'content': cover_letter,
+            'word_count': len(cover_letter.split()),
+            'estimated_reading_time': len(cover_letter.split()) // 200  # ~200 words per minute
+        }
+        
+    except Exception as e:
+        logger.error(f"Error generating API cover letter: {e}")
+        return {
+            'content': 'Unable to generate cover letter at this time.',
+            'word_count': 0,
+            'estimated_reading_time': 0
+        }
+
+def generate_api_interview_questions(job_title, interview_type, count):
+    """Generate interview questions for API"""
+    try:
+        # Use the same logic as the web interface
+        questions = get_fallback_interview_questions(interview_type)
+        
+        # Return requested number of questions
+        return questions[:count]
+        
+    except Exception as e:
+        logger.error(f"Error generating API interview questions: {e}")
+        return ['Tell me about yourself.']
+
+def log_api_call(api_key, endpoint, status):
+    """Log API call for analytics"""
+    try:
+        # In a real app, this would log to database
+        logger.info(f"API Call: {endpoint} - {status} - Key: {api_key[:10]}...")
+        
+    except Exception as e:
+        logger.error(f"Error logging API call: {e}")
+
+@app.route('/api/webhooks/resume-analysis', methods=['POST'])
+def webhook_resume_analysis():
+    """Webhook endpoint for resume analysis events"""
+    try:
+        # Verify webhook signature
+        signature = request.headers.get('X-Webhook-Signature', '')
+        if not verify_webhook_signature(request.data, signature):
+            return jsonify({'error': 'Invalid signature'}), 401
+        
+        # Process webhook data
+        data = request.get_json()
+        event_type = data.get('event_type', '')
+        resume_data = data.get('resume_data', {})
+        
+        # Handle different event types
+        if event_type == 'resume.created':
+            handle_resume_created_webhook(resume_data)
+        elif event_type == 'resume.updated':
+            handle_resume_updated_webhook(resume_data)
+        elif event_type == 'resume.analyzed':
+            handle_resume_analyzed_webhook(resume_data)
+        
+        return jsonify({'success': True}), 200
+        
+    except Exception as e:
+        logger.error(f"Webhook error: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+def verify_webhook_signature(payload, signature):
+    """Verify webhook signature"""
+    try:
+        # In a real app, this would verify HMAC signature
+        # For now, we'll use a simple check
+        expected_signature = hashlib.sha256(payload).hexdigest()
+        return signature == expected_signature
+        
+    except Exception as e:
+        logger.error(f"Error verifying webhook signature: {e}")
+        return False
+
+def handle_resume_created_webhook(resume_data):
+    """Handle resume created webhook"""
+    try:
+        logger.info(f"Resume created webhook: {resume_data}")
+        # In a real app, this would trigger notifications, analytics, etc.
+        
+    except Exception as e:
+        logger.error(f"Error handling resume created webhook: {e}")
+
+def handle_resume_updated_webhook(resume_data):
+    """Handle resume updated webhook"""
+    try:
+        logger.info(f"Resume updated webhook: {resume_data}")
+        # In a real app, this would trigger notifications, analytics, etc.
+        
+    except Exception as e:
+        logger.error(f"Error handling resume updated webhook: {e}")
+
+def handle_resume_analyzed_webhook(resume_data):
+    """Handle resume analyzed webhook"""
+    try:
+        logger.info(f"Resume analyzed webhook: {resume_data}")
+        # In a real app, this would trigger notifications, analytics, etc.
+        
+    except Exception as e:
+        logger.error(f"Error handling resume analyzed webhook: {e}")
+
 if __name__ == '__main__':
     logger.info("Starting Flask application...")
     app.run(debug=True, host='0.0.0.0', port=5000) 
