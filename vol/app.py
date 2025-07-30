@@ -64,13 +64,25 @@ import time
 from collections import Counter
 import datetime as dt
 import tempfile
-# Try to import WeasyPrint, but make it optional
-try:
-    from weasyprint import HTML
-    WEASYPRINT_AVAILABLE = True
-except ImportError:
-    WEASYPRINT_AVAILABLE = False
-    print("Warning: WeasyPrint not available. PDF generation will be disabled.")
+# WeasyPrint will be imported locally in functions where needed
+WEASYPRINT_AVAILABLE = None  # Will be set when first needed
+
+def get_weasyprint():
+    """Safely import WeasyPrint and return HTML class if available"""
+    global WEASYPRINT_AVAILABLE
+    if WEASYPRINT_AVAILABLE is None:
+        try:
+            from weasyprint import HTML
+            WEASYPRINT_AVAILABLE = True
+            return HTML
+        except ImportError:
+            WEASYPRINT_AVAILABLE = False
+            return None
+    elif WEASYPRINT_AVAILABLE:
+        from weasyprint import HTML
+        return HTML
+    else:
+        return None
 from docx import Document
 import logging
 from logging.handlers import RotatingFileHandler
@@ -595,7 +607,8 @@ def download_resume(resume_id):
         return response
     else:
         # Generate PDF using WeasyPrint and modern template
-        if not WEASYPRINT_AVAILABLE:
+        HTML = get_weasyprint()
+        if HTML is None:
             flash('PDF generation is currently unavailable. Please try downloading as Word document instead.', 'warning')
             return redirect(url_for('my_resumes'))
         
@@ -699,7 +712,8 @@ def download_cover_letter(cover_id):
         tmp.close()
         return response
     else:
-        if not WEASYPRINT_AVAILABLE:
+        HTML = get_weasyprint()
+        if HTML is None:
             flash('PDF generation is currently unavailable. Please try downloading as Word document instead.', 'warning')
             return redirect(url_for('my_cover_letters'))
         
