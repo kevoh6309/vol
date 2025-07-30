@@ -19,7 +19,7 @@ After creating the repository, GitHub will show you commands. Run these in your 
 
 ```bash
 # Add the remote repository (replace YOUR_USERNAME with your GitHub username)
-git remote add origin https://github.com/YOUR_USERNAME/resumebuilder.git
+git remote add origin https://github.com/kevoh6309/resumebuilder.git
 
 # Push your code to GitHub
 git push -u origin main
