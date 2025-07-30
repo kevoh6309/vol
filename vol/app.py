@@ -16,7 +16,49 @@ from wtforms.validators import DataRequired, Length, EqualTo
 import requests
 import json
 import re
-from config import config
+# Import config directly
+import os
+try:
+    from config import config
+except ImportError:
+    # If config import fails, create a basic config
+    class Config:
+        SECRET_KEY = os.getenv('SECRET_KEY', 'kevoh2071M@')
+        FLASK_ENV = os.getenv('FLASK_ENV', 'development')
+        FLASK_DEBUG = os.getenv('FLASK_DEBUG', 'True').lower() == 'true'
+        SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///vol.db')
+        SQLALCHEMY_TRACK_MODIFICATIONS = False
+        MAIL_SERVER = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
+        MAIL_PORT = int(os.getenv('MAIL_PORT', 587))
+        MAIL_USE_TLS = os.getenv('MAIL_USE_TLS', 'True').lower() == 'true'
+        MAIL_USERNAME = os.getenv('MAIL_USERNAME', 'kevohmutwiri35@gmail.com')
+        MAIL_PASSWORD = os.getenv('MAIL_PASSWORD', 'kevoh2071M@')
+        MAIL_DEFAULT_SENDER = os.getenv('MAIL_USERNAME', 'kevohmutwiri35@gmail.com')
+        STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
+        STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')
+        STRIPE_MONTHLY_PRICE_ID = os.environ.get('STRIPE_MONTHLY_PRICE_ID')
+        STRIPE_YEARLY_PRICE_ID = os.environ.get('STRIPE_YEARLY_PRICE_ID')
+        STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
+        GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', 'your_gemini_api_key_here')
+        GEMINI_API_URL = os.getenv('GEMINI_API_URL', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent')
+        COHERE_API_KEY = os.getenv('COHERE_API_KEY', 'your_cohere_api_key_here')
+        OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY', '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')
+        OPENROUTER_API_URL = os.getenv('OPENROUTER_API_URL', 'https://openrouter.ai/api/v1/chat/completions')
+        APP_NAME = os.getenv('APP_NAME', 'ResumeBuilder')
+        APP_URL = os.getenv('APP_URL', 'http://localhost:5000')
+    
+    class DevelopmentConfig(Config):
+        DEBUG = True
+    
+    class ProductionConfig(Config):
+        DEBUG = False
+        APP_URL = os.getenv('APP_URL', 'https://yourdomain.com')
+    
+    config = {
+        'development': DevelopmentConfig,
+        'production': ProductionConfig,
+        'default': DevelopmentConfig
+    }
 import secrets
 import time
 from collections import Counter
