@@ -331,9 +331,19 @@
                         </label>
                     </div>
                 </div>
+                <div class="mb-3">
+                    <label class="form-label">Payment Method:</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="paymentMethod" id="paypal" value="paypal" checked>
+                        <label class="form-check-label" for="paypal">
+                            <i class="bi bi-paypal text-primary me-2"></i>
+                            PayPal (Direct Payment)
+                        </label>
+                    </div>
+                </div>
                 <div class="alert alert-info">
                     <i class="bi bi-info-circle me-2"></i>
-                    You'll be redirected to our secure payment processor to complete your upgrade.
+                    You'll be redirected to PayPal to complete your payment securely.
                 </div>
             </div>
             <div class="modal-footer">
@@ -384,27 +394,50 @@ function upgradePlan() {
 
 async function processUpgrade() {
     const billingCycle = document.querySelector('input[name="billingCycle"]:checked').value;
+    const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
     
     try {
         showLoading(document.querySelector('#upgradeModal .btn-primary'));
         
-        const response = await fetch('/api/upgrade-plan', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                plan: billingCycle
-            })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            // Redirect to Stripe checkout
-            window.location.href = data.checkout_url;
+        if (paymentMethod === 'paypal') {
+            // Process PayPal payment
+            const response = await fetch('/api/paypal/create-payment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    plan: billingCycle
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Redirect to PayPal
+                window.location.href = data.approval_url;
+            } else {
+                showToast('Failed to create PayPal payment', 'error');
+            }
         } else {
-            showToast('Failed to create checkout session', 'error');
+            // Fallback to Stripe
+            const response = await fetch('/api/upgrade-plan', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    plan: billingCycle
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                window.location.href = data.checkout_url;
+            } else {
+                showToast('Failed to create checkout session', 'error');
+            }
         }
         
     } catch (error) {

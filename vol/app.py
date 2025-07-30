@@ -2047,7 +2047,7 @@ def auto_save_resume():
                 linkedin=sanitize_input(data.get('linkedin', '')),
                 summary=sanitize_input(data['summary']),
                 education=sanitize_input(data['education']),
-                experience=sanitize_input(data['experience']),
+                experience=sanitize_input(data['experience'])
                 skills=sanitize_input(data['skills']),
                 certifications=sanitize_input(data.get('certifications', '')),
                 languages=sanitize_input(data['languages']),
@@ -3675,6 +3675,221 @@ def handle_resume_analyzed_webhook(resume_data):
         
     except Exception as e:
         logger.error(f"Error handling resume analyzed webhook: {e}")
+
+# PayPal Configuration
+PAYPAL_CLIENT_ID = os.getenv('PAYPAL_CLIENT_ID', 'your_paypal_client_id')
+PAYPAL_CLIENT_SECRET = os.getenv('PAYPAL_CLIENT_SECRET', 'your_paypal_client_secret')
+PAYPAL_MODE = os.getenv('PAYPAL_MODE', 'sandbox')  # 'sandbox' or 'live'
+PAYPAL_RECEIVER_EMAIL = os.getenv('PAYPAL_RECEIVER_EMAIL', 'your_paypal_email@example.com')
+
+# PayPal API URLs
+if PAYPAL_MODE == 'live':
+    PAYPAL_API_BASE = 'https://api-m.paypal.com'
+else:
+    PAYPAL_API_BASE = 'https://api-m.sandbox.paypal.com'
+
+@app.route('/api/paypal/create-payment', methods=['POST'])
+@login_required
+def create_paypal_payment():
+    """Create PayPal payment for subscription upgrade"""
+    try:
+        data = request.get_json()
+        plan_type = data.get('plan', 'monthly')
+        
+        # Set payment amount based on plan
+        if plan_type == 'monthly':
+            amount = 19.99
+            description = 'ResumeBuilder Pro - Monthly Plan'
+        else:
+            amount = 199.99
+            description = 'ResumeBuilder Pro - Yearly Plan'
+        
+        # Create PayPal payment
+        payment_data = {
+            "intent": "sale",
+            "payer": {
+                "payment_method": "paypal"
+            },
+            "redirect_urls": {
+                "return_url": url_for('paypal_success', _external=True),
+                "cancel_url": url_for('paypal_cancel', _external=True)
+            },
+            "transactions": [{
+                "item_list": {
+                    "items": [{
+                        "name": description,
+                        "sku": f"resumebuilder-{plan_type}",
+                        "price": str(amount),
+                        "currency": "USD",
+                        "quantity": 1
+                    }]
+                },
+                "amount": {
+                    "total": str(amount),
+                    "currency": "USD"
+                },
+                "description": description,
+                "payee": {
+                    "email": PAYPAL_RECEIVER_EMAIL
+                }
+            }]
+        }
+        
+        # Get PayPal access token
+        access_token = get_paypal_access_token()
+        
+        # Create payment
+        headers = {
+            'Authorization': f'Bearer {access_token}',
+            'Content-Type': 'application/json'
+        }
+        
+        response = requests.post(
+            f'{PAYPAL_API_BASE}/v1/payments/payment',
+            json=payment_data,
+            headers=headers
+        )
+        
+        if response.status_code == 201:
+            payment = response.json()
+            payment_id = payment['id']
+            
+            # Store payment info in session
+            session['paypal_payment_id'] = payment_id
+            session['paypal_plan_type'] = plan_type
+            session['paypal_amount'] = amount
+            
+            # Get approval URL
+            approval_url = None
+            for link in payment['links']:
+                if link['rel'] == 'approval_url':
+                    approval_url = link['href']
+                    break
+            
+            return jsonify({
+                'success': True,
+                'payment_id': payment_id,
+                'approval_url': approval_url
+            })
+        else:
+            logger.error(f"PayPal payment creation failed: {response.text}")
+            return jsonify({
+                'success': False,
+                'error': 'Failed to create PayPal payment'
+            }), 500
+            
+    except Exception as e:
+        logger.error(f"Error creating PayPal payment: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Internal server error'
+        }), 500
+
+@app.route('/paypal/success')
+@login_required
+def paypal_success():
+    """Handle successful PayPal payment"""
+    try:
+        payment_id = request.args.get('paymentId')
+        payer_id = request.args.get('PayerID')
+        
+        if not payment_id or not payer_id:
+            flash('Payment verification failed', 'error')
+            return redirect(url_for('subscription_management'))
+        
+        # Execute payment
+        access_token = get_paypal_access_token()
+        headers = {
+            'Authorization': f'Bearer {access_token}',
+            'Content-Type': 'application/json'
+        }
+        
+        response = requests.post(
+            f'{PAYPAL_API_BASE}/v1/payments/payment/{payment_id}/execute',
+            json={'payer_id': payer_id},
+            headers=headers
+        )
+        
+        if response.status_code == 200:
+            payment = response.json()
+            
+            # Update user subscription
+            current_user.is_premium = True
+            if session.get('paypal_plan_type') == 'yearly':
+                current_user.premium_expiry = datetime.now(timezone.utc) + timedelta(days=365)
+            else:
+                current_user.premium_expiry = datetime.now(timezone.utc) + timedelta(days=30)
+            
+            db.session.commit()
+            
+            # Log successful payment
+            logger.info(f"PayPal payment successful: {payment_id} for user {current_user.id}")
+            
+            flash('Payment successful! Your premium subscription is now active.', 'success')
+            return redirect(url_for('subscription_management'))
+        else:
+            logger.error(f"PayPal payment execution failed: {response.text}")
+            flash('Payment verification failed', 'error')
+            return redirect(url_for('subscription_management'))
+            
+    except Exception as e:
+        logger.error(f"Error processing PayPal success: {e}")
+        flash('Payment processing error', 'error')
+        return redirect(url_for('subscription_management'))
+
+@app.route('/paypal/cancel')
+@login_required
+def paypal_cancel():
+    """Handle cancelled PayPal payment"""
+    flash('Payment was cancelled', 'warning')
+    return redirect(url_for('subscription_management'))
+
+@app.route('/api/paypal/webhook', methods=['POST'])
+def paypal_webhook():
+    """Handle PayPal webhooks for payment notifications"""
+    try:
+        # Verify webhook signature (in production, implement proper verification)
+        data = request.get_json()
+        event_type = data.get('event_type', '')
+        
+        if event_type == 'PAYMENT.SALE.COMPLETED':
+            # Payment completed successfully
+            payment_id = data.get('resource', {}).get('parent_payment', '')
+            logger.info(f"PayPal webhook: Payment completed - {payment_id}")
+            
+        elif event_type == 'PAYMENT.SALE.DENIED':
+            # Payment was denied
+            payment_id = data.get('resource', {}).get('parent_payment', '')
+            logger.warning(f"PayPal webhook: Payment denied - {payment_id}")
+            
+        return jsonify({'success': True}), 200
+        
+    except Exception as e:
+        logger.error(f"PayPal webhook error: {e}")
+        return jsonify({'error': 'Webhook processing failed'}), 500
+
+def get_paypal_access_token():
+    """Get PayPal access token for API calls"""
+    try:
+        auth = (PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET)
+        data = {'grant_type': 'client_credentials'}
+        
+        response = requests.post(
+            f'{PAYPAL_API_BASE}/v1/oauth2/token',
+            auth=auth,
+            data=data,
+            headers={'Accept': 'application/json', 'Accept-Language': 'en_US'}
+        )
+        
+        if response.status_code == 200:
+            return response.json()['access_token']
+        else:
+            logger.error(f"Failed to get PayPal access token: {response.text}")
+            raise Exception("Failed to get PayPal access token")
+            
+    except Exception as e:
+        logger.error(f"Error getting PayPal access token: {e}")
+        raise e
 
 if __name__ == '__main__':
     logger.info("Starting Flask application...")
