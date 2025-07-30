@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}Server Error - ResumeBuilder Pro{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <div class="card border-0 shadow-lg">
+                <div class="card-body p-5">
+                    <div class="mb-4">
+                        <i class="bi bi-exclamation-triangle text-warning" style="font-size: 4rem;"></i>
+                    </div>
+                    
+                    <h1 class="display-4 fw-bold text-danger mb-3">Oops! Something went wrong</h1>
+                    
+                    <p class="lead text-muted mb-4">
+                        We're experiencing some technical difficulties. Our team has been notified and is working to fix the issue.
+                    </p>
+                    
+                    {% if error and config.DEBUG %}
+                    <div class="alert alert-info text-start">
+                        <strong>Debug Information:</strong><br>
+                        <code>{{ error }}</code>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="d-flex flex-wrap justify-content-center gap-3 mb-4">
+                        <a href="{{ url_for('home') }}" class="btn btn-primary btn-lg">
+                            <i class="bi bi-house me-2"></i>Go Home
+                        </a>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary btn-lg">
+                            <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                        </a>
+                        <button onclick="window.location.reload()" class="btn btn-outline-secondary btn-lg">
+                            <i class="bi bi-arrow-clockwise me-2"></i>Try Again
+                        </button>
+                    </div>
+                    
+                    <div class="text-muted">
+                        <small>
+                            If this problem persists, please contact our support team at 
+                            <a href="mailto:support@resumebuilder.com">support@resumebuilder.com</a>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border-radius: 20px;
+    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+}
+
+.bi-exclamation-triangle {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+</style>
+{% endblock %}

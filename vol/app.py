@@ -28,31 +28,70 @@ except ImportError:
         FLASK_DEBUG = os.getenv('FLASK_DEBUG', 'True').lower() == 'true'
         SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///vol.db')
         SQLALCHEMY_TRACK_MODIFICATIONS = False
+        
+        # Enhanced Security Configuration
+        SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', 'True').lower() == 'true'
+        SESSION_COOKIE_HTTPONLY = True
+        SESSION_COOKIE_SAMESITE = 'Lax'
+        PERMANENT_SESSION_LIFETIME = 86400  # 24 hours
+        SESSION_COOKIE_MAX_AGE = 86400
+        SESSION_REFRESH_EACH_REQUEST = True
+        
+        # CSRF Protection
+        WTF_CSRF_ENABLED = True
+        WTF_CSRF_TIME_LIMIT = 3600  # 1 hour
+        
+        # Rate Limiting
+        RATELIMIT_STORAGE_URL = os.getenv('REDIS_URL', 'memory://')
+        RATELIMIT_DEFAULT = "200 per day;50 per hour;10 per minute"
+        
+        # Security Headers
+        SECURITY_HEADERS = {
+            'X-Content-Type-Options': 'nosniff',
+            'X-Frame-Options': 'SAMEORIGIN',
+            'X-XSS-Protection': '1; mode=block',
+            'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+            'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://pagead2.googlesyndication.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' https://cdn.jsdelivr.net https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.stripe.com https://generativelanguage.googleapis.com https://api.cohere.ai https://openrouter.ai; frame-src https://js.stripe.com https://hooks.stripe.com;"
+        }
+        
+        # Mail Configuration
         MAIL_SERVER = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
         MAIL_PORT = int(os.getenv('MAIL_PORT', 587))
         MAIL_USE_TLS = os.getenv('MAIL_USE_TLS', 'True').lower() == 'true'
         MAIL_USERNAME = os.getenv('MAIL_USERNAME', 'kevohmutwiri35@gmail.com')
         MAIL_PASSWORD = os.getenv('MAIL_PASSWORD', 'kevoh2071M@')
         MAIL_DEFAULT_SENDER = os.getenv('MAIL_USERNAME', 'kevohmutwiri35@gmail.com')
+        
+        # Stripe Configuration
         STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
         STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')
         STRIPE_MONTHLY_PRICE_ID = os.environ.get('STRIPE_MONTHLY_PRICE_ID')
         STRIPE_YEARLY_PRICE_ID = os.environ.get('STRIPE_YEARLY_PRICE_ID')
         STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
+        
+        # AI API Configuration
         GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', 'your_gemini_api_key_here')
         GEMINI_API_URL = os.getenv('GEMINI_API_URL', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent')
         COHERE_API_KEY = os.getenv('COHERE_API_KEY', 'your_cohere_api_key_here')
         OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY', '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')
         OPENROUTER_API_URL = os.getenv('OPENROUTER_API_URL', 'https://openrouter.ai/api/v1/chat/completions')
-        APP_NAME = os.getenv('APP_NAME', 'ResumeBuilder')
+        
+        # Application Configuration
+        APP_NAME = os.getenv('APP_NAME', 'ResumeBuilder Pro')
         APP_URL = os.getenv('APP_URL', 'http://localhost:5000')
+        
+        # Logging Configuration
+        LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
+        LOG_FORMAT = '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
     
     class DevelopmentConfig(Config):
         DEBUG = True
+        SESSION_COOKIE_SECURE = False  # Allow HTTP in development
     
     class ProductionConfig(Config):
         DEBUG = False
         APP_URL = os.getenv('APP_URL', 'https://yourdomain.com')
+        SESSION_COOKIE_SECURE = True
     
     config = {
         'development': DevelopmentConfig,
@@ -124,6 +163,30 @@ logger.info(f"Loaded configuration: {config_name}")
 if not app.config.get('SECRET_KEY'):
     app.config['SECRET_KEY'] = 'your-secret-key-change-this-in-production'
     logger.warning("Using default SECRET_KEY - change in production")
+
+# Security middleware
+@app.after_request
+def add_security_headers(response):
+    """Add security headers to all responses"""
+    for header, value in app.config.get('SECURITY_HEADERS', {}).items():
+        response.headers[header] = value
+    return response
+
+@app.before_request
+def before_request():
+    """Security checks before each request"""
+    # Log request info (without sensitive data)
+    if request.endpoint and 'static' not in request.endpoint:
+        logger.info(f'Request: {request.method} {request.endpoint} from {request.remote_addr}')
+    
+    # Session security
+    if session.get('_fresh', False):
+        session.permanent = True
+        session.modified = True
+    
+    # Rate limiting check
+    if request.endpoint and 'static' not in request.endpoint:
+        limiter.check_request_limit()
 
 # Initialize extensions
 db = SQLAlchemy(app)
@@ -513,21 +576,21 @@ def my_resumes():
 @login_required
 def create_resume():
     if request.method == 'POST':
-        # Handle resume creation
+        # Handle resume creation with input sanitization
         resume = Resume(
-            name=request.form.get('name'),
-            email=request.form.get('email'),
-            phone=request.form.get('phone'),
-            address=request.form.get('address'),
-            linkedin=request.form.get('linkedin'),
-            summary=request.form.get('summary'),
-            education=request.form.get('education'),
-            experience=request.form.get('experience'),
-            skills=request.form.get('skills'),
-            certifications=request.form.get('certifications'),
-            languages=request.form.get('languages'),
-            pdf_engine=request.form.get('pdf_engine', 'weasyprint'),
-            template=request.form.get('template', 'modern'),
+            name=sanitize_input(request.form.get('name')),
+            email=sanitize_input(request.form.get('email')),
+            phone=sanitize_input(request.form.get('phone')),
+            address=sanitize_input(request.form.get('address')),
+            linkedin=sanitize_input(request.form.get('linkedin')),
+            summary=sanitize_input(request.form.get('summary')),
+            education=sanitize_input(request.form.get('education')),
+            experience=sanitize_input(request.form.get('experience')),
+            skills=sanitize_input(request.form.get('skills')),
+            certifications=sanitize_input(request.form.get('certifications')),
+            languages=sanitize_input(request.form.get('languages')),
+            pdf_engine=sanitize_input(request.form.get('pdf_engine', 'weasyprint')),
+            template=sanitize_input(request.form.get('template', 'modern')),
             user_id=current_user.id
         )
         db.session.add(resume)
@@ -1869,7 +1932,69 @@ def handle_exception(e):
     logger.error(f"Request method: {request.method}")
     import traceback
     logger.error(f"Traceback: {traceback.format_exc()}")
-    return render_template('404.html'), 500
+    # Don't expose sensitive information in production
+    if app.config.get('DEBUG', False):
+        return render_template('500.html', error=str(e)), 500
+    else:
+        return render_template('500.html'), 500
+
+# Security utilities
+def sanitize_input(text):
+    """Sanitize user input to prevent XSS"""
+    if not text:
+        return text
+    import html
+    return html.escape(text)
+
+def validate_file_upload(file, allowed_extensions=['png', 'jpg', 'jpeg', 'gif']):
+    """Validate file uploads for security"""
+    if not file or not file.filename:
+        return False, "No file selected"
+    
+    # Check file extension
+    if '.' not in file.filename:
+        return False, "Invalid file type"
+    
+    ext = file.filename.rsplit('.', 1)[1].lower()
+    if ext not in allowed_extensions:
+        return False, f"File type .{ext} not allowed"
+    
+    # Check file size (5MB limit)
+    if len(file.read()) > 5 * 1024 * 1024:
+        file.seek(0)  # Reset file pointer
+        return False, "File too large (max 5MB)"
+    
+    file.seek(0)  # Reset file pointer
+    return True, "File valid"
+
+# Enhanced session management
+@app.before_request
+def session_security():
+    """Enhanced session security"""
+    if current_user.is_authenticated:
+        # Regenerate session ID periodically
+        if 'last_regeneration' not in session:
+            session['last_regeneration'] = datetime.now(timezone.utc)
+        elif (datetime.now(timezone.utc) - session['last_regeneration']).days > 1:
+            session.regenerate()
+            session['last_regeneration'] = datetime.now(timezone.utc)
+        
+        # Set session as permanent for authenticated users
+        session.permanent = True
+
+# Security monitoring
+@app.after_request
+def security_monitoring(response):
+    """Monitor for security issues"""
+    # Log failed login attempts
+    if request.endpoint == 'login' and response.status_code == 401:
+        logger.warning(f"Failed login attempt from {request.remote_addr}")
+    
+    # Log suspicious activity
+    if response.status_code in [400, 403, 404, 500]:
+        logger.warning(f"Suspicious activity: {request.method} {request.url} - {response.status_code}")
+    
+    return response
 
 if __name__ == '__main__':
     logger.info("Starting Flask application...")
