@@ -1,0 +1,599 @@
+{% extends 'base.html' %}
+{% block title %}AI Resume Analysis - ResumeBuilder Pro{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="h2 mb-1">
+                                <i class="bi bi-search text-primary me-2"></i>
+                                AI Resume Analysis
+                            </h1>
+                            <p class="text-muted mb-0">Get AI-powered insights to optimize your resume for ATS systems and job applications</p>
+                        </div>
+                        <div class="text-end">
+                            <div class="badge bg-success fs-6 px-3 py-2">
+                                <i class="bi bi-robot me-1"></i>
+                                AI-Powered
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analysis Setup -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">
+                        <i class="bi bi-gear me-2"></i>
+                        Analysis Setup
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="analysisForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Select Resume *</label>
+                                <select class="form-select" id="resumeSelect" required>
+                                    <option value="">Choose a resume to analyze</option>
+                                    {% for resume in resumes %}
+                                    <option value="{{ resume.id }}">{{ resume.name or 'Untitled Resume' }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Job Description (Optional)</label>
+                                <textarea class="form-control" id="jobDescription" rows="3" placeholder="Paste the job description to get keyword matching analysis..."></textarea>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-search me-2"></i>
+                                    Analyze Resume
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle me-2"></i>
+                        What We Analyze
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            ATS Optimization
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            Content Quality
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            Keyword Matching
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            Structure Analysis
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            Action Verbs
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            Quantification
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analysis Results -->
+    <div class="row mb-4" id="analysisResults" style="display: none;">
+        <!-- Overall Score -->
+        <div class="col-12 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="row align-items-center">
+                        <div class="col-lg-4">
+                            <div class="position-relative d-inline-block">
+                                <svg width="150" height="150" class="progress-ring">
+                                    <circle cx="75" cy="75" r="65" stroke="#e9ecef" stroke-width="10" fill="transparent"/>
+                                    <circle cx="75" cy="75" r="65" stroke="#667eea" stroke-width="10" fill="transparent" 
+                                            stroke-dasharray="408" stroke-dashoffset="102" class="progress-ring-circle"/>
+                                </svg>
+                                <div class="position-absolute top-50 start-50 translate-middle">
+                                    <h2 class="mb-0" id="overallScore">0</h2>
+                                    <small class="text-muted">Overall Score</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-8 text-start">
+                            <h4 class="mb-3">Resume Analysis Complete</h4>
+                            <p class="text-muted mb-3">Your resume has been analyzed across multiple dimensions. Review the detailed breakdown below to see specific areas for improvement.</p>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <span class="badge bg-primary" id="atsScore">ATS: 0%</span>
+                                <span class="badge bg-success" id="contentScore">Content: 0%</span>
+                                <span class="badge bg-warning" id="keywordScore">Keywords: 0%</span>
+                                <span class="badge bg-info" id="structureScore">Structure: 0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Analysis -->
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">
+                        <i class="bi bi-graph-up me-2"></i>
+                        ATS Optimization
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>ATS Score</span>
+                            <span id="atsScoreValue">0%</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-primary" id="atsProgress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div id="atsDetails">
+                        <!-- ATS details will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">
+                        <i class="bi bi-file-text me-2"></i>
+                        Content Quality
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>Content Score</span>
+                            <span id="contentScoreValue">0%</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-success" id="contentProgress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div id="contentDetails">
+                        <!-- Content details will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">
+                        <i class="bi bi-key me-2"></i>
+                        Keyword Analysis
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>Keyword Match</span>
+                            <span id="keywordScoreValue">0%</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-warning" id="keywordProgress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div id="keywordDetails">
+                        <!-- Keyword details will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">
+                        <i class="bi bi-layers me-2"></i>
+                        Structure Analysis
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>Structure Score</span>
+                            <span id="structureScoreValue">0%</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-info" id="structureProgress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div id="structureDetails">
+                        <!-- Structure details will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="row mb-4" id="recommendationsSection" style="display: none;">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">
+                        <i class="bi bi-lightbulb me-2"></i>
+                        Improvement Recommendations
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="recommendationsList">
+                        <!-- Recommendations will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analysis History -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">
+                        <i class="bi bi-clock-history me-2"></i>
+                        Analysis History
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Resume</th>
+                                    <th>Overall Score</th>
+                                    <th>ATS Score</th>
+                                    <th>Content Score</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="analysisHistory">
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">No analysis history yet</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.progress-ring {
+    transform: rotate(-90deg);
+}
+
+.progress-ring-circle {
+    transition: stroke-dashoffset 0.35s;
+    transform-origin: 50% 50%;
+}
+
+.analysis-card {
+    border-left: 4px solid #667eea;
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.score-excellent { color: #198754; }
+.score-good { color: #0d6efd; }
+.score-average { color: #fd7e14; }
+.score-poor { color: #dc3545; }
+
+.keyword-match {
+    background: #d1e7dd;
+    color: #0f5132;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    margin: 0.125rem;
+    display: inline-block;
+}
+
+.keyword-missing {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    margin: 0.125rem;
+    display: inline-block;
+}
+
+.check-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.check-item i {
+    margin-right: 0.5rem;
+    width: 16px;
+}
+</style>
+
+<script>
+let currentAnalysis = null;
+
+// Analysis Form
+document.getElementById('analysisForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    performAnalysis();
+});
+
+async function performAnalysis() {
+    const resumeId = document.getElementById('resumeSelect').value;
+    const jobDescription = document.getElementById('jobDescription').value;
+    
+    if (!resumeId) {
+        showToast('Please select a resume to analyze', 'error');
+        return;
+    }
+    
+    try {
+        showLoading(document.querySelector('#analysisForm button[type="submit"]'));
+        
+        const response = await fetch('/ai-resume-analysis', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                resume_id: resumeId,
+                job_description: jobDescription
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            currentAnalysis = data.analysis;
+            displayAnalysisResults(data.analysis);
+            saveAnalysisToHistory(data.analysis);
+            showToast('Analysis completed successfully!', 'success');
+        } else {
+            showToast('Failed to analyze resume', 'error');
+        }
+        
+    } catch (error) {
+        console.error('Error performing analysis:', error);
+        showToast('Failed to analyze resume', 'error');
+    } finally {
+        hideLoading(document.querySelector('#analysisForm button[type="submit"]'));
+    }
+}
+
+function displayAnalysisResults(analysis) {
+    // Show results section
+    document.getElementById('analysisResults').style.display = 'block';
+    document.getElementById('analysisResults').scrollIntoView({ behavior: 'smooth' });
+    
+    // Update overall score
+    document.getElementById('overallScore').textContent = analysis.overall_score;
+    updateProgressRing(analysis.overall_score);
+    
+    // Update individual scores
+    updateScore('ats', analysis.ats_optimization.score);
+    updateScore('content', analysis.content_quality.overall_score);
+    updateScore('keyword', analysis.keyword_analysis.score);
+    updateScore('structure', analysis.structure_analysis.score);
+    
+    // Display detailed analysis
+    displayATSAnalysis(analysis.ats_optimization);
+    displayContentAnalysis(analysis.content_quality);
+    displayKeywordAnalysis(analysis.keyword_analysis);
+    displayStructureAnalysis(analysis.structure_analysis);
+    
+    // Display recommendations
+    displayRecommendations(analysis.recommendations);
+}
+
+function updateProgressRing(score) {
+    const circle = document.querySelector('.progress-ring-circle');
+    const radius = circle.r.baseVal.value;
+    const circumference = radius * 2 * Math.PI;
+    const offset = circumference - (score / 100 * circumference);
+    circle.style.strokeDashoffset = offset;
+}
+
+function updateScore(type, score) {
+    document.getElementById(`${type}Score`).textContent = `${type.toUpperCase()}: ${score}%`;
+    document.getElementById(`${type}ScoreValue`).textContent = `${score}%`;
+    document.getElementById(`${type}Progress`).style.width = `${score}%`;
+}
+
+function displayATSAnalysis(ats) {
+    const container = document.getElementById('atsDetails');
+    
+    let html = '<div class="mb-3">';
+    html += '<h6>Strengths:</h6>';
+    if (ats.strengths && ats.strengths.length > 0) {
+        html += '<ul class="list-unstyled">';
+        ats.strengths.forEach(strength => {
+            html += `<li><i class="bi bi-check-circle text-success"></i> ${strength}</li>`;
+        });
+        html += '</ul>';
+    } else {
+        html += '<p class="text-muted">No specific strengths identified</p>';
+    }
+    
+    html += '<h6>Issues:</h6>';
+    if (ats.issues && ats.issues.length > 0) {
+        html += '<ul class="list-unstyled">';
+        ats.issues.forEach(issue => {
+            html += `<li><i class="bi bi-exclamation-triangle text-warning"></i> ${issue}</li>`;
+        });
+        html += '</ul>';
+    } else {
+        html += '<p class="text-success">No issues found</p>';
+    }
+    html += '</div>';
+    
+    container.innerHTML = html;
+}
+
+function displayContentAnalysis(content) {
+    const container = document.getElementById('contentDetails');
+    
+    let html = '<div class="mb-3">';
+    html += `<p><strong>Word Count:</strong> ${content.word_count}</p>`;
+    html += `<p><strong>Sentences:</strong> ${content.sentence_count}</p>`;
+    html += `<p><strong>Avg. Sentence Length:</strong> ${content.avg_sentence_length} words</p>`;
+    html += `<p><strong>Action Verbs Score:</strong> ${content.action_verbs_score}%</p>`;
+    html += `<p><strong>Quantification Score:</strong> ${content.quantification_score}%</p>`;
+    html += '</div>';
+    
+    container.innerHTML = html;
+}
+
+function displayKeywordAnalysis(keywords) {
+    const container = document.getElementById('keywordDetails');
+    
+    let html = '<div class="mb-3">';
+    
+    if (keywords.matched_keywords && keywords.matched_keywords.length > 0) {
+        html += '<h6>Matched Keywords:</h6>';
+        html += '<div class="mb-2">';
+        keywords.matched_keywords.forEach(keyword => {
+            html += `<span class="keyword-match">${keyword}</span>`;
+        });
+        html += '</div>';
+    }
+    
+    if (keywords.missing_keywords && keywords.missing_keywords.length > 0) {
+        html += '<h6>Missing Keywords:</h6>';
+        html += '<div class="mb-2">';
+        keywords.missing_keywords.forEach(keyword => {
+            html += `<span class="keyword-missing">${keyword}</span>`;
+        });
+        html += '</div>';
+    }
+    
+    if (keywords.suggestions && keywords.suggestions.length > 0) {
+        html += '<h6>Suggestions:</h6>';
+        html += '<ul class="list-unstyled">';
+        keywords.suggestions.forEach(suggestion => {
+            html += `<li><i class="bi bi-lightbulb text-warning"></i> ${suggestion}</li>`;
+        });
+        html += '</ul>';
+    }
+    
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+function displayStructureAnalysis(structure) {
+    const container = document.getElementById('structureDetails');
+    
+    let html = '<div class="mb-3">';
+    html += '<h6>Section Analysis:</h6>';
+    
+    const sections = {
+        'contact_info': 'Contact Information',
+        'summary': 'Professional Summary',
+        'experience': 'Work Experience',
+        'education': 'Education',
+        'skills': 'Skills',
+        'languages': 'Languages'
+    };
+    
+    Object.entries(sections).forEach(([key, name]) => {
+        const isComplete = structure.complete_sections.includes(key);
+        const icon = isComplete ? 'bi-check-circle text-success' : 'bi-x-circle text-danger';
+        html += `<div class="check-item"><i class="bi ${icon}"></i> ${name}</div>`;
+    });
+    
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+function displayRecommendations(recommendations) {
+    const container = document.getElementById('recommendationsList');
+    const section = document.getElementById('recommendationsSection');
+    
+    if (recommendations && recommendations.length > 0) {
+        let html = '<ul class="list-unstyled">';
+        recommendations.forEach(rec => {
+            html += `<li class="mb-2"><i class="bi bi-arrow-right text-primary me-2"></i>${rec}</li>`;
+        });
+        html += '</ul>';
+        container.innerHTML = html;
+        section.style.display = 'block';
+    } else {
+        section.style.display = 'none';
+    }
+}
+
+function saveAnalysisToHistory(analysis) {
+    const resumeName = document.getElementById('resumeSelect').selectedOptions[0].text;
+    const date = new Date().toLocaleDateString();
+    
+    const historyRow = `
+        <tr>
+            <td>${date}</td>
+            <td>${resumeName}</td>
+            <td><span class="badge bg-primary">${analysis.overall_score}/100</span></td>
+            <td><span class="badge bg-success">${analysis.ats_optimization.score}%</span></td>
+            <td><span class="badge bg-warning">${analysis.content_quality.overall_score}%</span></td>
+            <td>
+                <button class="btn btn-sm btn-outline-primary" onclick="viewAnalysisDetails()">View Details</button>
+            </td>
+        </tr>
+    `;
+    
+    const historyTable = document.getElementById('analysisHistory');
+    if (historyTable.querySelector('td[colspan]')) {
+        historyTable.innerHTML = historyRow;
+    } else {
+        historyTable.insertAdjacentHTML('afterbegin', historyRow);
+    }
+}
+
+function viewAnalysisDetails() {
+    if (currentAnalysis) {
+        // Scroll to results section
+        document.getElementById('analysisResults').scrollIntoView({ behavior: 'smooth' });
+    }
+}
+</script>
+{% endblock %}

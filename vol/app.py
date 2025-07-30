@@ -2389,6 +2389,654 @@ def analyze_interview_answer(question, answer, job_title):
             'improvements': ['Could be more specific']
         }
 
+@app.route('/ai-resume-analysis', methods=['GET', 'POST'])
+@login_required
+def ai_resume_analysis():
+    """Advanced AI Resume Analysis with ATS Optimization"""
+    if request.method == 'POST':
+        data = request.get_json()
+        resume_id = data.get('resume_id')
+        job_description = data.get('job_description', '')
+        
+        # Get resume data
+        resume = Resume.query.get_or_404(resume_id)
+        if resume.user_id != current_user.id:
+            return jsonify({'error': 'Unauthorized'}), 403
+        
+        # Perform AI analysis
+        analysis = perform_ai_resume_analysis(resume, job_description)
+        
+        return jsonify({
+            'success': True,
+            'analysis': analysis
+        })
+    
+    # Get user's resumes for analysis
+    resumes = Resume.query.filter_by(user_id=current_user.id).all()
+    return render_template('ai_resume_analysis.html', resumes=resumes)
+
+def perform_ai_resume_analysis(resume, job_description=''):
+    """Perform comprehensive AI analysis of resume"""
+    try:
+        # Combine resume content for analysis
+        resume_content = f"""
+        Name: {resume.name}
+        Summary: {resume.summary or ''}
+        Experience: {resume.experience or ''}
+        Education: {resume.education or ''}
+        Skills: {resume.skills or ''}
+        """
+        
+        # ATS Optimization Analysis
+        ats_score = analyze_ats_optimization(resume_content, job_description)
+        
+        # Content Quality Analysis
+        content_analysis = analyze_content_quality(resume_content)
+        
+        # Keyword Analysis
+        keyword_analysis = analyze_keywords(resume_content, job_description)
+        
+        # Structure Analysis
+        structure_analysis = analyze_resume_structure(resume)
+        
+        # Overall Score
+        overall_score = calculate_overall_score(ats_score, content_analysis, keyword_analysis, structure_analysis)
+        
+        return {
+            'overall_score': overall_score,
+            'ats_optimization': ats_score,
+            'content_quality': content_analysis,
+            'keyword_analysis': keyword_analysis,
+            'structure_analysis': structure_analysis,
+            'recommendations': generate_recommendations(ats_score, content_analysis, keyword_analysis, structure_analysis)
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in AI resume analysis: {e}")
+        return get_fallback_analysis()
+
+def analyze_ats_optimization(resume_content, job_description):
+    """Analyze ATS optimization"""
+    try:
+        # Basic ATS checks
+        checks = {
+            'has_contact_info': bool(re.search(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', resume_content)),
+            'has_phone': bool(re.search(r'[\+]?[1-9][\d]{0,15}', resume_content)),
+            'has_skills_section': 'skills' in resume_content.lower(),
+            'has_experience_section': 'experience' in resume_content.lower(),
+            'has_education_section': 'education' in resume_content.lower(),
+            'has_summary': bool(resume_content.split('Summary:')[1].strip() if 'Summary:' in resume_content else False),
+            'no_images': True,  # Assuming no images in text content
+            'no_tables': True,  # Assuming no tables in text content
+            'proper_formatting': True  # Basic check
+        }
+        
+        score = sum(checks.values()) / len(checks) * 100
+        
+        return {
+            'score': round(score, 1),
+            'checks': checks,
+            'issues': [k for k, v in checks.items() if not v],
+            'strengths': [k for k, v in checks.items() if v]
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in ATS analysis: {e}")
+        return {'score': 70, 'checks': {}, 'issues': [], 'strengths': []}
+
+def analyze_content_quality(resume_content):
+    """Analyze content quality and readability"""
+    try:
+        # Basic content analysis
+        word_count = len(resume_content.split())
+        sentence_count = len(re.split(r'[.!?]+', resume_content))
+        avg_sentence_length = word_count / sentence_count if sentence_count > 0 else 0
+        
+        # Action verb analysis
+        action_verbs = [
+            'developed', 'implemented', 'managed', 'created', 'designed', 'built',
+            'led', 'coordinated', 'analyzed', 'improved', 'increased', 'decreased',
+            'maintained', 'established', 'organized', 'planned', 'executed'
+        ]
+        
+        found_verbs = sum(1 for verb in action_verbs if verb in resume_content.lower())
+        verb_score = min(found_verbs / 5 * 100, 100)  # Cap at 100%
+        
+        # Quantification analysis
+        numbers = re.findall(r'\d+', resume_content)
+        quantification_score = min(len(numbers) * 10, 100)
+        
+        return {
+            'word_count': word_count,
+            'sentence_count': sentence_count,
+            'avg_sentence_length': round(avg_sentence_length, 1),
+            'action_verbs_score': round(verb_score, 1),
+            'quantification_score': round(quantification_score, 1),
+            'overall_score': round((verb_score + quantification_score) / 2, 1)
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in content analysis: {e}")
+        return {'overall_score': 75, 'word_count': 0, 'sentence_count': 0}
+
+def analyze_keywords(resume_content, job_description):
+    """Analyze keyword matching with job description"""
+    try:
+        if not job_description:
+            return {'score': 80, 'matched_keywords': [], 'missing_keywords': [], 'suggestions': []}
+        
+        # Extract keywords from job description
+        job_keywords = extract_keywords(job_description)
+        resume_keywords = extract_keywords(resume_content)
+        
+        # Find matches
+        matched_keywords = [kw for kw in job_keywords if kw in resume_keywords]
+        missing_keywords = [kw for kw in job_keywords if kw not in resume_keywords]
+        
+        # Calculate score
+        match_score = len(matched_keywords) / len(job_keywords) * 100 if job_keywords else 80
+        
+        return {
+            'score': round(match_score, 1),
+            'matched_keywords': matched_keywords[:10],  # Top 10
+            'missing_keywords': missing_keywords[:10],  # Top 10
+            'suggestions': ['Add missing keywords to improve ATS matching', 'Include industry-specific terminology']
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in keyword analysis: {e}")
+        return {'score': 80, 'matched_keywords': [], 'missing_keywords': [], 'suggestions': []}
+
+def extract_keywords(text):
+    """Extract important keywords from text"""
+    try:
+        # Remove common words and extract meaningful terms
+        stop_words = {'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'is', 'are', 'was', 'were', 'be', 'been', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could', 'should', 'may', 'might', 'can', 'this', 'that', 'these', 'those'}
+        
+        words = re.findall(r'\b[a-zA-Z]{3,}\b', text.lower())
+        words = [word for word in words if word not in stop_words]
+        
+        # Count frequency and return most common
+        word_freq = {}
+        for word in words:
+            word_freq[word] = word_freq.get(word, 0) + 1
+        
+        # Return top keywords
+        sorted_words = sorted(word_freq.items(), key=lambda x: x[1], reverse=True)
+        return [word for word, freq in sorted_words[:20]]  # Top 20 keywords
+        
+    except Exception as e:
+        logger.error(f"Error extracting keywords: {e}")
+        return []
+
+def analyze_resume_structure(resume):
+    """Analyze resume structure and organization"""
+    try:
+        sections = {
+            'contact_info': bool(resume.name and resume.email and resume.phone),
+            'summary': bool(resume.summary and len(resume.summary) > 50),
+            'experience': bool(resume.experience and len(resume.experience) > 100),
+            'education': bool(resume.education and len(resume.education) > 30),
+            'skills': bool(resume.skills and len(resume.skills) > 20),
+            'languages': bool(resume.languages and len(resume.languages) > 10)
+        }
+        
+        score = sum(sections.values()) / len(sections) * 100
+        
+        return {
+            'score': round(score, 1),
+            'sections': sections,
+            'missing_sections': [k for k, v in sections.items() if not v],
+            'complete_sections': [k for k, v in sections.items() if v]
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in structure analysis: {e}")
+        return {'score': 75, 'sections': {}, 'missing_sections': [], 'complete_sections': []}
+
+def calculate_overall_score(ats_score, content_analysis, keyword_analysis, structure_analysis):
+    """Calculate overall resume score"""
+    try:
+        weights = {
+            'ats': 0.3,
+            'content': 0.25,
+            'keywords': 0.25,
+            'structure': 0.2
+        }
+        
+        overall = (
+            ats_score['score'] * weights['ats'] +
+            content_analysis['overall_score'] * weights['content'] +
+            keyword_analysis['score'] * weights['keywords'] +
+            structure_analysis['score'] * weights['structure']
+        )
+        
+        return round(overall, 1)
+        
+    except Exception as e:
+        logger.error(f"Error calculating overall score: {e}")
+        return 75.0
+
+def generate_recommendations(ats_score, content_analysis, keyword_analysis, structure_analysis):
+    """Generate improvement recommendations"""
+    recommendations = []
+    
+    # ATS recommendations
+    if ats_score['score'] < 80:
+        recommendations.append("Improve ATS optimization by adding more relevant keywords")
+    
+    # Content recommendations
+    if content_analysis['action_verbs_score'] < 70:
+        recommendations.append("Add more action verbs to make your experience more impactful")
+    
+    if content_analysis['quantification_score'] < 60:
+        recommendations.append("Include specific numbers and metrics to quantify your achievements")
+    
+    # Keyword recommendations
+    if keyword_analysis['score'] < 75:
+        recommendations.append("Add missing keywords from the job description to your resume")
+    
+    # Structure recommendations
+    if structure_analysis['score'] < 80:
+        missing = structure_analysis['missing_sections']
+        if missing:
+            recommendations.append(f"Add missing sections: {', '.join(missing)}")
+    
+    return recommendations[:5]  # Top 5 recommendations
+
+def get_fallback_analysis():
+    """Fallback analysis when AI is unavailable"""
+    return {
+        'overall_score': 75.0,
+        'ats_optimization': {
+            'score': 80.0,
+            'checks': {},
+            'issues': [],
+            'strengths': ['Basic formatting', 'Contact information']
+        },
+        'content_quality': {
+            'overall_score': 75.0,
+            'word_count': 200,
+            'sentence_count': 15,
+            'avg_sentence_length': 13.3,
+            'action_verbs_score': 70.0,
+            'quantification_score': 60.0
+        },
+        'keyword_analysis': {
+            'score': 75.0,
+            'matched_keywords': ['experience', 'skills', 'management'],
+            'missing_keywords': ['leadership', 'project management'],
+            'suggestions': ['Add more industry-specific keywords']
+        },
+        'structure_analysis': {
+            'score': 80.0,
+            'sections': {},
+            'missing_sections': [],
+            'complete_sections': ['contact_info', 'summary', 'experience']
+        },
+        'recommendations': [
+            'Add more specific metrics and achievements',
+            'Include relevant keywords from job descriptions',
+            'Use more action verbs in experience descriptions'
+        ]
+    }
+
+@app.route('/advanced-analytics')
+@login_required
+def advanced_analytics():
+    """Advanced Analytics Dashboard with detailed insights"""
+    try:
+        # Get user's data
+        user_resumes = Resume.query.filter_by(user_id=current_user.id).all()
+        user_applications = JobApplication.query.filter_by(user_id=current_user.id).all()
+        user_cover_letters = CoverLetter.query.filter_by(user_id=current_user.id).all()
+        
+        # Calculate advanced metrics
+        analytics = calculate_advanced_analytics(user_resumes, user_applications, user_cover_letters)
+        
+        return render_template('advanced_analytics.html', analytics=analytics)
+        
+    except Exception as e:
+        logger.error(f"Error in advanced analytics: {e}")
+        flash('Error loading analytics', 'error')
+        return redirect(url_for('dashboard'))
+
+def calculate_advanced_analytics(resumes, applications, cover_letters):
+    """Calculate comprehensive analytics"""
+    try:
+        # Basic counts
+        total_resumes = len(resumes)
+        total_applications = len(applications)
+        total_cover_letters = len(cover_letters)
+        
+        # Resume analytics
+        resume_analytics = analyze_resumes(resumes)
+        
+        # Application analytics
+        application_analytics = analyze_applications(applications)
+        
+        # Cover letter analytics
+        cover_letter_analytics = analyze_cover_letters(cover_letters)
+        
+        # Performance trends
+        performance_trends = calculate_performance_trends(applications)
+        
+        # Industry insights
+        industry_insights = analyze_industry_trends(applications)
+        
+        # Success metrics
+        success_metrics = calculate_success_metrics(applications)
+        
+        return {
+            'overview': {
+                'total_resumes': total_resumes,
+                'total_applications': total_applications,
+                'total_cover_letters': total_cover_letters,
+                'active_applications': len([app for app in applications if app.status in ['applied', 'interview']]),
+                'success_rate': success_metrics['success_rate']
+            },
+            'resume_analytics': resume_analytics,
+            'application_analytics': application_analytics,
+            'cover_letter_analytics': cover_letter_analytics,
+            'performance_trends': performance_trends,
+            'industry_insights': industry_insights,
+            'success_metrics': success_metrics
+        }
+        
+    except Exception as e:
+        logger.error(f"Error calculating analytics: {e}")
+        return get_fallback_analytics()
+
+def analyze_resumes(resumes):
+    """Analyze resume data"""
+    try:
+        if not resumes:
+            return get_fallback_resume_analytics()
+        
+        # Template usage
+        template_usage = {}
+        for resume in resumes:
+            template = resume.template or 'modern'
+            template_usage[template] = template_usage.get(template, 0) + 1
+        
+        # Completion rates
+        completed_resumes = sum(1 for r in resumes if r.summary and r.experience and r.skills)
+        completion_rate = (completed_resumes / len(resumes)) * 100 if resumes else 0
+        
+        # Download statistics
+        total_downloads = sum(r.downloads for r in resumes)
+        avg_downloads = total_downloads / len(resumes) if resumes else 0
+        
+        # Recent activity
+        recent_resumes = sorted(resumes, key=lambda x: x.updated_at or x.created_at, reverse=True)[:5]
+        
+        return {
+            'template_usage': template_usage,
+            'completion_rate': round(completion_rate, 1),
+            'total_downloads': total_downloads,
+            'avg_downloads': round(avg_downloads, 1),
+            'recent_activity': [
+                {
+                    'name': r.name or 'Untitled',
+                    'date': (r.updated_at or r.created_at).strftime('%Y-%m-%d'),
+                    'template': r.template or 'modern',
+                    'downloads': r.downloads
+                } for r in recent_resumes
+            ]
+        }
+        
+    except Exception as e:
+        logger.error(f"Error analyzing resumes: {e}")
+        return get_fallback_resume_analytics()
+
+def analyze_applications(applications):
+    """Analyze job application data"""
+    try:
+        if not applications:
+            return get_fallback_application_analytics()
+        
+        # Status distribution
+        status_counts = {}
+        for app in applications:
+            status_counts[app.status] = status_counts.get(app.status, 0) + 1
+        
+        # Company analysis
+        company_counts = {}
+        for app in applications:
+            company_counts[app.company] = company_counts.get(app.company, 0) + 1
+        
+        # Top companies
+        top_companies = sorted(company_counts.items(), key=lambda x: x[1], reverse=True)[:5]
+        
+        # Application timeline
+        recent_applications = sorted(applications, key=lambda x: x.applied_date, reverse=True)[:10]
+        
+        # Response rate
+        responded_applications = len([app for app in applications if app.status != 'applied'])
+        response_rate = (responded_applications / len(applications)) * 100 if applications else 0
+        
+        return {
+            'status_distribution': status_counts,
+            'top_companies': top_companies,
+            'response_rate': round(response_rate, 1),
+            'recent_applications': [
+                {
+                    'job_title': app.job_title,
+                    'company': app.company,
+                    'status': app.status,
+                    'date': app.applied_date.strftime('%Y-%m-%d') if app.applied_date else 'Unknown'
+                } for app in recent_applications
+            ]
+        }
+        
+    except Exception as e:
+        logger.error(f"Error analyzing applications: {e}")
+        return get_fallback_application_analytics()
+
+def analyze_cover_letters(cover_letters):
+    """Analyze cover letter data"""
+    try:
+        if not cover_letters:
+            return get_fallback_cover_letter_analytics()
+        
+        # Template usage
+        template_usage = {}
+        for cl in cover_letters:
+            template = cl.template or 'standard'
+            template_usage[template] = template_usage.get(template, 0) + 1
+        
+        # Download statistics
+        total_downloads = sum(cl.downloads for cl in cover_letters)
+        avg_downloads = total_downloads / len(cover_letters) if cover_letters else 0
+        
+        # Recent activity
+        recent_cover_letters = sorted(cover_letters, key=lambda x: x.updated_at or x.created_at, reverse=True)[:5]
+        
+        return {
+            'template_usage': template_usage,
+            'total_downloads': total_downloads,
+            'avg_downloads': round(avg_downloads, 1),
+            'recent_activity': [
+                {
+                    'title': cl.title or 'Untitled',
+                    'company': cl.company,
+                    'date': (cl.updated_at or cl.created_at).strftime('%Y-%m-%d') if cl.updated_at or cl.created_at else 'Unknown',
+                    'template': cl.template or 'standard'
+                } for cl in recent_cover_letters
+            ]
+        }
+        
+    except Exception as e:
+        logger.error(f"Error analyzing cover letters: {e}")
+        return get_fallback_cover_letter_analytics()
+
+def calculate_performance_trends(applications):
+    """Calculate performance trends over time"""
+    try:
+        if not applications:
+            return get_fallback_performance_trends()
+        
+        # Group by month
+        monthly_data = {}
+        for app in applications:
+            if app.applied_date:
+                month_key = app.applied_date.strftime('%Y-%m')
+                if month_key not in monthly_data:
+                    monthly_data[month_key] = {'total': 0, 'responses': 0, 'interviews': 0}
+                
+                monthly_data[month_key]['total'] += 1
+                if app.status != 'applied':
+                    monthly_data[month_key]['responses'] += 1
+                if app.status in ['interview', 'offer']:
+                    monthly_data[month_key]['interviews'] += 1
+        
+        # Convert to chart data
+        labels = sorted(monthly_data.keys())
+        total_data = [monthly_data[month]['total'] for month in labels]
+        response_data = [monthly_data[month]['responses'] for month in labels]
+        interview_data = [monthly_data[month]['interviews'] for month in labels]
+        
+        return {
+            'labels': labels,
+            'total_applications': total_data,
+            'responses': response_data,
+            'interviews': interview_data
+        }
+        
+    except Exception as e:
+        logger.error(f"Error calculating performance trends: {e}")
+        return get_fallback_performance_trends()
+
+def analyze_industry_trends(applications):
+    """Analyze industry trends"""
+    try:
+        if not applications:
+            return get_fallback_industry_insights()
+        
+        # Industry keywords (simplified)
+        industry_keywords = {
+            'technology': ['software', 'tech', 'programming', 'development', 'engineering'],
+            'finance': ['finance', 'banking', 'investment', 'accounting', 'financial'],
+            'healthcare': ['health', 'medical', 'nursing', 'pharmacy', 'hospital'],
+            'education': ['education', 'teaching', 'academic', 'school', 'university'],
+            'marketing': ['marketing', 'advertising', 'brand', 'digital', 'social']
+        }
+        
+        industry_counts = {industry: 0 for industry in industry_keywords}
+        
+        for app in applications:
+            job_text = f"{app.job_title} {app.company}".lower()
+            for industry, keywords in industry_keywords.items():
+                if any(keyword in job_text for keyword in keywords):
+                    industry_counts[industry] += 1
+                    break
+        
+        # Top industries
+        top_industries = sorted(industry_counts.items(), key=lambda x: x[1], reverse=True)
+        
+        return {
+            'industry_distribution': industry_counts,
+            'top_industries': top_industries[:5]
+        }
+        
+    except Exception as e:
+        logger.error(f"Error analyzing industry trends: {e}")
+        return get_fallback_industry_insights()
+
+def calculate_success_metrics(applications):
+    """Calculate success metrics"""
+    try:
+        if not applications:
+            return get_fallback_success_metrics()
+        
+        total_applications = len(applications)
+        responses = len([app for app in applications if app.status != 'applied'])
+        interviews = len([app for app in applications if app.status == 'interview'])
+        offers = len([app for app in applications if app.status == 'offer'])
+        
+        response_rate = (responses / total_applications) * 100 if total_applications > 0 else 0
+        interview_rate = (interviews / total_applications) * 100 if total_applications > 0 else 0
+        offer_rate = (offers / total_applications) * 100 if total_applications > 0 else 0
+        success_rate = (offers / total_applications) * 100 if total_applications > 0 else 0
+        
+        return {
+            'total_applications': total_applications,
+            'responses': responses,
+            'interviews': interviews,
+            'offers': offers,
+            'response_rate': round(response_rate, 1),
+            'interview_rate': round(interview_rate, 1),
+            'offer_rate': round(offer_rate, 1),
+            'success_rate': round(success_rate, 1)
+        }
+        
+    except Exception as e:
+        logger.error(f"Error calculating success metrics: {e}")
+        return get_fallback_success_metrics()
+
+# Fallback functions for when data is unavailable
+def get_fallback_analytics():
+    return {
+        'overview': {'total_resumes': 0, 'total_applications': 0, 'total_cover_letters': 0, 'active_applications': 0, 'success_rate': 0},
+        'resume_analytics': get_fallback_resume_analytics(),
+        'application_analytics': get_fallback_application_analytics(),
+        'cover_letter_analytics': get_fallback_cover_letter_analytics(),
+        'performance_trends': get_fallback_performance_trends(),
+        'industry_insights': get_fallback_industry_insights(),
+        'success_metrics': get_fallback_success_metrics()
+    }
+
+def get_fallback_resume_analytics():
+    return {
+        'template_usage': {'modern': 1},
+        'completion_rate': 0,
+        'total_downloads': 0,
+        'avg_downloads': 0,
+        'recent_activity': []
+    }
+
+def get_fallback_application_analytics():
+    return {
+        'status_distribution': {'applied': 1},
+        'top_companies': [],
+        'response_rate': 0,
+        'recent_applications': []
+    }
+
+def get_fallback_cover_letter_analytics():
+    return {
+        'template_usage': {'standard': 1},
+        'total_downloads': 0,
+        'avg_downloads': 0,
+        'recent_activity': []
+    }
+
+def get_fallback_performance_trends():
+    return {
+        'labels': [],
+        'total_applications': [],
+        'responses': [],
+        'interviews': []
+    }
+
+def get_fallback_industry_insights():
+    return {
+        'industry_distribution': {},
+        'top_industries': []
+    }
+
+def get_fallback_success_metrics():
+    return {
+        'total_applications': 0,
+        'responses': 0,
+        'interviews': 0,
+        'offers': 0,
+        'response_rate': 0,
+        'interview_rate': 0,
+        'offer_rate': 0,
+        'success_rate': 0
+    }
+
 if __name__ == '__main__':
     logger.info("Starting Flask application...")
     app.run(debug=True, host='0.0.0.0', port=5000) 

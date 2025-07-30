@@ -1,0 +1,519 @@
+{% extends 'base.html' %}
+{% block title %}Advanced Analytics - ResumeBuilder Pro{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="h2 mb-1">
+                                <i class="bi bi-graph-up text-primary me-2"></i>
+                                Advanced Analytics
+                            </h1>
+                            <p class="text-muted mb-0">Comprehensive insights into your career development and application performance</p>
+                        </div>
+                        <div class="text-end">
+                            <div class="badge bg-success fs-6 px-3 py-2">
+                                <i class="bi bi-chart-line me-1"></i>
+                                Real-time Data
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overview Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary bg-gradient rounded-3 p-3">
+                                <i class="bi bi-file-earmark-text text-white fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Total Resumes</h6>
+                            <h3 class="mb-0">{{ analytics.overview.total_resumes }}</h3>
+                            <small class="text-success">
+                                <i class="bi bi-arrow-up"></i> Active
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-success bg-gradient rounded-3 p-3">
+                                <i class="bi bi-briefcase text-white fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Applications</h6>
+                            <h3 class="mb-0">{{ analytics.overview.total_applications }}</h3>
+                            <small class="text-info">
+                                {{ analytics.overview.active_applications }} Active
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-warning bg-gradient rounded-3 p-3">
+                                <i class="bi bi-envelope text-white fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Cover Letters</h6>
+                            <h3 class="mb-0">{{ analytics.overview.total_cover_letters }}</h3>
+                            <small class="text-warning">
+                                <i class="bi bi-star"></i> Professional
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-info bg-gradient rounded-3 p-3">
+                                <i class="bi bi-trophy text-white fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Success Rate</h6>
+                            <h3 class="mb-0">{{ analytics.overview.success_rate }}%</h3>
+                            <small class="text-success">
+                                <i class="bi bi-arrow-up"></i> Improving
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Trends Chart -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">
+                        <i class="bi bi-graph-up me-2"></i>
+                        Application Performance Trends
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="performanceChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Analytics -->
+    <div class="row mb-4">
+        <!-- Resume Analytics -->
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">
+                        <i class="bi bi-file-earmark-text me-2"></i>
+                        Resume Analytics
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>Completion Rate</span>
+                            <span>{{ analytics.resume_analytics.completion_rate }}%</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-success" style="width: {{ analytics.resume_analytics.completion_rate }}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>Total Downloads</span>
+                            <span>{{ analytics.resume_analytics.total_downloads }}</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-primary" style="width: {{ (analytics.resume_analytics.avg_downloads / 10) * 100 }}%"></div>
+                        </div>
+                    </div>
+                    
+                    <h6 class="mb-2">Template Usage:</h6>
+                    <div class="mb-3">
+                        {% for template, count in analytics.resume_analytics.template_usage.items() %}
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-capitalize">{{ template }}</span>
+                            <span class="badge bg-light text-dark">{{ count }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <h6 class="mb-2">Recent Activity:</h6>
+                    <div class="list-group list-group-flush">
+                        {% for activity in analytics.resume_analytics.recent_activity[:3] %}
+                        <div class="list-group-item border-0 px-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">{{ activity.name }}</h6>
+                                    <small class="text-muted">{{ activity.date }}</small>
+                                </div>
+                                <span class="badge bg-light text-dark">{{ activity.template }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Application Analytics -->
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">
+                        <i class="bi bi-briefcase me-2"></i>
+                        Application Analytics
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>Response Rate</span>
+                            <span>{{ analytics.application_analytics.response_rate }}%</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-warning" style="width: {{ analytics.application_analytics.response_rate }}%"></div>
+                        </div>
+                    </div>
+                    
+                    <h6 class="mb-2">Status Distribution:</h6>
+                    <div class="mb-3">
+                        {% for status, count in analytics.application_analytics.status_distribution.items() %}
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-capitalize">{{ status }}</span>
+                            <span class="badge bg-light text-dark">{{ count }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <h6 class="mb-2">Top Companies:</h6>
+                    <div class="mb-3">
+                        {% for company, count in analytics.application_analytics.top_companies[:3] %}
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>{{ company }}</span>
+                            <span class="badge bg-light text-dark">{{ count }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <h6 class="mb-2">Recent Applications:</h6>
+                    <div class="list-group list-group-flush">
+                        {% for app in analytics.application_analytics.recent_applications[:3] %}
+                        <div class="list-group-item border-0 px-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">{{ app.job_title }}</h6>
+                                    <small class="text-muted">{{ app.company }} • {{ app.date }}</small>
+                                </div>
+                                <span class="badge bg-{{ 'success' if app.status == 'interview' else 'warning' if app.status == 'applied' else 'info' }}">{{ app.status }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Metrics -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">
+                        <i class="bi bi-trophy me-2"></i>
+                        Success Metrics
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="position-relative d-inline-block">
+                                <svg width="120" height="120" class="progress-ring">
+                                    <circle cx="60" cy="60" r="50" stroke="#e9ecef" stroke-width="8" fill="transparent"/>
+                                    <circle cx="60" cy="60" r="50" stroke="#28a745" stroke-width="8" fill="transparent" 
+                                            stroke-dasharray="314" stroke-dashoffset="{{ 314 - (analytics.success_metrics.response_rate * 3.14) }}" class="progress-ring-circle"/>
+                                </svg>
+                                <div class="position-absolute top-50 start-50 translate-middle">
+                                    <h4 class="mb-0">{{ analytics.success_metrics.response_rate }}%</h4>
+                                    <small class="text-muted">Response Rate</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="position-relative d-inline-block">
+                                <svg width="120" height="120" class="progress-ring">
+                                    <circle cx="60" cy="60" r="50" stroke="#e9ecef" stroke-width="8" fill="transparent"/>
+                                    <circle cx="60" cy="60" r="50" stroke="#17a2b8" stroke-width="8" fill="transparent" 
+                                            stroke-dasharray="314" stroke-dashoffset="{{ 314 - (analytics.success_metrics.interview_rate * 3.14) }}" class="progress-ring-circle"/>
+                                </svg>
+                                <div class="position-absolute top-50 start-50 translate-middle">
+                                    <h4 class="mb-0">{{ analytics.success_metrics.interview_rate }}%</h4>
+                                    <small class="text-muted">Interview Rate</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="position-relative d-inline-block">
+                                <svg width="120" height="120" class="progress-ring">
+                                    <circle cx="60" cy="60" r="50" stroke="#e9ecef" stroke-width="8" fill="transparent"/>
+                                    <circle cx="60" cy="60" r="50" stroke="#ffc107" stroke-width="8" fill="transparent" 
+                                            stroke-dasharray="314" stroke-dashoffset="{{ 314 - (analytics.success_metrics.offer_rate * 3.14) }}" class="progress-ring-circle"/>
+                                </svg>
+                                <div class="position-absolute top-50 start-50 translate-middle">
+                                    <h4 class="mb-0">{{ analytics.success_metrics.offer_rate }}%</h4>
+                                    <small class="text-muted">Offer Rate</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="position-relative d-inline-block">
+                                <svg width="120" height="120" class="progress-ring">
+                                    <circle cx="60" cy="60" r="50" stroke="#e9ecef" stroke-width="8" fill="transparent"/>
+                                    <circle cx="60" cy="60" r="50" stroke="#dc3545" stroke-width="8" fill="transparent" 
+                                            stroke-dasharray="314" stroke-dashoffset="{{ 314 - (analytics.success_metrics.success_rate * 3.14) }}" class="progress-ring-circle"/>
+                                </svg>
+                                <div class="position-absolute top-50 start-50 translate-middle">
+                                    <h4 class="mb-0">{{ analytics.success_metrics.success_rate }}%</h4>
+                                    <small class="text-muted">Success Rate</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <h6>Application Funnel:</h6>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>Applications</span>
+                                <span>{{ analytics.success_metrics.total_applications }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>Responses</span>
+                                <span>{{ analytics.success_metrics.responses }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>Interviews</span>
+                                <span>{{ analytics.success_metrics.interviews }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>Offers</span>
+                                <span>{{ analytics.success_metrics.offers }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h6>Industry Insights:</h6>
+                            {% for industry, count in analytics.industry_insights.top_industries[:3] %}
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-capitalize">{{ industry }}</span>
+                                <span class="badge bg-light text-dark">{{ count }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cover Letter Analytics -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">
+                        <i class="bi bi-envelope me-2"></i>
+                        Cover Letter Analytics
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6>Template Usage:</h6>
+                            {% for template, count in analytics.cover_letter_analytics.template_usage.items() %}
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-capitalize">{{ template }}</span>
+                                <span class="badge bg-light text-dark">{{ count }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <h6>Download Statistics:</h6>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>Total Downloads</span>
+                                <span>{{ analytics.cover_letter_analytics.total_downloads }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>Average Downloads</span>
+                                <span>{{ analytics.cover_letter_analytics.avg_downloads }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <h6>Recent Activity:</h6>
+                            {% for activity in analytics.cover_letter_analytics.recent_activity[:3] %}
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>{{ activity.title }}</span>
+                                <small class="text-muted">{{ activity.date }}</small>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.progress-ring {
+    transform: rotate(-90deg);
+}
+
+.progress-ring-circle {
+    transition: stroke-dashoffset 0.35s;
+    transform-origin: 50% 50%;
+}
+
+.analytics-card {
+    border-left: 4px solid #667eea;
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.metric-highlight {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.metric-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.metric-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Performance Trends Chart
+const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+const performanceChart = new Chart(performanceCtx, {
+    type: 'line',
+    data: {
+        labels: {{ analytics.performance_trends.labels | tojson }},
+        datasets: [{
+            label: 'Total Applications',
+            data: {{ analytics.performance_trends.total_applications | tojson }},
+            borderColor: '#667eea',
+            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+            tension: 0.4,
+            fill: true
+        }, {
+            label: 'Responses',
+            data: {{ analytics.performance_trends.responses | tojson }},
+            borderColor: '#28a745',
+            backgroundColor: 'rgba(40, 167, 69, 0.1)',
+            tension: 0.4,
+            fill: true
+        }, {
+            label: 'Interviews',
+            data: {{ analytics.performance_trends.interviews | tojson }},
+            borderColor: '#ffc107',
+            backgroundColor: 'rgba(255, 193, 7, 0.1)',
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'top',
+            },
+            title: {
+                display: true,
+                text: 'Application Performance Over Time'
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        }
+    }
+});
+
+// Animate progress rings on scroll
+document.addEventListener('DOMContentLoaded', function() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'scale(1)';
+            }
+        });
+    });
+    
+    document.querySelectorAll('.progress-ring').forEach(ring => {
+        ring.style.opacity = '0';
+        ring.style.transform = 'scale(0.8)';
+        ring.style.transition = 'all 0.6s ease-out';
+        observer.observe(ring);
+    });
+});
+</script>
+{% endblock %}
