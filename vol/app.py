@@ -64,7 +64,13 @@ import time
 from collections import Counter
 import datetime as dt
 import tempfile
-from weasyprint import HTML
+# Try to import WeasyPrint, but make it optional
+try:
+    from weasyprint import HTML
+    WEASYPRINT_AVAILABLE = True
+except ImportError:
+    WEASYPRINT_AVAILABLE = False
+    print("Warning: WeasyPrint not available. PDF generation will be disabled.")
 from docx import Document
 import logging
 from logging.handlers import RotatingFileHandler
@@ -589,6 +595,10 @@ def download_resume(resume_id):
         return response
     else:
         # Generate PDF using WeasyPrint and modern template
+        if not WEASYPRINT_AVAILABLE:
+            flash('PDF generation is currently unavailable. Please try downloading as Word document instead.', 'warning')
+            return redirect(url_for('my_resumes'))
+        
         html = render_template('resume_pdf_modern.html',
             name=resume.name,
             email=resume.email,
@@ -689,6 +699,10 @@ def download_cover_letter(cover_id):
         tmp.close()
         return response
     else:
+        if not WEASYPRINT_AVAILABLE:
+            flash('PDF generation is currently unavailable. Please try downloading as Word document instead.', 'warning')
+            return redirect(url_for('my_cover_letters'))
+        
         html = render_template('cover_letter_pdf.html', cover=cover, current_user=current_user, now=datetime.now(timezone.utc), is_premium=True)
         pdf = HTML(string=html).write_pdf()
         response = make_response(pdf)
