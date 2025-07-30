@@ -542,7 +542,7 @@ def download_resume(resume_id):
         tmp.seek(0)
         response = make_response(tmp.read())
         response.headers['Content-Type'] = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-        response.headers['Content-Disposition'] = f'attachment; filename="{resume.name or 'resume'}.docx"'
+        response.headers['Content-Disposition'] = f'attachment; filename="{resume.name or "resume"}.docx"'
         tmp.close()
         return response
     else:
@@ -563,7 +563,7 @@ def download_resume(resume_id):
         pdf = HTML(string=html).write_pdf()
         response = make_response(pdf)
         response.headers['Content-Type'] = 'application/pdf'
-        response.headers['Content-Disposition'] = f'attachment; filename="{resume.name or 'resume'}.pdf"'
+        response.headers['Content-Disposition'] = f'attachment; filename="{resume.name or "resume"}.pdf"'
         return response
 
 @app.route('/resume/<int:resume_id>')
@@ -643,7 +643,7 @@ def download_cover_letter(cover_id):
         tmp.seek(0)
         response = make_response(tmp.read())
         response.headers['Content-Type'] = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-        response.headers['Content-Disposition'] = f'attachment; filename="{cover.title or 'cover_letter'}.docx"'
+        response.headers['Content-Disposition'] = f'attachment; filename="{cover.title or "cover_letter"}.docx"'
         tmp.close()
         return response
     else:
@@ -651,7 +651,7 @@ def download_cover_letter(cover_id):
         pdf = HTML(string=html).write_pdf()
         response = make_response(pdf)
         response.headers['Content-Type'] = 'application/pdf'
-        response.headers['Content-Disposition'] = f'attachment; filename="{cover.title or 'cover_letter'}.pdf"'
+        response.headers['Content-Disposition'] = f'attachment; filename="{cover.title or "cover_letter"}.pdf"'
         return response
 
 @app.route('/share-cover-letter/<int:cover_id>')
