@@ -239,65 +239,115 @@
 </div>
 {% endif %}
 {% endmacro %}
-<nav class="navbar navbar-expand-lg mb-4">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="/">ResumeBuilder</a>
+<nav class="navbar navbar-expand-lg navbar-dark mb-4">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="/">
+      <i class="bi bi-file-earmark-text me-2"></i>ResumeBuilder Pro
+    </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-        <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-        {% if current_user.is_authenticated %}
-        <!-- User Avatar Dropdown -->
-        <li class="nav-item dropdown ms-2">
-          <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <img src="{{ current_user.profile_image if current_user.profile_image else '/static/avatar1.png' }}" alt="Avatar" class="rounded-circle me-2" style="width:36px;height:36px;object-fit:cover;border:2px solid #fff;box-shadow:0 2px 8px rgba(30,60,114,0.10);">
-            <span class="d-none d-md-inline">{{ current_user.username }}</span>
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="/">
+            <i class="bi bi-house me-1"></i>Home
           </a>
-          <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
-            <li><a class="dropdown-item" href="/profile"><i class="bi bi-person me-2"></i>Profile</a></li>
-            <li><a class="dropdown-item" href="/settings"><i class="bi bi-gear me-2"></i>Settings</a></li>
+        </li>
+        {% if current_user.is_authenticated %}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="resumeDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-file-earmark-text me-1"></i>Resumes
+          </a>
+          <ul class="dropdown-menu shadow">
+            <li><a class="dropdown-item" href="{{ url_for('my_resumes') }}"><i class="bi bi-collection me-2"></i>My Resumes</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('create_resume') }}"><i class="bi bi-plus-circle me-2"></i>Create New</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item text-danger" href="/logout"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('resume_checker') }}"><i class="bi bi-search me-2"></i>Resume Checker</a></li>
           </ul>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('my_resumes') }}">
-                <i class="fas fa-file-alt me-2"></i>My Resumes
-            </a>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="careerDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-briefcase me-1"></i>Career Tools
+          </a>
+          <ul class="dropdown-menu shadow">
+            <li><a class="dropdown-item" href="{{ url_for('my_cover_letters') }}"><i class="bi bi-envelope me-2"></i>Cover Letters</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('job_application_tracker') }}"><i class="bi bi-graph-up me-2"></i>Job Tracker</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('interview_prep_advanced') }}"><i class="bi bi-camera-video me-2"></i>Interview Prep</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{{ url_for('career_toolkit') }}"><i class="bi bi-tools me-2"></i>Career Toolkit</a></li>
+          </ul>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('analytics') }}">
-                <i class="fas fa-chart-line me-2"></i>Analytics
-            </a>
+        {% endif %}
+      </ul>
+      
+      <ul class="navbar-nav ms-auto">
+        {% if current_user.is_authenticated %}
+        <!-- Notifications -->
+        <li class="nav-item dropdown me-2">
+          <a class="nav-link position-relative" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-bell"></i>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">3</span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end shadow" style="width: 300px;">
+            <li><h6 class="dropdown-header">Notifications</h6></li>
+            <li><a class="dropdown-item" href="#"><i class="bi bi-calendar-check me-2"></i>Interview reminder tomorrow</a></li>
+            <li><a class="dropdown-item" href="#"><i class="bi bi-envelope me-2"></i>New job application received</a></li>
+            <li><a class="dropdown-item" href="#"><i class="bi bi-star me-2"></i>Premium features unlocked</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-center" href="#">View all notifications</a></li>
+          </ul>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('referrals') }}">
-                <i class="fas fa-share-alt me-2"></i>Referrals
-            </a>
+        
+        <!-- User Avatar Dropdown -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="{{ current_user.profile_image if current_user.profile_image else '/static/avatar1.png' }}" alt="Avatar" class="rounded-circle me-2" style="width:32px;height:32px;object-fit:cover;border:2px solid rgba(255,255,255,0.3);">
+            <span class="d-none d-md-inline">{{ current_user.username }}</span>
+            {% if is_premium %}
+            <span class="badge bg-warning text-dark ms-1"><i class="bi bi-star-fill"></i></span>
+            {% endif %}
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
+            <li><a class="dropdown-item" href="{{ url_for('dashboard') }}"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('profile') }}"><i class="bi bi-person me-2"></i>Profile</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('analytics') }}"><i class="bi bi-graph-up me-2"></i>Analytics</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{{ url_for('settings') }}"><i class="bi bi-gear me-2"></i>Settings</a></li>
+            <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+          </ul>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('profile') }}">
-                <i class="fas fa-user me-2"></i>Profile
-            </a>
-        </li>
-        <li class="nav-item"><a class="nav-link" href="/my-cover-letters">Cover Letters</a></li>
-        <li class="nav-item"><a class="nav-link" href="/career-toolkit">Career Toolkit</a></li>
-        <li class="nav-item"><a class="nav-link" href="/profile">Profile</a></li>
-        <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+        
         {% if not is_premium %}
-        <li class="nav-item">
-          <a class="btn btn-warning ms-2" href="/upgrade">Upgrade</a>
+        <li class="nav-item ms-2">
+          <a class="btn btn-warning btn-sm" href="{{ url_for('upgrade') }}">
+            <i class="bi bi-star me-1"></i>Upgrade
+          </a>
         </li>
         {% endif %}
         {% else %}
-        <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
-        <li class="nav-item"><a class="nav-link" href="/register">Register</a></li>
-        {% endif %}
         <li class="nav-item">
-          <button id="darkModeToggle" class="btn btn-sm btn-outline-light ms-2" type="button" title="Toggle dark mode">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-moon" viewBox="0 0 16 16">
+          <a class="nav-link" href="{{ url_for('login') }}">
+            <i class="bi bi-box-arrow-in-right me-1"></i>Login
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="btn btn-light btn-sm ms-2" href="{{ url_for('register') }}">
+            <i class="bi bi-person-plus me-1"></i>Sign Up
+          </a>
+        </li>
+        {% endif %}
+        
+        <!-- Dark Mode Toggle -->
+        <li class="nav-item ms-2">
+          <button id="darkModeToggle" class="btn btn-sm btn-outline-light" type="button" title="Toggle dark mode">
+            <i class="bi bi-moon"></i>
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
               <path d="M6 0a7 7 0 0 0 0 14c3.866 0 7-3.134 7-7 0-1.657-.672-3.156-1.757-4.243A7.001 7.001 0 0 1 6 0z"/>
             </svg>
           </button>

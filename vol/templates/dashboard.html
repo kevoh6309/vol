@@ -1,319 +1,312 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - ResumeBuilder{% endblock %}
+{% block title %}Dashboard - ResumeBuilder Pro{% endblock %}
 
 {% block content %}
 <style>
 .dash-bg {
-    background: linear-gradient(120deg, #f5f7fa 0%, #c3cfe2 100%);
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     min-height: 100vh;
-    padding-top: 30px;
+    padding-top: 20px;
 }
 .card, .card.shadow-sm {
     border-radius: 16px !important;
     box-shadow: 0 4px 24px rgba(0,0,0,0.07) !important;
+    border: none !important;
+}
+.stat-card {
+    transition: transform 0.2s ease-in-out;
+}
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+.progress-ring {
+    width: 80px;
+    height: 80px;
+}
+.progress-ring circle {
+    fill: none;
+    stroke-width: 4;
+    stroke-linecap: round;
+}
+.progress-ring .bg {
+    stroke: #e9ecef;
+}
+.progress-ring .progress {
+    stroke: #2563eb;
+    stroke-dasharray: 251.2;
+    stroke-dashoffset: calc(251.2 - (251.2 * var(--progress)) / 100);
+    transition: stroke-dashoffset 0.5s ease;
 }
 </style>
+
 <div class="dash-bg">
     <div class="container-fluid">
-        <div class="row">
+        <!-- Welcome Header -->
+        <div class="row mb-4">
             <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h1 class="h3 mb-0">Welcome back, {{ current_user.username }}!
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="h2 mb-1">Welcome back, {{ current_user.username }}! 👋</h1>
+                        <p class="text-muted mb-0">
+                            <i class="bi bi-calendar3 me-1"></i>
+                            {{ now.strftime('%A, %B %d, %Y') }}
+                        </p>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
                         {% if is_premium %}
-                            <span class="badge bg-warning text-dark ms-2"><i class="bi bi-star-fill"></i> Premium</span>
+                        <span class="badge bg-warning text-dark px-3 py-2">
+                            <i class="bi bi-star-fill me-1"></i>Premium Member
+                        </span>
+                        {% else %}
+                        <a href="{{ url_for('upgrade') }}" class="btn btn-warning btn-sm">
+                            <i class="bi bi-star me-1"></i>Upgrade to Premium
+                        </a>
                         {% endif %}
-                    </h1>
-                    <div class="text-muted">
-                        <i class="fas fa-calendar"></i> {{ now.strftime('%B %d, %Y') }}
                     </div>
                 </div>
+            </div>
+        </div>
 
-                {% if reminders %}
-                <div class="mb-4">
-                    {% for r in reminders %}
-                    <div class="alert alert-info d-flex align-items-center" role="alert">
-                        <i class="bi bi-bell me-2"></i>
-                        <div>
-                            <strong>Reminder:</strong> {{ r.message }} <span class="text-muted">(Due: {{ r.due_date.strftime('%b %d, %Y') }})</span>
-                        </div>
+        <!-- Reminders -->
+        {% if reminders %}
+        <div class="row mb-4">
+            <div class="col-12">
+                {% for r in reminders %}
+                <div class="alert alert-info d-flex align-items-center border-0 shadow-sm" role="alert">
+                    <i class="bi bi-bell-fill me-3 text-primary"></i>
+                    <div class="flex-grow-1">
+                        <strong>Reminder:</strong> {{ r.message }}
+                        <span class="text-muted ms-2">(Due: {{ r.due_date.strftime('%b %d, %Y') }})</span>
                     </div>
-                    {% endfor %}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
-                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
 
-                <!-- Ad-Free Notice -->
-                {{ ad_free_notice() }}
+        <!-- Ad-Free Notice -->
+        {{ ad_free_notice() }}
 
-                <!-- Statistics Cards -->
-                <div class="row mb-4">
-                    <div class="col-md-3">
-                        <div class="card bg-primary text-white">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <h4 class="mb-0">{{ dashboard.resumes_created }}</h4>
-                                        <small>Resumes Created</small>
-                                    </div>
-                                    <i class="fas fa-file-alt fa-2x opacity-50"></i>
-                                </div>
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="card stat-card bg-gradient-primary text-white h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="mb-1 fw-bold">{{ dashboard.resumes_created }}</h3>
+                                <p class="mb-0 opacity-75">Resumes Created</p>
                             </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card bg-success text-white">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <h4 class="mb-0">{{ dashboard.applications_submitted }}</h4>
-                                        <small>Applications</small>
-                                    </div>
-                                    <i class="fas fa-paper-plane fa-2x opacity-50"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card bg-info text-white">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <h4 class="mb-0">{{ dashboard.interviews_attended }}</h4>
-                                        <small>Interviews</small>
-                                    </div>
-                                    <i class="fas fa-comments fa-2x opacity-50"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card bg-warning text-white">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <h4 class="mb-0">{{ dashboard.offers_received }}</h4>
-                                        <small>Offers</small>
-                                    </div>
-                                    <i class="fas fa-trophy fa-2x opacity-50"></i>
-                                </div>
+                            <div class="bg-white bg-opacity-20 rounded-circle p-3">
+                                <i class="bi bi-file-earmark-text text-white" style="font-size: 1.5rem;"></i>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Performance Metrics -->
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <div class="card shadow-sm">
-                            <div class="card-header">
-                                <h5 class="mb-0"><i class="fas fa-chart-line"></i> Interview Performance</h5>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="card stat-card bg-gradient-success text-white h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="mb-1 fw-bold">{{ dashboard.applications_submitted }}</h3>
+                                <p class="mb-0 opacity-75">Applications</p>
                             </div>
-                            <div class="card-body">
-                                <div class="row text-center">
-                                    <div class="col-6">
-                                        <div class="display-4 fw-bold text-primary">{{ "%.1f"|format(dashboard.average_interview_score) }}%</div>
-                                        <div class="text-muted">Average Score</div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="display-4 fw-bold text-success">{{ dashboard.practice_sessions_completed }}</div>
-                                        <div class="text-muted">Practice Sessions</div>
-                                    </div>
-                                </div>
-                                <div class="mt-3">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span>Success Rate</span>
-                                        <span class="fw-bold">{{ "%.1f"|format((dashboard.offers_received / max(dashboard.interviews_attended, 1)) * 100) }}%</span>
-                                    </div>
-                                    <div class="progress mt-1">
-                                        <div class="progress-bar bg-success" style="width: {{ (dashboard.offers_received / max(dashboard.interviews_attended, 1)) * 100 }}%"></div>
-                                    </div>
-                                </div>
+                            <div class="bg-white bg-opacity-20 rounded-circle p-3">
+                                <i class="bi bi-send text-white" style="font-size: 1.5rem;"></i>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="card shadow-sm">
-                            <div class="card-header">
-                                <h5 class="mb-0"><i class="fas fa-fire"></i> Activity Streak</h5>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="card stat-card bg-gradient-info text-white h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="mb-1 fw-bold">{{ dashboard.interviews_attended }}</h3>
+                                <p class="mb-0 opacity-75">Interviews</p>
                             </div>
-                            <div class="card-body text-center">
-                                <div class="display-4 fw-bold text-warning">{{ dashboard.streak_days }}</div>
-                                <div class="text-muted">Day Streak</div>
-                                <div class="mt-3">
-                                    <small class="text-muted">Keep up the great work! Consistency is key to success.</small>
+                            <div class="bg-white bg-opacity-20 rounded-circle p-3">
+                                <i class="bi bi-camera-video text-white" style="font-size: 1.5rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="card stat-card bg-gradient-warning text-white h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="mb-1 fw-bold">{{ dashboard.offers_received }}</h3>
+                                <p class="mb-0 opacity-75">Offers</p>
+                            </div>
+                            <div class="bg-white bg-opacity-20 rounded-circle p-3">
+                                <i class="bi bi-trophy text-white" style="font-size: 1.5rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Overview -->
+        <div class="row mb-4">
+            <div class="col-lg-8">
+                <div class="card h-100">
+                    <div class="card-header bg-transparent border-0">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="bi bi-graph-up me-2 text-primary"></i>Job Search Progress
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center p-3 bg-light rounded">
+                                    <div class="progress-ring me-3" style="--progress: {{ (dashboard.applications_submitted / 10) * 100 if dashboard.applications_submitted > 0 else 0 }}">
+                                        <svg viewBox="0 0 100 100">
+                                            <circle class="bg" cx="50" cy="50" r="40"></circle>
+                                            <circle class="progress" cx="50" cy="50" r="40"></circle>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1">Applications</h6>
+                                        <p class="mb-0 text-muted">{{ dashboard.applications_submitted }}/10 target</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center p-3 bg-light rounded">
+                                    <div class="progress-ring me-3" style="--progress: {{ (dashboard.interviews_attended / 5) * 100 if dashboard.interviews_attended > 0 else 0 }}">
+                                        <svg viewBox="0 0 100 100">
+                                            <circle class="bg" cx="50" cy="50" r="40"></circle>
+                                            <circle class="progress" cx="50" cy="50" r="40"></circle>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1">Interviews</h6>
+                                        <p class="mb-0 text-muted">{{ dashboard.interviews_attended }}/5 target</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- In-Content Ad -->
-                {{ in_content_ad() }}
-
-                <div class="row">
-                    <div class="col-lg-8">
-                        <!-- Recent Activity -->
-                        <div class="card shadow-sm mb-4">
-                            <div class="card-header">
-                                <h5 class="mb-0"><i class="fas fa-history"></i> Recent Activity</h5>
-                            </div>
-                            <div class="card-body">
-                                <ul class="list-group list-group-flush">
-                                    {% for resume in recent_resumes %}
-                                    <li class="list-group-item">
-                                        <i class="fas fa-file-alt text-primary"></i>
-                                        <strong>Resume:</strong> {{ resume.name or 'Untitled' }}
-                                        <span class="text-muted float-end">{{ resume.created_at.strftime('%b %d, %Y') }}</span>
-                                    </li>
-                                    {% endfor %}
-                                    {% for cover in recent_covers %}
-                                    <li class="list-group-item">
-                                        <i class="fas fa-envelope text-success"></i>
-                                        <strong>Cover Letter:</strong> {{ cover.title or 'Untitled' }}
-                                        <span class="text-muted float-end">{{ cover.created_at.strftime('%b %d, %Y') }}</span>
-                                    </li>
-                                    {% endfor %}
-                                    {% if not recent_resumes and not recent_covers %}
-                                    <li class="list-group-item text-center text-muted">No recent activity yet.</li>
-                                    {% endif %}
-                                </ul>
-                            </div>
-                        </div>
-
-                        <!-- Quick Actions -->
-                        <div class="card shadow-sm">
-                            <div class="card-header">
-                                <h5 class="mb-0"><i class="fas fa-bolt"></i> Quick Actions</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <a href="/create-resume" class="btn btn-outline-primary w-100">
-                                            <i class="fas fa-plus"></i> Create New Resume
-                                        </a>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <a href="/ai-cover-letter-generator" class="btn btn-outline-success w-100">
-                                            <i class="fas fa-robot"></i> Generate Cover Letter
-                                        </a>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <a href="/resume-checker" class="btn btn-outline-warning w-100">
-                                            <i class="fas fa-search"></i> Check Resume
-                                        </a>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <a href="/job-application-tracker" class="btn btn-outline-info w-100">
-                                            <i class="fas fa-briefcase"></i> Track Applications
-                                        </a>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <a href="/interview-prep-advanced" class="btn btn-outline-secondary w-100">
-                                            <i class="fas fa-comments"></i> Practice Interviews
-                                        </a>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <a href="/career-toolkit" class="btn btn-outline-dark w-100">
-                                            <i class="fas fa-tools"></i> Career Toolkit
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card h-100">
+                    <div class="card-header bg-transparent border-0">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="bi bi-lightning me-2 text-warning"></i>Quick Actions
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('create_resume') }}" class="btn btn-primary">
+                                <i class="bi bi-plus-circle me-2"></i>Create New Resume
+                            </a>
+                            <a href="{{ url_for('my_cover_letters') }}" class="btn btn-outline-primary">
+                                <i class="bi bi-envelope me-2"></i>Write Cover Letter
+                            </a>
+                            <a href="{{ url_for('job_application_tracker') }}" class="btn btn-outline-success">
+                                <i class="bi bi-graph-up me-2"></i>Track Applications
+                            </a>
+                            <a href="{{ url_for('interview_prep_advanced') }}" class="btn btn-outline-warning">
+                                <i class="bi bi-camera-video me-2"></i>Practice Interview
+                            </a>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
 
-                    <div class="col-lg-4">
-                        <!-- Progress Overview -->
-                        <div class="card shadow-sm mb-4">
-                            <div class="card-header">
-                                <h5 class="mb-0"><i class="fas fa-tasks"></i> Progress Overview</h5>
-                            </div>
-                            <div class="card-body">
-                                <canvas id="dashboardChart" height="180"></canvas>
-                                <hr/>
-                                <div class="mb-3">
-                                    <div class="d-flex justify-content-between">
-                                        <span>Resume Completion</span>
-                                        <span>{{ "%.0f"|format((dashboard.resumes_created / max(dashboard.resumes_created, 1)) * 100) }}%</span>
+        <!-- Recent Activity -->
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="bi bi-file-earmark-text me-2 text-primary"></i>Recent Resumes
+                        </h5>
+                        <a href="{{ url_for('my_resumes') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
+                    <div class="card-body">
+                        {% if recent_resumes %}
+                        <div class="list-group list-group-flush">
+                            {% for resume in recent_resumes %}
+                            <div class="list-group-item border-0 px-0">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">{{ resume.name or 'Untitled Resume' }}</h6>
+                                        <small class="text-muted">
+                                            <i class="bi bi-calendar me-1"></i>
+                                            {{ resume.updated_at.strftime('%b %d, %Y') }}
+                                        </small>
                                     </div>
-                                    <div class="progress">
-                                        <div class="progress-bar bg-primary" style="width: {{ (dashboard.resumes_created / max(dashboard.resumes_created, 1)) * 100 }}%"></div>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <div class="d-flex justify-content-between">
-                                        <span>Cover Letters</span>
-                                        <span>{{ "%.0f"|format((dashboard.cover_letters_created / max(dashboard.cover_letters_created, 1)) * 100) }}%</span>
-                                    </div>
-                                    <div class="progress">
-                                        <div class="progress-bar bg-success" style="width: {{ (dashboard.cover_letters_created / max(dashboard.cover_letters_created, 1)) * 100 }}%"></div>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <div class="d-flex justify-content-between">
-                                        <span>Interview Practice</span>
-                                        <span>{{ "%.0f"|format((dashboard.practice_sessions_completed / max(dashboard.practice_sessions_completed, 1)) * 100) }}%</span>
-                                    </div>
-                                    <div class="progress">
-                                        <div class="progress-bar bg-info" style="width: {{ (dashboard.practice_sessions_completed / max(dashboard.practice_sessions_completed, 1)) * 100 }}%"></div>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ url_for('edit_resume', resume_id=resume.id) }}" class="btn btn-outline-primary btn-sm">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a href="{{ url_for('preview_resume', resume_id=resume.id) }}" class="btn btn-outline-success btn-sm">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
                                     </div>
                                 </div>
                             </div>
+                            {% endfor %}
                         </div>
-
-                        <!-- Tips & Recommendations -->
-                        <div class="card shadow-sm mb-4">
-                            <div class="card-header">
-                                <h5 class="mb-0"><i class="fas fa-lightbulb"></i> Tips & Recommendations</h5>
-                            </div>
-                            <div class="card-body">
-                                {% if dashboard.resumes_created == 0 %}
-                                <div class="alert alert-info">
-                                    <i class="fas fa-info-circle"></i>
-                                    <strong>Get Started:</strong> Create your first resume to begin your job search journey.
-                                </div>
-                                {% endif %}
-                                
-                                {% if dashboard.applications_submitted == 0 %}
-                                <div class="alert alert-warning">
-                                    <i class="fas fa-exclamation-triangle"></i>
-                                    <strong>Start Applying:</strong> Use the job tracker to organize your applications.
-                                </div>
-                                {% endif %}
-                                
-                                {% if dashboard.practice_sessions_completed < 3 %}
-                                <div class="alert alert-success">
-                                    <i class="fas fa-star"></i>
-                                    <strong>Practice Makes Perfect:</strong> Complete more interview practice sessions to improve your skills.
-                                </div>
-                                {% endif %}
-                                
-                                {% if dashboard.average_interview_score < 80 %}
-                                <div class="alert alert-warning">
-                                    <i class="fas fa-chart-line"></i>
-                                    <strong>Improve Your Score:</strong> Focus on STAR method and specific examples in your answers.
-                                </div>
-                                {% endif %}
-                            </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-file-earmark-text text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted mt-2">No resumes yet. Create your first one!</p>
+                            <a href="{{ url_for('create_resume') }}" class="btn btn-primary">Create Resume</a>
                         </div>
-
-                        <!-- Premium Features -->
-                        {% if not is_premium %}
-                        <div class="card shadow-sm border-warning">
-                            <div class="card-header bg-warning text-white">
-                                <h5 class="mb-0"><i class="fas fa-crown"></i> Upgrade to Premium</h5>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="bi bi-briefcase me-2 text-success"></i>Recent Applications
+                        </h5>
+                        <a href="{{ url_for('job_application_tracker') }}" class="btn btn-sm btn-outline-success">View All</a>
+                    </div>
+                    <div class="card-body">
+                        {% if recent_jobs %}
+                        <div class="list-group list-group-flush">
+                            {% for job in recent_jobs %}
+                            <div class="list-group-item border-0 px-0">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">{{ job.job_title }}</h6>
+                                        <small class="text-muted">{{ job.company }}</small>
+                                        <br>
+                                        <span class="badge bg-{{ 'success' if job.status == 'offer' else 'warning' if job.status == 'interview' else 'info' if job.status == 'applied' else 'secondary' }}">
+                                            {{ job.status.title() }}
+                                        </span>
+                                    </div>
+                                    <small class="text-muted">
+                                        {{ job.applied_date.strftime('%b %d') }}
+                                    </small>
+                                </div>
                             </div>
-                            <div class="card-body">
-                                <ul class="list-unstyled mb-3">
-                                    <li><i class="fas fa-check text-success"></i> Unlimited premium templates</li>
-                                    <li><i class="fas fa-check text-success"></i> Advanced analytics</li>
-                                    <li><i class="fas fa-check text-success"></i> Priority support</li>
-                                    <li><i class="fas fa-check text-success"></i> Custom branding</li>
-                                </ul>
-                                <a href="/upgrade" class="btn btn-warning w-100">
-                                    <i class="fas fa-arrow-up"></i> Upgrade Now
-                                </a>
-                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-briefcase text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted mt-2">No applications yet. Start tracking your job search!</p>
+                            <a href="{{ url_for('job_application_tracker') }}" class="btn btn-success">Track Applications</a>
                         </div>
                         {% endif %}
                     </div>
@@ -323,54 +316,19 @@
     </div>
 </div>
 
+<!-- CSS for gradient backgrounds -->
 <style>
-.timeline {
-    position: relative;
-    padding-left: 30px;
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
-
-.timeline::before {
-    content: '';
-    position: absolute;
-    left: 15px;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: #e9ecef;
+.bg-gradient-success {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
 }
-
-.timeline-item {
-    position: relative;
-    margin-bottom: 20px;
+.bg-gradient-info {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
-
-.timeline-marker {
-    position: absolute;
-    left: -22px;
-    top: 5px;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    border: 2px solid #fff;
-    box-shadow: 0 0 0 2px #e9ecef;
-}
-
-.timeline-content {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 8px;
-    border-left: 4px solid #007bff;
-}
-
-.card {
-    border-radius: 12px;
-    border: none;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-}
-
-.progress {
-    height: 8px;
-    border-radius: 4px;
+.bg-gradient-warning {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
 }
 </style>
 {% endblock %}

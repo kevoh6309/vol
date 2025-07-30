@@ -1,66 +1,241 @@
 {% extends 'base.html' %}
-{% block title %}Resume Builder | Home{% endblock %}
+{% block title %}ResumeBuilder Pro - Professional Resume Builder with AI{% endblock %}
 {% block content %}
-<div class="row align-items-center" style="min-height: 60vh;">
-  <div class="col-md-7">
-    <h1 class="display-4 fw-bold mb-3">Build a Professional Resume in Minutes</h1>
-    <p class="lead mb-4">Create, customize, and download beautiful resumes with AI-powered assistance. Choose from modern templates, save your work, and get expert tips—all in one place.</p>
-    <ul class="list-unstyled mb-4">
-      <li class="mb-2"><span class="badge bg-primary me-2">AI Assistant</span> Get instant tips and suggestions as you build your resume.</li>
-      <li class="mb-2"><span class="badge bg-success me-2">Multiple Templates</span> Choose from classic and modern designs.</li>
-      <li class="mb-2"><span class="badge bg-warning text-dark me-2">PDF Export</span> Download your resume in beautiful PDF format.</li>
-      <li class="mb-2"><span class="badge bg-info text-dark me-2">Secure & Private</span> Your data is safe and only accessible to you.</li>
-    </ul>
-    <a href="/register" class="btn btn-primary btn-lg me-2">Get Started</a>
-    <a href="/login" class="btn btn-outline-primary btn-lg">Login</a>
-    
-    <!-- Ad-Free Notice -->
-    {{ ad_free_notice() }}
-  </div>
-  <div class="col-md-5 d-none d-md-block">
-    <img src="/static/resume-illustration.png" alt="Resume Illustration" class="img-fluid rounded shadow transition" style="max-height: 340px;" />
-  </div>
-</div>
+
+<!-- Hero Section -->
+<section class="hero-section py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 80vh; display: flex; align-items: center;">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 text-white">
+                <h1 class="display-3 fw-bold mb-4">Build Professional Resumes That Get You Hired</h1>
+                <p class="lead mb-4">Create stunning resumes with AI-powered suggestions, modern templates, and expert guidance. Stand out from the crowd and land your dream job.</p>
+                <div class="d-flex flex-wrap gap-3 mb-4">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        <span>AI-Powered Suggestions</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        <span>ATS-Optimized Templates</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        <span>Real-time Preview</span>
+                    </div>
+                </div>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="/register" class="btn btn-light btn-lg px-4 py-3 fw-bold">
+                        <i class="bi bi-rocket-takeoff me-2"></i>Start Building Free
+                    </a>
+                    <a href="#features" class="btn btn-outline-light btn-lg px-4 py-3">
+                        <i class="bi bi-play-circle me-2"></i>See How It Works
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block">
+                <div class="position-relative">
+                    <img src="/static/resume-illustration.png" alt="Professional Resume Builder" class="img-fluid rounded-3 shadow-lg" style="max-height: 500px;">
+                    <div class="position-absolute top-0 start-0 bg-white rounded-3 p-3 shadow-lg" style="transform: translate(-20px, -20px);">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-star-fill text-warning me-2"></i>
+                            <span class="fw-bold">4.9/5 Rating</span>
+                        </div>
+                    </div>
+                    <div class="position-absolute bottom-0 end-0 bg-primary text-white rounded-3 p-3 shadow-lg" style="transform: translate(20px, 20px);">
+                        <div class="text-center">
+                            <div class="fw-bold">10,000+</div>
+                            <small>Resumes Created</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-3">Why Choose ResumeBuilder Pro?</h2>
+            <p class="lead text-muted">Everything you need to create a professional resume that stands out</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi bi-robot text-primary" style="font-size: 2rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">AI-Powered Assistant</h4>
+                        <p class="text-muted">Get intelligent suggestions for content, keywords, and formatting to make your resume ATS-friendly and compelling.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi bi-palette text-success" style="font-size: 2rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Modern Templates</h4>
+                        <p class="text-muted">Choose from professionally designed templates that are optimized for different industries and job levels.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi bi-graph-up text-warning" style="font-size: 2rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Job Tracking</h4>
+                        <p class="text-muted">Track your job applications, interviews, and follow-ups all in one place. Never miss an opportunity again.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-3">How It Works</h2>
+            <p class="lead text-muted">Create your professional resume in just 3 simple steps</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4 text-center">
+                <div class="position-relative mb-4">
+                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center fw-bold" style="width: 60px; height: 60px; font-size: 1.5rem;">1</div>
+                </div>
+                <h4 class="fw-bold mb-3">Fill Your Details</h4>
+                <p class="text-muted">Enter your personal information, work experience, education, and skills in our intuitive form.</p>
+            </div>
+            
+            <div class="col-md-4 text-center">
+                <div class="position-relative mb-4">
+                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center fw-bold" style="width: 60px; height: 60px; font-size: 1.5rem;">2</div>
+                </div>
+                <h4 class="fw-bold mb-3">Choose Template</h4>
+                <p class="text-muted">Select from our collection of professional templates designed for different industries and experience levels.</p>
+            </div>
+            
+            <div class="col-md-4 text-center">
+                <div class="position-relative mb-4">
+                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center fw-bold" style="width: 60px; height: 60px; font-size: 1.5rem;">3</div>
+                </div>
+                <h4 class="fw-bold mb-3">Download & Apply</h4>
+                <p class="text-muted">Download your professional resume in multiple formats and start applying to your dream jobs.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-3">What Our Users Say</h2>
+            <p class="lead text-muted">Join thousands of professionals who have landed their dream jobs</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="/static/avatar1.png" class="rounded-circle me-3" width="60" height="60" alt="Sarah Johnson">
+                            <div>
+                                <h5 class="fw-bold mb-1">Sarah Johnson</h5>
+                                <span class="badge bg-warning text-dark">Software Engineer</span>
+                            </div>
+                        </div>
+                        <p class="mb-3">"ResumeBuilder Pro helped me create a stunning resume that got me interviews at top tech companies. The AI suggestions were incredibly helpful!"</p>
+                        <div class="text-warning">
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="/static/avatar2.png" class="rounded-circle me-3" width="60" height="60" alt="Michael Chen">
+                            <div>
+                                <h5 class="fw-bold mb-1">Michael Chen</h5>
+                                <span class="badge bg-success">Marketing Manager</span>
+                            </div>
+                        </div>
+                        <p class="mb-3">"The job tracking feature is a game-changer. I landed my dream job within 2 weeks of using ResumeBuilder Pro!"</p>
+                        <div class="text-warning">
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="/static/avatar3.png" class="rounded-circle me-3" width="60" height="60" alt="Emily Rodriguez">
+                            <div>
+                                <h5 class="fw-bold mb-1">Emily Rodriguez</h5>
+                                <span class="badge bg-info">UX Designer</span>
+                            </div>
+                        </div>
+                        <p class="mb-3">"The modern templates are beautiful and professional. I love how easy it is to customize everything to match my personal brand."</p>
+                        <div class="text-warning">
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+    <div class="container text-center text-white">
+        <h2 class="display-5 fw-bold mb-4">Ready to Land Your Dream Job?</h2>
+        <p class="lead mb-4">Join thousands of professionals who have transformed their careers with ResumeBuilder Pro</p>
+        <div class="d-flex flex-wrap justify-content-center gap-3">
+            <a href="/register" class="btn btn-light btn-lg px-5 py-3 fw-bold">
+                <i class="bi bi-rocket-takeoff me-2"></i>Start Building Free
+            </a>
+            <a href="/login" class="btn btn-outline-light btn-lg px-5 py-3">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+            </a>
+        </div>
+        <p class="mt-3 text-white-50">No credit card required • Free forever plan available</p>
+    </div>
+</section>
+
+<!-- Ad-Free Notice -->
+{{ ad_free_notice() }}
 
 <!-- In-Content Ad -->
 {{ in_content_ad() }}
 
-<section class="my-5">
-  <h3 class="text-center mb-4">What Our Users Say</h3>
-  <div class="row justify-content-center">
-    <div class="col-md-4">
-      <div class="card shadow-sm mb-3">
-        <div class="card-body">
-          <div class="d-flex align-items-center mb-2">
-            <img src="/static/avatar1.png" class="rounded-circle me-2" width="48" height="48" alt="User 1">
-            <span class="fw-bold">Jane Doe <span class="badge bg-warning text-dark ms-1">Premium</span></span>
-          </div>
-          <blockquote class="blockquote mb-0">“ResumeBuilder made my job search so much easier. The premium templates are stunning!”</blockquote>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="card shadow-sm mb-3">
-        <div class="card-body">
-          <div class="d-flex align-items-center mb-2">
-            <img src="/static/avatar2.png" class="rounded-circle me-2" width="48" height="48" alt="User 2">
-            <span class="fw-bold">John Smith</span>
-          </div>
-          <blockquote class="blockquote mb-0">“I landed 3 interviews in a week after using the AI suggestions. Highly recommend!”</blockquote>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="card shadow-sm mb-3">
-        <div class="card-body">
-          <div class="d-flex align-items-center mb-2">
-            <img src="/static/avatar3.png" class="rounded-circle me-2" width="48" height="48" alt="User 3">
-            <span class="fw-bold">Aisha K.</span>
-          </div>
-          <blockquote class="blockquote mb-0">“The portfolio website hosting is a game changer. Love the branding options!”</blockquote>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 {% endblock %} 
