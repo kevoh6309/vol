@@ -9,4 +9,5 @@ stripe==8.10.0
 requests==2.31.0
 python-dotenv==1.0.0
 gunicorn==21.2.0
-weasyprint==60.2
+weasyprint==59.0
+pydyf==0.10.0
