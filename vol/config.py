@@ -21,9 +21,9 @@ class Config:
     MAIL_SERVER = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
     MAIL_PORT = int(os.getenv('MAIL_PORT', 587))
     MAIL_USE_TLS = os.getenv('MAIL_USE_TLS', 'True').lower() == 'true'
-    MAIL_USERNAME = os.getenv('MAIL_USERNAME', 'kevohmutwiri35@gmail.com')
-    MAIL_PASSWORD = os.getenv('MAIL_PASSWORD', 'kevoh2071M@')
-    MAIL_DEFAULT_SENDER = os.getenv('MAIL_USERNAME', 'kevohmutwiri35@gmail.com')
+    MAIL_USERNAME = os.getenv('MAIL_USERNAME', 'your-email@gmail.com')
+    MAIL_PASSWORD = os.getenv('MAIL_PASSWORD', 'your-gmail-app-password')
+    MAIL_DEFAULT_SENDER = os.getenv('MAIL_USERNAME', 'your-email@gmail.com')
     
     # Stripe Configuration
     STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')

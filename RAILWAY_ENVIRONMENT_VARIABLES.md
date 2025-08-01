@@ -7,12 +7,12 @@ Go to your Railway project → Variables tab and add these environment variables
 ### **Required Variables:**
 
 ```bash
-SECRET_KEY=L-]L2T}d7UDRM'UR4p-=W}as5R6-Algr
+SECRET_KEY=your-strong-secret-key-here
 MAIL_SERVER=smtp.gmail.com
 MAIL_PORT=587
 MAIL_USE_TLS=True
-MAIL_USERNAME=kevohmutwiri35@gmail.com
-MAIL_PASSWORD=jhkf nzos cykp bxaj
+MAIL_USERNAME=your-email@gmail.com
+MAIL_PASSWORD=your-gmail-app-password
 FLASK_ENV=production
 FLASK_DEBUG=False
 SESSION_COOKIE_SECURE=True
@@ -32,10 +32,10 @@ LOG_LEVEL=INFO
 ### **PayPal Configuration (Optional):**
 
 ```bash
-PAYPAL_CLIENT_ID=Abk2ZKE-opBQXgi2LjsmMbUVbnDTENcqoyY8IqOAafdOve7amuOb1oof-GspnnGZ9SYWkSSa3K3wk6-j
-PAYPAL_CLIENT_SECRET=EM8r8GSqDb3DNQHM0mm5vbp5pw2Oi9sdqe7SKhLeDVdMEDJl3Y12JTrcNwXq9CVtq_WOMnKXqmw0V6-c
+PAYPAL_CLIENT_ID=your_paypal_client_id_here
+PAYPAL_CLIENT_SECRET=your_paypal_client_secret_here
 PAYPAL_MODE=sandbox
-PAYPAL_RECEIVER_EMAIL=kevohmutwiri35@gmail.com
+PAYPAL_RECEIVER_EMAIL=your-paypal-email@gmail.com
 ```
 
 ### **Note:**

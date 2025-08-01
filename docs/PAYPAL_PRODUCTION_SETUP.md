@@ -58,7 +58,7 @@ Add these to your Railway dashboard:
 PAYPAL_CLIENT_ID=your_live_client_id_here
 PAYPAL_CLIENT_SECRET=your_live_client_secret_here
 PAYPAL_MODE=live
-PAYPAL_RECEIVER_EMAIL=kevohmutwiri35@gmail.com
+PAYPAL_RECEIVER_EMAIL=your-paypal-email@gmail.com
 ```
 
 ### **Step 4: Configure Webhooks (Optional but Recommended)**
