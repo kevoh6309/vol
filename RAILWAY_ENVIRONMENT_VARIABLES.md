@@ -33,8 +33,8 @@ LOG_LEVEL=INFO
 
 ```bash
 PAYPAL_CLIENT_ID=Abk2ZKE-opBQXgi2LjsmMbUVbnDTENcqoyY8IqOAafdOve7amuOb1oof-GspnnGZ9SYWkSSa3K3wk6-j
-PAYPAL_CLIENT_SECRET=your_paypal_client_secret_here
-PAYPAL_MODE=live
+PAYPAL_CLIENT_SECRET=EM8r8GSqDb3DNQHM0mm5vbp5pw2Oi9sdqe7SKhLeDVdMEDJl3Y12JTrcNwXq9CVtq_WOMnKXqmw0V6-c
+PAYPAL_MODE=sandbox
 PAYPAL_RECEIVER_EMAIL=kevohmutwiri35@gmail.com
 ```
 
