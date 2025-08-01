@@ -368,6 +368,21 @@ class AffiliateLink(db.Model):
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     user = db.relationship('User', foreign_keys=[user_id])
 
+class LoginAttempt(db.Model):
+    """Track login attempts for security monitoring and analytics"""
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(150), nullable=False)
+    ip_address = db.Column(db.String(45), nullable=False)  # IPv6 compatible
+    user_agent = db.Column(db.Text)
+    success = db.Column(db.Boolean, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)  # Null for failed attempts with non-existent users
+    timestamp = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    remember_me = db.Column(db.Boolean, default=False)
+    failure_reason = db.Column(db.String(100))  # e.g., 'invalid_password', 'user_not_found', 'account_disabled'
+    
+    # Relationships
+    user = db.relationship('User', foreign_keys=[user_id])
+
 # Helper functions
 @login_manager.user_loader
 def load_user(user_id):
@@ -394,6 +409,25 @@ def verify_reset_token(token, max_age=3600):  # 1 hour expiry
     except:
         pass
     return None
+
+def log_login_attempt(email, ip_address, user_agent, success, user_id=None, remember_me=False, failure_reason=None):
+    """Log login attempt to database for security monitoring and analytics"""
+    try:
+        login_attempt = LoginAttempt(
+            email=email,
+            ip_address=ip_address,
+            user_agent=user_agent,
+            success=success,
+            user_id=user_id,
+            remember_me=remember_me,
+            failure_reason=failure_reason
+        )
+        db.session.add(login_attempt)
+        db.session.commit()
+        logger.debug(f"Login attempt logged to database: {email} - Success: {success} - Reason: {failure_reason}")
+    except Exception as e:
+        logger.error(f"Failed to log login attempt to database: {e}")
+        db.session.rollback()
 
 def send_email(to_email, subject, template_name, **kwargs):
     """Send email using templates"""
@@ -500,16 +534,72 @@ def register():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
+        logger.info(f"Already authenticated user {current_user.id} ({current_user.email}) attempted to access login page")
         return redirect(url_for('dashboard'))
     
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
+        email = form.email.data
+        user = User.query.filter_by(email=email).first()
+        
+        # Log login attempt details
+        login_attempt_data = {
+            'email': email,
+            'ip_address': request.remote_addr,
+            'user_agent': request.headers.get('User-Agent', 'Unknown'),
+            'timestamp': datetime.now(timezone.utc),
+            'remember_me': form.remember_me.data
+        }
+        
         if user and check_password_hash(user.password_hash, form.password.data):
+            # Successful login
             login_user(user, remember=form.remember_me.data)
             next_page = request.args.get('next')
+            
+            logger.info(f"SUCCESSFUL LOGIN: User {user.id} ({user.email}) logged in from {request.remote_addr} - User-Agent: {request.headers.get('User-Agent', 'Unknown')} - Remember Me: {form.remember_me.data}")
+            
+            # Log additional user info for successful logins
+            logger.info(f"User details: ID={user.id}, Username={user.username}, Premium={user.is_premium}, Active={user.is_active}, Created={user.created_at}")
+            
+            # Log successful login to database
+            log_login_attempt(
+                email=email,
+                ip_address=request.remote_addr,
+                user_agent=request.headers.get('User-Agent', 'Unknown'),
+                success=True,
+                user_id=user.id,
+                remember_me=form.remember_me.data
+            )
+            
             return redirect(next_page) if next_page else redirect(url_for('dashboard'))
         else:
+            # Failed login
+            failure_reason = 'invalid_password' if user else 'user_not_found'
+            
+            if user:
+                logger.warning(f"FAILED LOGIN: Invalid password for existing user {user.id} ({user.email}) from {request.remote_addr} - User-Agent: {request.headers.get('User-Agent', 'Unknown')}")
+                # Log failed login to database
+                log_login_attempt(
+                    email=email,
+                    ip_address=request.remote_addr,
+                    user_agent=request.headers.get('User-Agent', 'Unknown'),
+                    success=False,
+                    user_id=user.id,
+                    remember_me=form.remember_me.data,
+                    failure_reason=failure_reason
+                )
+            else:
+                logger.warning(f"FAILED LOGIN: Attempted login with non-existent email '{email}' from {request.remote_addr} - User-Agent: {request.headers.get('User-Agent', 'Unknown')}")
+                # Log failed login to database
+                log_login_attempt(
+                    email=email,
+                    ip_address=request.remote_addr,
+                    user_agent=request.headers.get('User-Agent', 'Unknown'),
+                    success=False,
+                    remember_me=form.remember_me.data,
+                    failure_reason=failure_reason
+                )
+            
             flash('Invalid email or password', 'error')
     
     return render_template('login.html', form=form)
@@ -517,6 +607,13 @@ def login():
 @app.route('/logout')
 @login_required
 def logout():
+    user_id = current_user.id
+    user_email = current_user.email
+    ip_address = request.remote_addr
+    user_agent = request.headers.get('User-Agent', 'Unknown')
+    
+    logger.info(f"LOGOUT: User {user_id} ({user_email}) logged out from {ip_address} - User-Agent: {user_agent}")
+    
     logout_user()
     return redirect(url_for('home'))
 
@@ -1898,6 +1995,86 @@ def admin_delete_user(user_id):
     db.session.commit()
     flash('User deleted.', 'info')
     return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/login-logs')
+@login_required
+def admin_login_logs():
+    """Admin view for login logs and security monitoring"""
+    if not getattr(current_user, 'is_admin', False):
+        flash('Access denied. Admin privileges required.', 'error')
+        return redirect(url_for('dashboard'))
+    
+    # Get filter parameters
+    page = request.args.get('page', 1, type=int)
+    per_page = 50
+    success_filter = request.args.get('success', 'all')
+    email_filter = request.args.get('email', '')
+    ip_filter = request.args.get('ip', '')
+    date_from = request.args.get('date_from', '')
+    date_to = request.args.get('date_to', '')
+    
+    # Build query
+    query = LoginAttempt.query
+    
+    if success_filter != 'all':
+        query = query.filter(LoginAttempt.success == (success_filter == 'true'))
+    
+    if email_filter:
+        query = query.filter(LoginAttempt.email.ilike(f'%{email_filter}%'))
+    
+    if ip_filter:
+        query = query.filter(LoginAttempt.ip_address.ilike(f'%{ip_filter}%'))
+    
+    if date_from:
+        try:
+            from_date = datetime.strptime(date_from, '%Y-%m-%d')
+            query = query.filter(LoginAttempt.timestamp >= from_date)
+        except ValueError:
+            pass
+    
+    if date_to:
+        try:
+            to_date = datetime.strptime(date_to, '%Y-%m-%d') + timedelta(days=1)
+            query = query.filter(LoginAttempt.timestamp < to_date)
+        except ValueError:
+            pass
+    
+    # Order by most recent first
+    query = query.order_by(LoginAttempt.timestamp.desc())
+    
+    # Paginate results
+    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+    login_attempts = pagination.items
+    
+    # Get summary statistics
+    total_attempts = LoginAttempt.query.count()
+    successful_attempts = LoginAttempt.query.filter_by(success=True).count()
+    failed_attempts = LoginAttempt.query.filter_by(success=False).count()
+    
+    # Get recent suspicious activity (multiple failed attempts from same IP)
+    suspicious_ips = db.session.query(
+        LoginAttempt.ip_address,
+        db.func.count(LoginAttempt.id).label('attempt_count')
+    ).filter(
+        LoginAttempt.success == False,
+        LoginAttempt.timestamp >= datetime.now(timezone.utc) - timedelta(hours=24)
+    ).group_by(LoginAttempt.ip_address).having(
+        db.func.count(LoginAttempt.id) >= 5
+    ).all()
+    
+    return render_template('admin/login_logs.html',
+        login_attempts=login_attempts,
+        pagination=pagination,
+        total_attempts=total_attempts,
+        successful_attempts=successful_attempts,
+        failed_attempts=failed_attempts,
+        suspicious_ips=suspicious_ips,
+        success_filter=success_filter,
+        email_filter=email_filter,
+        ip_filter=ip_filter,
+        date_from=date_from,
+        date_to=date_to
+    )
 
 # Error handlers
 @app.errorhandler(400)
