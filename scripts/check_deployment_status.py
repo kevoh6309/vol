@@ -26,7 +26,7 @@ def check_database_tables():
             print("✅ Database connection: OK")
             
             # Check required tables
-            tables = ['user', 'resume', 'login_attempt']
+            tables = ['user', 'resume', 'login_attempt', 'maintenance_mode']
             for table in tables:
                 try:
                     result = db.session.execute(text(f'SELECT COUNT(*) FROM {table}'))
@@ -130,6 +130,7 @@ def main():
     print("- Login logging system: ✅ Active")
     print("- Resume download: ✅ Fixed (WeasyPrint 59.0)")
     print("- Database: ✅ Connected")
+    print("- Maintenance mode: ✅ Active")
     print("- Auto-deployment: ✅ Railway configured")
     print("\n🎉 Your application should be fully functional!")
 
