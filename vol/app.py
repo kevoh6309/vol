@@ -83,6 +83,11 @@ except ImportError:
         # Logging Configuration
         LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
         LOG_FORMAT = '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+        
+        # Maintenance Mode Configuration
+        MAINTENANCE_MODE = os.getenv('MAINTENANCE_MODE', 'False').lower() == 'true'
+        MAINTENANCE_MESSAGE = os.getenv('MAINTENANCE_MESSAGE', 'We are currently performing scheduled maintenance to improve your experience.')
+        MAINTENANCE_ESTIMATED_COMPLETION = os.getenv('MAINTENANCE_ESTIMATED_COMPLETION', 'Shortly')
     
     class DevelopmentConfig(Config):
         DEBUG = True
@@ -383,6 +388,20 @@ class LoginAttempt(db.Model):
     # Relationships
     user = db.relationship('User', foreign_keys=[user_id])
 
+class MaintenanceMode(db.Model):
+    """Track maintenance mode status and settings"""
+    id = db.Column(db.Integer, primary_key=True)
+    is_active = db.Column(db.Boolean, default=False)
+    message = db.Column(db.Text, default='We are currently performing scheduled maintenance to improve your experience.')
+    estimated_completion = db.Column(db.String(200), default='Shortly')
+    status_message = db.Column(db.String(500), default='Updating systems and improving performance...')
+    started_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    started_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    
+    # Relationships
+    user = db.relationship('User', foreign_keys=[started_by])
+
 # Helper functions
 @login_manager.user_loader
 def load_user(user_id):
@@ -475,6 +494,24 @@ def init_db():
     if not hasattr(app, 'db_initialized'):
         db.create_all()
         app.db_initialized = True
+    
+    # Check maintenance mode first
+    try:
+        maintenance_mode = MaintenanceMode.query.filter_by(is_active=True).first()
+        if maintenance_mode:
+            # Allow admin users to bypass maintenance mode
+            if current_user.is_authenticated and current_user.is_admin:
+                pass  # Allow admin to continue
+            else:
+                # Show maintenance page for all other users
+                maintenance_info = {
+                    'message': maintenance_mode.message,
+                    'estimated_completion': maintenance_mode.estimated_completion,
+                    'status_message': maintenance_mode.status_message
+                }
+                return render_template('maintenance.html', maintenance_info=maintenance_info)
+    except Exception as e:
+        logger.error(f"Maintenance mode check failed: {e}")
     
     # Safely set is_premium on g object
     try:
@@ -1970,7 +2007,11 @@ def admin_dashboard():
         flash('Access denied.', 'danger')
         return redirect(url_for('dashboard'))
     users = User.query.all()
-    return render_template('admin.html', users=users, is_premium=is_premium(current_user))
+    
+    # Check maintenance mode status
+    maintenance_active = MaintenanceMode.query.filter_by(is_active=True).first() is not None
+    
+    return render_template('admin.html', users=users, is_premium=is_premium(current_user), maintenance_active=maintenance_active)
 
 @app.route('/admin/toggle-premium/<int:user_id>', methods=['POST'])
 @login_required
@@ -2075,6 +2116,62 @@ def admin_login_logs():
         date_from=date_from,
         date_to=date_to
     )
+
+@app.route('/admin/enable-maintenance', methods=['POST'])
+@login_required
+def admin_enable_maintenance():
+    """Enable maintenance mode"""
+    if not getattr(current_user, 'is_admin', False):
+        flash('Access denied. Admin privileges required.', 'error')
+        return redirect(url_for('dashboard'))
+    
+    try:
+        # Deactivate any existing maintenance mode
+        MaintenanceMode.query.update({'is_active': False})
+        
+        # Create new maintenance mode entry
+        maintenance = MaintenanceMode(
+            is_active=True,
+            message=request.form.get('message', 'We are currently performing scheduled maintenance to improve your experience.'),
+            estimated_completion=request.form.get('estimated_completion', 'Shortly'),
+            status_message=request.form.get('status_message', 'Updating systems and improving performance...'),
+            started_by=current_user.id
+        )
+        db.session.add(maintenance)
+        db.session.commit()
+        
+        logger.info(f"Maintenance mode enabled by admin {current_user.id} ({current_user.email})")
+        flash('Maintenance mode enabled successfully!', 'success')
+        
+    except Exception as e:
+        logger.error(f"Failed to enable maintenance mode: {e}")
+        flash('Failed to enable maintenance mode.', 'error')
+        db.session.rollback()
+    
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/disable-maintenance')
+@login_required
+def admin_disable_maintenance():
+    """Disable maintenance mode"""
+    if not getattr(current_user, 'is_admin', False):
+        flash('Access denied. Admin privileges required.', 'error')
+        return redirect(url_for('dashboard'))
+    
+    try:
+        # Deactivate all maintenance modes
+        MaintenanceMode.query.update({'is_active': False})
+        db.session.commit()
+        
+        logger.info(f"Maintenance mode disabled by admin {current_user.id} ({current_user.email})")
+        flash('Maintenance mode disabled successfully!', 'success')
+        
+    except Exception as e:
+        logger.error(f"Failed to disable maintenance mode: {e}")
+        flash('Failed to disable maintenance mode.', 'error')
+        db.session.rollback()
+    
+    return redirect(url_for('admin_dashboard'))
 
 # Error handlers
 @app.errorhandler(400)

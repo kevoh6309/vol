@@ -20,10 +20,26 @@
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h3><i class="bi bi-shield-lock"></i> Admin Dashboard</h3>
                         <div>
-                            <a href="{{ url_for('admin_login_logs') }}" class="btn btn-primary">
+                            <a href="{{ url_for('admin_login_logs') }}" class="btn btn-primary me-2">
                                 <i class="fas fa-shield-alt"></i> View Login Logs
                             </a>
+                            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#maintenanceModal">
+                                <i class="fas fa-tools"></i> Maintenance Mode
+                            </button>
                         </div>
+                    </div>
+                    
+                    <!-- Maintenance Mode Status -->
+                    <div class="alert alert-info mb-4">
+                        <h5><i class="fas fa-info-circle"></i> System Status</h5>
+                        <p class="mb-0">
+                            <strong>Maintenance Mode:</strong> 
+                            {% if maintenance_active %}
+                                <span class="badge bg-warning">ACTIVE</span> - Users will see maintenance page
+                            {% else %}
+                                <span class="badge bg-success">INACTIVE</span> - Application is fully accessible
+                            {% endif %}
+                        </p>
                     </div>
                     <table class="table table-hover">
                         <thead>
@@ -57,6 +73,65 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Maintenance Mode Modal -->
+<div class="modal fade" id="maintenanceModal" tabindex="-1" aria-labelledby="maintenanceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="maintenanceModalLabel">
+                    <i class="fas fa-tools"></i> Maintenance Mode Control
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% if maintenance_active %}
+                    <div class="alert alert-warning">
+                        <h6><i class="fas fa-exclamation-triangle"></i> Maintenance Mode is Currently ACTIVE</h6>
+                        <p>Users are currently seeing the maintenance page. You can disable it to restore normal access.</p>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('admin_disable_maintenance') }}" class="btn btn-success">
+                            <i class="fas fa-check-circle"></i> Disable Maintenance Mode
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle"></i> Enable Maintenance Mode</h6>
+                        <p>This will show a maintenance page to all users except administrators.</p>
+                    </div>
+                    
+                    <form method="POST" action="{{ url_for('admin_enable_maintenance') }}">
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Maintenance Message</label>
+                            <textarea class="form-control" id="message" name="message" rows="3" placeholder="We are currently performing scheduled maintenance to improve your experience.">We are currently performing scheduled maintenance to improve your experience.</textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="estimated_completion" class="form-label">Estimated Completion</label>
+                            <input type="text" class="form-control" id="estimated_completion" name="estimated_completion" placeholder="Shortly" value="Shortly">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="status_message" class="form-label">Status Message</label>
+                            <input type="text" class="form-control" id="status_message" name="status_message" placeholder="Updating systems and improving performance..." value="Updating systems and improving performance...">
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-tools"></i> Enable Maintenance Mode
+                            </button>
+                        </div>
+                    </form>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>

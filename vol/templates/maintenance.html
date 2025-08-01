@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Under Maintenance - ResumeBuilder Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .maintenance-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .maintenance-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        .maintenance-icon {
+            font-size: 4rem;
+            color: #667eea;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .maintenance-title {
+            color: #333;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+        
+        .maintenance-subtitle {
+            color: #666;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+        
+        .maintenance-message {
+            color: #555;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        
+        .progress-container {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 4px;
+            animation: progress 3s ease-in-out infinite;
+        }
+        
+        @keyframes progress {
+            0% { width: 0%; }
+            50% { width: 70%; }
+            100% { width: 100%; }
+        }
+        
+        .status-text {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .features-list {
+            text-align: left;
+            margin-bottom: 30px;
+        }
+        
+        .features-list h5 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            color: #666;
+        }
+        
+        .feature-item i {
+            color: #28a745;
+            margin-right: 10px;
+            width: 20px;
+        }
+        
+        .social-links {
+            margin-top: 30px;
+        }
+        
+        .social-links a {
+            display: inline-block;
+            margin: 0 10px;
+            color: #667eea;
+            font-size: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .social-links a:hover {
+            transform: translateY(-3px);
+            color: #764ba2;
+        }
+        
+        .estimated-time {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .estimated-time h6 {
+            color: #1976d2;
+            margin-bottom: 5px;
+        }
+        
+        .estimated-time p {
+            color: #424242;
+            margin: 0;
+        }
+        
+        .refresh-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+        
+        .refresh-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            color: white;
+        }
+        
+        .admin-bypass {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+        }
+        
+        .admin-bypass a {
+            color: #856404;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .admin-bypass a:hover {
+            color: #533f03;
+        }
+    </style>
+</head>
+<body>
+    <div class="maintenance-container">
+        <div class="maintenance-card">
+            <div class="maintenance-icon">
+                <i class="fas fa-tools"></i>
+            </div>
+            
+            <h1 class="maintenance-title">We're Making Things Better!</h1>
+            <p class="maintenance-subtitle">ResumeBuilder Pro is currently under maintenance</p>
+            
+            <div class="estimated-time">
+                <h6><i class="fas fa-clock"></i> Estimated Completion</h6>
+                <p>{{ maintenance_info.estimated_completion if maintenance_info.estimated_completion else 'Shortly' }}</p>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+                <div class="status-text">{{ maintenance_info.status_message if maintenance_info.status_message else 'Updating systems and improving performance...' }}</div>
+            </div>
+            
+            <p class="maintenance-message">
+                We're working hard to bring you an even better experience. Our team is implementing new features, 
+                improving performance, and ensuring everything runs smoothly for you.
+            </p>
+            
+            <div class="features-list">
+                <h5><i class="fas fa-star"></i> What's Coming:</h5>
+                <div class="feature-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Enhanced resume templates and customization options</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Improved AI-powered resume analysis</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Better performance and faster loading times</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>New career tools and resources</span>
+                </div>
+            </div>
+            
+            <button class="btn refresh-button" onclick="location.reload()">
+                <i class="fas fa-sync-alt"></i> Check if we're back
+            </button>
+            
+            <div class="social-links">
+                <a href="#" title="Follow us on Twitter"><i class="fab fa-twitter"></i></a>
+                <a href="#" title="Like us on Facebook"><i class="fab fa-facebook"></i></a>
+                <a href="#" title="Connect on LinkedIn"><i class="fab fa-linkedin"></i></a>
+                <a href="mailto:support@resumebuilderpro.com" title="Contact Support"><i class="fas fa-envelope"></i></a>
+            </div>
+            
+            {% if current_user.is_authenticated and current_user.is_admin %}
+            <div class="admin-bypass">
+                <i class="fas fa-shield-alt"></i>
+                <a href="{{ url_for('admin_disable_maintenance') }}">Admin: Disable Maintenance Mode</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <script>
+        // Auto-refresh every 30 seconds to check if maintenance is over
+        setTimeout(function() {
+            location.reload();
+        }, 30000);
+        
+        // Show a notification when the page loads
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                console.log('ServiceWorker registration successful');
+            }).catch(function(err) {
+                console.log('ServiceWorker registration failed');
+            });
+        }
+    </script>
+</body>
+</html>
