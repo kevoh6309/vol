@@ -1,3 +1,5 @@
+# Flask application for ResumeBuilder Pro - Latest deployment: 2025-08-03 14:45 UTC
+# Fixed: Email templates, service worker route, PayPal API issues
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, send_file, g, session, make_response
 from markupsafe import Markup
 from flask_sqlalchemy import SQLAlchemy
