@@ -605,8 +605,12 @@ def register():
     
     form = RegisterForm()
     if form.validate_on_submit():
-        if User.query.filter_by(email=form.email.data).first():
-            flash('Email already registered', 'error')
+        # Check if username already exists
+        if User.query.filter_by(username=form.username.data).first():
+            flash('Username already taken. Please choose a different username.', 'error')
+        # Check if email already exists
+        elif User.query.filter_by(email=form.email.data).first():
+            flash('Email already registered. Please use a different email address.', 'error')
         elif form.password.data != form.confirm_password.data:
             flash('Passwords do not match', 'error')
         else:
@@ -1409,7 +1413,7 @@ def chatbot():
         page = request.form.get('page', 'general')
     
     if not user_message:
-        return jsonify({'reply': 'Please enter a message.'})
+        return jsonify({'response': 'Please enter a message.'})
     
     # Try OpenRouter AI first (primary)
     if app.config.get('OPENROUTER_API_KEY') and app.config.get('OPENROUTER_API_KEY') != 'your_openrouter_api_key_here':
@@ -1456,7 +1460,7 @@ def chatbot():
                 result = response.json()
                 if 'choices' in result and result['choices']:
                     ai_response = result['choices'][0]['message']['content']
-                    return jsonify({'reply': ai_response})
+                    return jsonify({'response': ai_response})
             else:
                 print(f"OpenRouter API error: {response.status_code} - {response.text}")
         except Exception as e:
@@ -1485,35 +1489,44 @@ def chatbot():
                 result = response.json()
                 if 'candidates' in result and result['candidates']:
                     ai_response = result['candidates'][0]['content']['parts'][0]['text']
-                    return jsonify({'reply': ai_response})
+                    return jsonify({'response': ai_response})
         except Exception as e:
             print(f"Gemini API error: {e}")
     
     # Fallback to rule-based responses
     responses = {
-        'hello': 'Hello! I\'m here to help with your resume and career questions. How can I assist you today?',
-        'resume': 'For a great resume, focus on achievements, use action verbs, and tailor it to the job. Would you like specific tips?',
-        'interview': 'Interview preparation is key! Research the company, practice common questions, and prepare your own questions. Need help with specific questions?',
-        'help': 'I can help with resume writing, interview preparation, career advice, and more. Just ask!',
-        'cover letter': 'A strong cover letter should be tailored to the job, highlight relevant experience, and show enthusiasm for the role. Need help writing one?',
-        'skills': 'When listing skills on your resume, focus on relevant technical and soft skills. Quantify achievements when possible.',
-        'experience': 'When describing work experience, use action verbs and quantify achievements. Focus on results, not just responsibilities.',
-        'education': 'List your education with the most recent degree first. Include relevant coursework, GPA (if 3.0+), and any honors.',
-        'networking': 'Networking is crucial for career growth. Attend industry events, connect on LinkedIn, and follow up with meaningful conversations.',
-        'salary': 'Research salary ranges for your role and location. Be prepared to negotiate based on your experience and the market value.',
-        'linkedin': 'Optimize your LinkedIn profile with a professional photo, compelling headline, and detailed experience descriptions.',
-        'portfolio': 'A portfolio showcases your work and skills. Include relevant projects, case studies, and testimonials.',
-        'certification': 'Relevant certifications can boost your resume. Focus on industry-recognized credentials that align with your career goals.'
+        'resume': [
+            "Here are some key resume tips:\n\n• **Keep it concise** - 1-2 pages maximum\n• **Use action verbs** - 'achieved', 'developed', 'managed'\n• **Quantify achievements** - 'increased sales by 25%'\n• **Tailor to job** - match keywords from job description\n• **Proofread carefully** - no typos or grammar errors\n\nWould you like specific help with any section?",
+            "For a strong resume, focus on:\n\n• **Professional summary** - 2-3 sentences highlighting key strengths\n• **Work experience** - Use STAR method (Situation, Task, Action, Result)\n• **Skills section** - Include both technical and soft skills\n• **Education** - List most recent degree first\n\nWhat specific section would you like help with?"
+        ],
+        'interview': [
+            "Common interview questions and tips:\n\n• **Tell me about yourself** - 2-minute elevator pitch\n• **Why this company?** - Research company culture and values\n• **Strengths/Weaknesses** - Be honest but positive\n• **Salary expectations** - Research market rates\n\nPractice with mock interviews to build confidence!",
+            "Interview preparation checklist:\n\n• **Research the company** - website, news, social media\n• **Prepare questions** - show interest and engagement\n• **Practice responses** - but don't memorize\n• **Dress appropriately** - business professional\n• **Arrive early** - 10-15 minutes before\n\nWhat type of interview are you preparing for?"
+        ],
+        'cover letter': [
+            "Cover letter best practices:\n\n• **Personalize** - Address specific person if possible\n• **Match job requirements** - Connect your experience to their needs\n• **Show enthusiasm** - Demonstrate genuine interest\n• **Keep it concise** - 3-4 paragraphs maximum\n• **Proofread** - No errors allowed\n\nWould you like help writing a specific cover letter?",
+            "Structure your cover letter:\n\n• **Opening** - State position and show enthusiasm\n• **Body** - Connect your experience to job requirements\n• **Closing** - Thank them and request interview\n• **Signature** - Professional closing\n\nWhat job are you applying for?"
+        ],
+        'general': [
+            "I'm here to help with your career journey! I can assist with:\n\n• **Resume writing** - Tips, templates, and optimization\n• **Cover letters** - Structure and content advice\n• **Interview prep** - Questions and strategies\n• **Career advice** - Job search and networking\n\nWhat would you like to focus on today?",
+            "Welcome to your AI career assistant! I can help you:\n\n• **Create compelling resumes** that stand out\n• **Write effective cover letters** that get interviews\n• **Prepare for interviews** with confidence\n• **Navigate your career** with expert advice\n\nHow can I help you succeed today?"
+        ]
     }
     
-    # Check for keyword matches
-    user_message_lower = user_message.lower()
-    for key, response in responses.items():
-        if key in user_message_lower:
-            return jsonify({'reply': response})
+    # Determine response category based on user message
+    message_lower = user_message.lower()
+    if any(word in message_lower for word in ['resume', 'cv', 'curriculum vitae']):
+        category = 'resume'
+    elif any(word in message_lower for word in ['interview', 'meeting', 'question']):
+        category = 'interview'
+    elif any(word in message_lower for word in ['cover letter', 'application letter']):
+        category = 'cover letter'
+    else:
+        category = 'general'
     
-    # Default response if no specific match
-    return jsonify({'reply': 'I\'m here to help with resume tips, interview questions, and career advice. Try asking about resume writing, interview preparation, cover letters, networking, or career guidance!'})
+    import random
+    response = random.choice(responses[category])
+    return jsonify({'response': response})
 
 # Add analytics tracking
 @app.route('/analytics')
@@ -3627,496 +3640,6 @@ def upgrade_plan():
         
         # Create PayPal payment
         access_token = get_paypal_access_token()
-        headers = {
-            'Authorization': f'Bearer {access_token}',
-            'Content-Type': 'application/json'
-        }
-        
-        response = requests.post(
-            f'{PAYPAL_API_BASE}/v1/payments/payment',
-            json=payment_data,
-            headers=headers
-        )
-        
-        if response.status_code == 201:
-            payment = response.json()
-            approval_url = next(link['href'] for link in payment['links'] if link['rel'] == 'approval_url')
-            return jsonify({
-                'success': True,
-                'payment_id': payment['id'],
-                'checkout_url': approval_url
-            })
-        else:
-            return jsonify({
-                'success': False,
-                'error': 'Failed to create payment'
-            }), 500
-        
-    except Exception as e:
-        logger.error(f"Error creating upgrade session: {e}")
-        return jsonify({
-            'success': False,
-            'error': 'Failed to create checkout session'
-        }), 500
-
-@app.route('/api/cancel-subscription', methods=['POST'])
-@login_required
-def cancel_subscription():
-    """Handle subscription cancellation"""
-    try:
-        # In a real app, this would cancel the Stripe subscription
-        # For now, we'll just update the user's premium status
-        
-        current_user.is_premium = False
-        current_user.premium_expiry = datetime.now(timezone.utc)
-        db.session.commit()
-        
-        return jsonify({
-            'success': True,
-            'message': 'Subscription cancelled successfully'
-        })
-        
-    except Exception as e:
-        logger.error(f"Error cancelling subscription: {e}")
-        return jsonify({
-            'success': False,
-            'error': 'Failed to cancel subscription'
-        }), 500
-
-@app.route('/api-dashboard')
-@login_required
-def api_dashboard():
-    """API Dashboard for developers and integrations"""
-    try:
-        # Get API usage statistics
-        api_stats = get_api_statistics(current_user)
-        
-        # Get API keys
-        api_keys = get_user_api_keys(current_user)
-        
-        # Get webhook configurations
-        webhooks = get_webhook_configurations(current_user)
-        
-        return render_template('api_dashboard.html', 
-                             api_stats=api_stats,
-                             api_keys=api_keys,
-                             webhooks=webhooks)
-        
-    except Exception as e:
-        logger.error(f"Error in API dashboard: {e}")
-        flash('Error loading API dashboard', 'error')
-        return redirect(url_for('dashboard'))
-
-def get_api_statistics(user):
-    """Get API usage statistics"""
-    try:
-        # Simplified API stats - in real app, would track actual API calls
-        return {
-            'total_calls': 150,
-            'calls_this_month': 45,
-            'success_rate': 98.5,
-            'average_response_time': 245,  # ms
-            'endpoints_used': ['resume-analysis', 'cover-letter-generation', 'interview-prep'],
-            'rate_limit_remaining': 950,
-            'rate_limit_total': 1000
-        }
-        
-    except Exception as e:
-        logger.error(f"Error getting API statistics: {e}")
-        return {
-            'total_calls': 0,
-            'calls_this_month': 0,
-            'success_rate': 0,
-            'average_response_time': 0,
-            'endpoints_used': [],
-            'rate_limit_remaining': 1000,
-            'rate_limit_total': 1000
-        }
-
-def get_user_api_keys(user):
-    """Get user's API keys"""
-    try:
-        # In a real app, this would query actual API keys from database
-        return [
-            {
-                'id': 'key_1',
-                'name': 'Production API Key',
-                'key': 'sk_live_' + secrets.token_hex(16),
-                'created': '2024-01-15',
-                'last_used': '2024-01-20',
-                'status': 'active'
-            },
-            {
-                'id': 'key_2',
-                'name': 'Development API Key',
-                'key': 'sk_test_' + secrets.token_hex(16),
-                'created': '2024-01-10',
-                'last_used': '2024-01-18',
-                'status': 'active'
-            }
-        ]
-        
-    except Exception as e:
-        logger.error(f"Error getting API keys: {e}")
-        return []
-
-def get_webhook_configurations(user):
-    """Get webhook configurations"""
-    try:
-        # In a real app, this would query actual webhook configs
-        return [
-            {
-                'id': 'webhook_1',
-                'name': 'Resume Analysis Webhook',
-                'url': 'https://example.com/webhooks/resume-analysis',
-                'events': ['resume.created', 'resume.updated'],
-                'status': 'active',
-                'last_triggered': '2024-01-20 14:30:00'
-            }
-        ]
-        
-    except Exception as e:
-        logger.error(f"Error getting webhook configurations: {e}")
-        return []
-
-@app.route('/api/v1/resume-analysis', methods=['POST'])
-def api_resume_analysis():
-    """API endpoint for resume analysis"""
-    try:
-        # Verify API key
-        api_key = request.headers.get('Authorization', '').replace('Bearer ', '')
-        if not verify_api_key(api_key):
-            return jsonify({'error': 'Invalid API key'}), 401
-        
-        # Get request data
-        data = request.get_json()
-        if not data:
-            return jsonify({'error': 'No data provided'}), 400
-        
-        resume_content = data.get('resume_content', '')
-        job_description = data.get('job_description', '')
-        
-        if not resume_content:
-            return jsonify({'error': 'Resume content is required'}), 400
-        
-        # Perform analysis
-        analysis = perform_api_resume_analysis(resume_content, job_description)
-        
-        # Log API call
-        log_api_call(api_key, 'resume-analysis', 'success')
-        
-        return jsonify({
-            'success': True,
-            'analysis': analysis,
-            'timestamp': datetime.now(timezone.utc).isoformat()
-        })
-        
-    except Exception as e:
-        logger.error(f"API resume analysis error: {e}")
-        log_api_call(api_key, 'resume-analysis', 'error')
-        return jsonify({'error': 'Internal server error'}), 500
-
-@app.route('/api/v1/cover-letter-generation', methods=['POST'])
-def api_cover_letter_generation():
-    """API endpoint for cover letter generation"""
-    try:
-        # Verify API key
-        api_key = request.headers.get('Authorization', '').replace('Bearer ', '')
-        if not verify_api_key(api_key):
-            return jsonify({'error': 'Invalid API key'}), 401
-        
-        # Get request data
-        data = request.get_json()
-        if not data:
-            return jsonify({'error': 'No data provided'}), 400
-        
-        job_title = data.get('job_title', '')
-        company = data.get('company', '')
-        resume_summary = data.get('resume_summary', '')
-        job_description = data.get('job_description', '')
-        
-        if not all([job_title, company, resume_summary]):
-            return jsonify({'error': 'Missing required fields'}), 400
-        
-        # Generate cover letter
-        cover_letter = generate_api_cover_letter(job_title, company, resume_summary, job_description)
-        
-        # Log API call
-        log_api_call(api_key, 'cover-letter-generation', 'success')
-        
-        return jsonify({
-            'success': True,
-            'cover_letter': cover_letter,
-            'timestamp': datetime.now(timezone.utc).isoformat()
-        })
-        
-    except Exception as e:
-        logger.error(f"API cover letter generation error: {e}")
-        log_api_call(api_key, 'cover-letter-generation', 'error')
-        return jsonify({'error': 'Internal server error'}), 500
-
-@app.route('/api/v1/interview-questions', methods=['POST'])
-def api_interview_questions():
-    """API endpoint for interview question generation"""
-    try:
-        # Verify API key
-        api_key = request.headers.get('Authorization', '').replace('Bearer ', '')
-        if not verify_api_key(api_key):
-            return jsonify({'error': 'Invalid API key'}), 401
-        
-        # Get request data
-        data = request.get_json()
-        if not data:
-            return jsonify({'error': 'No data provided'}), 400
-        
-        job_title = data.get('job_title', '')
-        interview_type = data.get('interview_type', 'general')
-        count = data.get('count', 10)
-        
-        if not job_title:
-            return jsonify({'error': 'Job title is required'}), 400
-        
-        # Generate questions
-        questions = generate_api_interview_questions(job_title, interview_type, count)
-        
-        # Log API call
-        log_api_call(api_key, 'interview-questions', 'success')
-        
-        return jsonify({
-            'success': True,
-            'questions': questions,
-            'timestamp': datetime.now(timezone.utc).isoformat()
-        })
-        
-    except Exception as e:
-        logger.error(f"API interview questions error: {e}")
-        log_api_call(api_key, 'interview-questions', 'error')
-        return jsonify({'error': 'Internal server error'}), 500
-
-def verify_api_key(api_key):
-    """Verify API key validity"""
-    try:
-        # In a real app, this would check against database
-        # For now, we'll use a simple check
-        if not api_key or len(api_key) < 20:
-            return False
-        
-        # Check if key starts with expected prefix
-        if not (api_key.startswith('sk_live_') or api_key.startswith('sk_test_')):
-            return False
-        
-        return True
-        
-    except Exception as e:
-        logger.error(f"Error verifying API key: {e}")
-        return False
-
-def perform_api_resume_analysis(resume_content, job_description=''):
-    """Perform resume analysis for API"""
-    try:
-        # Use the same analysis logic as the web interface
-        analysis = {
-            'ats_score': analyze_ats_optimization(resume_content, job_description)['score'],
-            'content_score': analyze_content_quality(resume_content)['overall_score'],
-            'keyword_score': analyze_keywords(resume_content, job_description)['score'],
-            'structure_score': 85.0,  # Simplified
-            'overall_score': 82.5,  # Simplified
-            'recommendations': [
-                'Add more action verbs to make your experience more impactful',
-                'Include specific numbers and metrics to quantify your achievements',
-                'Add missing keywords from the job description'
-            ]
-        }
-        
-        return analysis
-        
-    except Exception as e:
-        logger.error(f"Error in API resume analysis: {e}")
-        return get_fallback_analysis()
-
-def generate_api_cover_letter(job_title, company, resume_summary, job_description=''):
-    """Generate cover letter for API"""
-    try:
-        # Use AI to generate cover letter
-        prompt = f"""
-        Write a professional cover letter for a {job_title} position at {company}.
-        
-        Resume Summary: {resume_summary}
-        
-        Job Description: {job_description}
-        
-        Make it compelling, professional, and tailored to the specific role.
-        """
-        
-        # Generate using AI
-        cover_letter = generate_ai_suggestion(prompt)
-        
-        return {
-            'content': cover_letter,
-            'word_count': len(cover_letter.split()),
-            'estimated_reading_time': len(cover_letter.split()) // 200  # ~200 words per minute
-        }
-        
-    except Exception as e:
-        logger.error(f"Error generating API cover letter: {e}")
-        return {
-            'content': 'Unable to generate cover letter at this time.',
-            'word_count': 0,
-            'estimated_reading_time': 0
-        }
-
-def generate_api_interview_questions(job_title, interview_type, count):
-    """Generate interview questions for API"""
-    try:
-        # Use the same logic as the web interface
-        questions = get_fallback_interview_questions(interview_type)
-        
-        # Return requested number of questions
-        return questions[:count]
-        
-    except Exception as e:
-        logger.error(f"Error generating API interview questions: {e}")
-        return ['Tell me about yourself.']
-
-def log_api_call(api_key, endpoint, status):
-    """Log API call for analytics"""
-    try:
-        # In a real app, this would log to database
-        logger.info(f"API Call: {endpoint} - {status} - Key: {api_key[:10]}...")
-        
-    except Exception as e:
-        logger.error(f"Error logging API call: {e}")
-
-@app.route('/api/webhooks/resume-analysis', methods=['POST'])
-def webhook_resume_analysis():
-    """Webhook endpoint for resume analysis events"""
-    try:
-        # Verify webhook signature
-        signature = request.headers.get('X-Webhook-Signature', '')
-        if not verify_webhook_signature(request.data, signature):
-            return jsonify({'error': 'Invalid signature'}), 401
-        
-        # Process webhook data
-        data = request.get_json()
-        event_type = data.get('event_type', '')
-        resume_data = data.get('resume_data', {})
-        
-        # Handle different event types
-        if event_type == 'resume.created':
-            handle_resume_created_webhook(resume_data)
-        elif event_type == 'resume.updated':
-            handle_resume_updated_webhook(resume_data)
-        elif event_type == 'resume.analyzed':
-            handle_resume_analyzed_webhook(resume_data)
-        
-        return jsonify({'success': True}), 200
-        
-    except Exception as e:
-        logger.error(f"Webhook error: {e}")
-        return jsonify({'error': 'Internal server error'}), 500
-
-def verify_webhook_signature(payload, signature):
-    """Verify webhook signature"""
-    try:
-        # In a real app, this would verify HMAC signature
-        # For now, we'll use a simple check
-        expected_signature = hashlib.sha256(payload).hexdigest()
-        return signature == expected_signature
-        
-    except Exception as e:
-        logger.error(f"Error verifying webhook signature: {e}")
-        return False
-
-def handle_resume_created_webhook(resume_data):
-    """Handle resume created webhook"""
-    try:
-        logger.info(f"Resume created webhook: {resume_data}")
-        # In a real app, this would trigger notifications, analytics, etc.
-        
-    except Exception as e:
-        logger.error(f"Error handling resume created webhook: {e}")
-
-def handle_resume_updated_webhook(resume_data):
-    """Handle resume updated webhook"""
-    try:
-        logger.info(f"Resume updated webhook: {resume_data}")
-        # In a real app, this would trigger notifications, analytics, etc.
-        
-    except Exception as e:
-        logger.error(f"Error handling resume updated webhook: {e}")
-
-def handle_resume_analyzed_webhook(resume_data):
-    """Handle resume analyzed webhook"""
-    try:
-        logger.info(f"Resume analyzed webhook: {resume_data}")
-        # In a real app, this would trigger notifications, analytics, etc.
-        
-    except Exception as e:
-        logger.error(f"Error handling resume analyzed webhook: {e}")
-
-# PayPal Configuration
-PAYPAL_CLIENT_ID = os.getenv('PAYPAL_CLIENT_ID', 'your_paypal_client_id')
-PAYPAL_CLIENT_SECRET = os.getenv('PAYPAL_CLIENT_SECRET', 'your_paypal_client_secret')
-PAYPAL_MODE = os.getenv('PAYPAL_MODE', 'sandbox')  # 'sandbox' or 'live'
-PAYPAL_RECEIVER_EMAIL = os.getenv('PAYPAL_RECEIVER_EMAIL', 'your_paypal_email@example.com')
-
-# PayPal API URLs
-if PAYPAL_MODE == 'live':
-    PAYPAL_API_BASE = 'https://api-m.paypal.com'
-else:
-    PAYPAL_API_BASE = 'https://api-m.sandbox.paypal.com'
-
-@app.route('/api/paypal/create-payment', methods=['POST'])
-@login_required
-def create_paypal_payment():
-    """Create PayPal payment for subscription upgrade"""
-    try:
-        data = request.get_json()
-        plan_type = data.get('plan', 'monthly')
-        
-        # Set payment amount based on plan
-        if plan_type == 'monthly':
-            amount = 19.99
-            description = 'ResumeBuilder Pro - Monthly Plan'
-        else:
-            amount = 199.99
-            description = 'ResumeBuilder Pro - Yearly Plan'
-        
-        # Create PayPal payment
-        payment_data = {
-            "intent": "sale",
-            "payer": {
-                "payment_method": "paypal"
-            },
-            "redirect_urls": {
-                "return_url": url_for('paypal_success', _external=True),
-                "cancel_url": url_for('paypal_cancel', _external=True)
-            },
-            "transactions": [{
-                "item_list": {
-                    "items": [{
-                        "name": description,
-                        "sku": f"resumebuilder-{plan_type}",
-                        "price": str(amount),
-                        "currency": "USD",
-                        "quantity": 1
-                    }]
-                },
-                "amount": {
-                    "total": str(amount),
-                    "currency": "USD"
-                },
-                "description": description,
-                "payee": {
-                    "email": PAYPAL_RECEIVER_EMAIL
-                }
-            }]
-        }
-        
-        # Get PayPal access token
-        access_token = get_paypal_access_token()
-        
-        # Create payment
         headers = {
             'Authorization': f'Bearer {access_token}',
             'Content-Type': 'application/json'
