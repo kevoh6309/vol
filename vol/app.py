@@ -1257,7 +1257,6 @@ def add_job_application():
         cover_letter_id = request.form.get('cover_letter_id')
         notes = request.form.get('notes', '')
         # Parse date
-        from datetime import datetime, timezone
         try:
             applied_date = datetime.strptime(applied_date, '%Y-%m-%d') if applied_date else datetime.now(timezone.utc)
         except Exception:
