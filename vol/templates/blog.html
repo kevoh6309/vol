@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+{% block title %}Career Blog - ResumeBuilder Pro{% endblock %}
+{% block content %}
+<!-- Hero Section -->
+<section class="py-5 bg-gradient-primary text-white">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-lg-8 mx-auto">
+                <h1 class="display-4 fw-bold mb-4">Career Insights & Tips</h1>
+                <p class="lead mb-0">Expert advice to help you advance your career and land your dream job</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Article -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card border-0 shadow-lg">
+                    <div class="card-body p-0">
+                        <img src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" 
+                             alt="Featured Article" class="img-fluid rounded-top">
+                        <div class="p-5">
+                            <div class="d-flex align-items-center mb-3">
+                                <span class="badge bg-primary me-2">Featured</span>
+                                <small class="text-muted">March 15, 2024 • 8 min read</small>
+                            </div>
+                            <h2 class="fw-bold mb-3">The Ultimate Guide to ATS-Optimized Resumes in 2024</h2>
+                            <p class="lead text-muted mb-4">
+                                Learn how to create resumes that pass through Applicant Tracking Systems and reach human recruiters. 
+                                Discover the latest trends and best practices for 2024.
+                            </p>
+                            <div class="d-flex align-items-center">
+                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah" alt="Author" 
+                                     class="rounded-circle me-3" style="width: 40px; height: 40px;">
+                                <div>
+                                    <h6 class="fw-bold mb-0">Sarah Johnson</h6>
+                                    <small class="text-muted">Career Expert & Resume Specialist</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Blog Categories -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold mb-3">Browse by Category</h2>
+                <p class="lead text-muted">Find the advice you need to advance your career</p>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100 text-center">
+                    <div class="card-body p-4">
+                        <div class="bg-primary bg-gradient rounded-circle p-4 mx-auto mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi bi-file-earmark-text text-white fs-1"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2">Resume Writing</h5>
+                        <p class="text-muted small">Tips for creating compelling resumes that stand out</p>
+                        <a href="#resume-writing" class="btn btn-outline-primary btn-sm">Read Articles</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100 text-center">
+                    <div class="card-body p-4">
+                        <div class="bg-success bg-gradient rounded-circle p-4 mx-auto mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi bi-search text-white fs-1"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2">Job Search</h5>
+                        <p class="text-muted small">Strategies for finding and landing your dream job</p>
+                        <a href="#job-search" class="btn btn-outline-success btn-sm">Read Articles</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100 text-center">
+                    <div class="card-body p-4">
+                        <div class="bg-warning bg-gradient rounded-circle p-4 mx-auto mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi bi-camera-video text-white fs-1"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2">Interview Prep</h5>
+                        <p class="text-muted small">Prepare for interviews and make a great impression</p>
+                        <a href="#interview-prep" class="btn btn-outline-warning btn-sm">Read Articles</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100 text-center">
+                    <div class="card-body p-4">
+                        <div class="bg-info bg-gradient rounded-circle p-4 mx-auto mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi bi-graph-up text-white fs-1"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2">Career Growth</h5>
+                        <p class="text-muted small">Advance your career and develop new skills</p>
+                        <a href="#career-growth" class="btn btn-outline-info btn-sm">Read Articles</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Latest Articles -->
+<section class="py-5">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-lg-8">
+                <h2 class="display-5 fw-bold mb-3">Latest Articles</h2>
+                <p class="lead text-muted">Stay updated with the latest career advice and industry trends</p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="#" class="btn btn-outline-primary">View All Articles</a>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- Article 1 -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" 
+                         class="card-img-top" alt="Article">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="badge bg-success me-2">Resume Writing</span>
+                            <small class="text-muted">March 12, 2024</small>
+                        </div>
+                        <h5 class="fw-bold mb-3">10 Resume Mistakes That Are Costing You Interviews</h5>
+                        <p class="text-muted mb-3">
+                            Avoid these common resume mistakes that could be preventing you from getting called for interviews. 
+                            Learn what recruiters really look for.
+                        </p>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Mike" alt="Author" 
+                                     class="rounded-circle me-2" style="width: 30px; height: 30px;">
+                                <small class="text-muted">Mike Chen</small>
+                            </div>
+                            <small class="text-muted">5 min read</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Article 2 -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" 
+                         class="card-img-top" alt="Article">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="badge bg-warning me-2">Interview Prep</span>
+                            <small class="text-muted">March 10, 2024</small>
+                        </div>
+                        <h5 class="fw-bold mb-3">How to Answer "Tell Me About Yourself" in Job Interviews</h5>
+                        <p class="text-muted mb-3">
+                            Master the art of the elevator pitch. Learn how to structure your response and make a memorable first impression.
+                        </p>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah" alt="Author" 
+                                     class="rounded-circle me-2" style="width: 30px; height: 30px;">
+                                <small class="text-muted">Sarah Johnson</small>
+                            </div>
+                            <small class="text-muted">6 min read</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Article 3 -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" 
+                         class="card-img-top" alt="Article">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="badge bg-info me-2">Career Growth</span>
+                            <small class="text-muted">March 8, 2024</small>
+                        </div>
+                        <h5 class="fw-bold mb-3">The Future of Work: Skills You Need to Stay Relevant</h5>
+                        <p class="text-muted mb-3">
+                            Discover the top skills that will be in demand in the coming years and how to develop them for career success.
+                        </p>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=John" alt="Author" 
+                                     class="rounded-circle me-2" style="width: 30px; height: 30px;">
+                                <small class="text-muted">John Smith</small>
+                            </div>
+                            <small class="text-muted">7 min read</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter Signup -->
+<section class="py-5 bg-gradient-primary text-white">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold mb-4">Stay Updated</h2>
+                <p class="lead mb-4">Get the latest career advice and resume tips delivered to your inbox</p>
+                <div class="row justify-content-center">
+                    <div class="col-md-6">
+                        <div class="input-group mb-3">
+                            <input type="email" class="form-control" placeholder="Enter your email address">
+                            <button class="btn btn-light" type="button">Subscribe</button>
+                        </div>
+                        <small class="text-light">No spam, unsubscribe at any time</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Popular Topics -->
+<section class="py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold mb-3">Popular Topics</h2>
+                <p class="lead text-muted">Most-read articles and trending career topics</p>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3">Resume Writing</h5>
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><a href="#" class="text-decoration-none text-muted">How to Write a Professional Summary</a></li>
+                            <li class="mb-2"><a href="#" class="text-decoration-none text-muted">Resume Formatting Best Practices</a></li>
+                            <li class="mb-2"><a href="#" class="text-decoration-none text-muted">Keywords That Get You Hired</a></li>
+                            <li class="mb-2"><a href="#" class="text-decoration-none text-muted">Resume Length: One Page vs Two Pages</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3">Interview Preparation</h5>
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><a href="#" class="text-decoration-none text-muted">Common Interview Questions & Answers</a></li>
+                            <li class="mb-2"><a href="#" class="text-decoration-none text-muted">How to Research a Company Before Interview</a></li>
+                            <li class="mb-2"><a href="#" class="text-decoration-none text-muted">Virtual Interview Tips</a></li>
+                            <li class="mb-2"><a href="#" class="text-decoration-none text-muted">Follow-up Email Templates</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

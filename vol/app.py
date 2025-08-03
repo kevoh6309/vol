@@ -538,6 +538,22 @@ def pricing():
 def about():
     return render_template('about.html')
 
+@app.route('/blog')
+def blog():
+    return render_template('blog.html')
+
+@app.route('/testimonials')
+def testimonials():
+    return render_template('testimonials.html')
+
+@app.route('/contact')
+def contact():
+    return render_template('contact.html')
+
+@app.route('/help')
+def help():
+    return render_template('help.html')
+
 @app.route('/favicon.ico')
 def favicon():
     return send_file('static/favicon.ico', mimetype='image/vnd.microsoft.icon')

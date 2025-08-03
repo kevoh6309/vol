@@ -1,0 +1,413 @@
+{% extends "base.html" %}
+{% block title %}Help Center - ResumeBuilder Pro{% endblock %}
+{% block content %}
+<!-- Hero Section -->
+<section class="py-5 bg-gradient-primary text-white">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-lg-8 mx-auto">
+                <h1 class="display-4 fw-bold mb-4">Help Center</h1>
+                <p class="lead mb-4">Find answers to your questions and learn how to get the most out of ResumeBuilder Pro</p>
+                
+                <!-- Search Bar -->
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <div class="input-group input-group-lg">
+                            <input type="text" class="form-control" id="helpSearch" placeholder="Search for help articles...">
+                            <button class="btn btn-light" type="button" onclick="searchHelp()">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Quick Help Categories -->
+<section class="py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold mb-3">Quick Help</h2>
+                <p class="lead text-muted">Get started quickly with these popular topics</p>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100 text-center">
+                    <div class="card-body p-4">
+                        <div class="bg-primary bg-gradient rounded-circle p-4 mx-auto mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi bi-rocket text-white fs-1"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2">Getting Started</h5>
+                        <p class="text-muted small">Learn the basics of creating your first resume</p>
+                        <a href="#getting-started" class="btn btn-outline-primary btn-sm">View Articles</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100 text-center">
+                    <div class="card-body p-4">
+                        <div class="bg-success bg-gradient rounded-circle p-4 mx-auto mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi bi-credit-card text-white fs-1"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2">Billing & Plans</h5>
+                        <p class="text-muted small">Manage your subscription and billing</p>
+                        <a href="#billing" class="btn btn-outline-success btn-sm">View Articles</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100 text-center">
+                    <div class="card-body p-4">
+                        <div class="bg-warning bg-gradient rounded-circle p-4 mx-auto mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi bi-tools text-white fs-1"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2">Features & Tools</h5>
+                        <p class="text-muted small">Master all our resume building features</p>
+                        <a href="#features" class="btn btn-outline-warning btn-sm">View Articles</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100 text-center">
+                    <div class="card-body p-4">
+                        <div class="bg-info bg-gradient rounded-circle p-4 mx-auto mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi bi-question-circle text-white fs-1"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2">Troubleshooting</h5>
+                        <p class="text-muted small">Solve common issues and problems</p>
+                        <a href="#troubleshooting" class="btn btn-outline-info btn-sm">View Articles</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Help Articles -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Getting Started -->
+                <div class="card border-0 shadow-sm mb-4" id="getting-started">
+                    <div class="card-header bg-white">
+                        <h3 class="fw-bold mb-0">Getting Started</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="accordion" id="gettingStartedAccordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#gs1">
+                                        How do I create my first resume?
+                                    </button>
+                                </h2>
+                                <div id="gs1" class="accordion-collapse collapse show" data-bs-parent="#gettingStartedAccordion">
+                                    <div class="accordion-body">
+                                        <p>Creating your first resume is easy! Follow these steps:</p>
+                                        <ol>
+                                            <li>Sign up for a free account</li>
+                                            <li>Click "Create Resume" from your dashboard</li>
+                                            <li>Choose a template that fits your style</li>
+                                            <li>Fill in your personal information, experience, and skills</li>
+                                            <li>Use our AI suggestions to improve your content</li>
+                                            <li>Preview and download your professional resume</li>
+                                        </ol>
+                                        <p><strong>Pro tip:</strong> Start with our "Professional" template for a clean, ATS-friendly design.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#gs2">
+                                        What information should I include in my resume?
+                                    </button>
+                                </h2>
+                                <div id="gs2" class="accordion-collapse collapse" data-bs-parent="#gettingStartedAccordion">
+                                    <div class="accordion-body">
+                                        <p>Your resume should include these essential sections:</p>
+                                        <ul>
+                                            <li><strong>Contact Information:</strong> Name, email, phone, location</li>
+                                            <li><strong>Professional Summary:</strong> Brief overview of your career goals</li>
+                                            <li><strong>Work Experience:</strong> Relevant jobs with achievements and responsibilities</li>
+                                            <li><strong>Education:</strong> Degrees, certifications, and relevant coursework</li>
+                                            <li><strong>Skills:</strong> Technical and soft skills relevant to your target job</li>
+                                            <li><strong>Additional Sections:</strong> Projects, volunteer work, languages (if relevant)</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#gs3">
+                                        How do I choose the right template?
+                                    </button>
+                                </h2>
+                                <div id="gs3" class="accordion-collapse collapse" data-bs-parent="#gettingStartedAccordion">
+                                    <div class="accordion-body">
+                                        <p>Choose a template based on your industry and experience level:</p>
+                                        <ul>
+                                            <li><strong>Professional:</strong> Traditional, conservative industries (finance, law, healthcare)</li>
+                                            <li><strong>Modern:</strong> Creative industries (marketing, design, tech)</li>
+                                            <li><strong>Minimal:</strong> Clean, simple design for any industry</li>
+                                            <li><strong>Creative:</strong> Stand out in competitive creative fields</li>
+                                        </ul>
+                                        <p>All our templates are ATS-optimized, so you can't go wrong!</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Billing & Plans -->
+                <div class="card border-0 shadow-sm mb-4" id="billing">
+                    <div class="card-header bg-white">
+                        <h3 class="fw-bold mb-0">Billing & Plans</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="accordion" id="billingAccordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#b1">
+                                        How do I upgrade to Premium?
+                                    </button>
+                                </h2>
+                                <div id="b1" class="accordion-collapse collapse show" data-bs-parent="#billingAccordion">
+                                    <div class="accordion-body">
+                                        <p>Upgrading to Premium is simple:</p>
+                                        <ol>
+                                            <li>Go to your dashboard and click "Upgrade to Premium"</li>
+                                            <li>Choose between Monthly ($19.99) or Yearly ($199.99) plans</li>
+                                            <li>Select your preferred payment method (Stripe or PayPal)</li>
+                                            <li>Complete the secure payment process</li>
+                                            <li>Enjoy unlimited access to all premium features!</li>
+                                        </ol>
+                                        <p><strong>Note:</strong> You can cancel anytime from your account settings.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#b2">
+                                        Can I cancel my subscription?
+                                    </button>
+                                </h2>
+                                <div id="b2" class="accordion-collapse collapse" data-bs-parent="#billingAccordion">
+                                    <div class="accordion-body">
+                                        <p>Yes, you can cancel your subscription at any time:</p>
+                                        <ol>
+                                            <li>Go to your account settings</li>
+                                            <li>Click on "Subscription Management"</li>
+                                            <li>Select "Cancel Subscription"</li>
+                                            <li>Confirm your cancellation</li>
+                                        </ol>
+                                        <p>Your premium features will remain active until the end of your current billing period. You can reactivate anytime!</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#b3">
+                                        Do you offer refunds?
+                                    </button>
+                                </h2>
+                                <div id="b3" class="accordion-collapse collapse" data-bs-parent="#billingAccordion">
+                                    <div class="accordion-body">
+                                        <p>We offer a 30-day money-back guarantee on all premium subscriptions. If you're not satisfied with our service:</p>
+                                        <ol>
+                                            <li>Contact our support team within 30 days of purchase</li>
+                                            <li>Explain why you're not satisfied</li>
+                                            <li>We'll process a full refund within 5-7 business days</li>
+                                        </ol>
+                                        <p><strong>Note:</strong> Refunds are processed to your original payment method.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Features & Tools -->
+                <div class="card border-0 shadow-sm mb-4" id="features">
+                    <div class="card-header bg-white">
+                        <h3 class="fw-bold mb-0">Features & Tools</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="accordion" id="featuresAccordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#f1">
+                                        How does AI resume analysis work?
+                                    </button>
+                                </h2>
+                                <div id="f1" class="accordion-collapse collapse show" data-bs-parent="#featuresAccordion">
+                                    <div class="accordion-body">
+                                        <p>Our AI resume analysis uses advanced natural language processing to:</p>
+                                        <ul>
+                                            <li><strong>Analyze Content:</strong> Review your resume for clarity, impact, and relevance</li>
+                                            <li><strong>ATS Optimization:</strong> Ensure your resume passes through Applicant Tracking Systems</li>
+                                            <li><strong>Keyword Matching:</strong> Identify missing keywords for your target job</li>
+                                            <li><strong>Suggest Improvements:</strong> Provide specific recommendations for better results</li>
+                                            <li><strong>Score Your Resume:</strong> Give you a comprehensive score and detailed feedback</li>
+                                        </ul>
+                                        <p>Simply upload your resume or use our built-in analysis tool for instant feedback!</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#f2">
+                                        What are the different resume formats?
+                                    </button>
+                                </h2>
+                                <div id="f2" class="accordion-collapse collapse" data-bs-parent="#featuresAccordion">
+                                    <div class="accordion-body">
+                                        <p>We support multiple resume formats:</p>
+                                        <ul>
+                                            <li><strong>PDF:</strong> Professional format, maintains formatting across devices</li>
+                                            <li><strong>Word (.docx):</strong> Editable format for further customization</li>
+                                            <li><strong>Plain Text:</strong> Simple format for online applications</li>
+                                        </ul>
+                                        <p><strong>Recommendation:</strong> Use PDF for most applications as it maintains your formatting and looks professional.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#f3">
+                                        How do I use the cover letter generator?
+                                    </button>
+                                </h2>
+                                <div id="f3" class="accordion-collapse collapse" data-bs-parent="#featuresAccordion">
+                                    <div class="accordion-body">
+                                        <p>Our AI-powered cover letter generator creates personalized cover letters:</p>
+                                        <ol>
+                                            <li>Go to "Cover Letter Generator" in your dashboard</li>
+                                            <li>Enter the job title and company name</li>
+                                            <li>Paste the job description (optional but recommended)</li>
+                                            <li>Select your experience level and tone preference</li>
+                                            <li>Click "Generate Cover Letter"</li>
+                                            <li>Review and customize the generated content</li>
+                                            <li>Save and download your professional cover letter</li>
+                                        </ol>
+                                        <p><strong>Premium Feature:</strong> Available with Premium subscription.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-3">Still Need Help?</h5>
+                        <p class="text-muted mb-3">Can't find what you're looking for? Our support team is here to help.</p>
+                        <a href="{{ url_for('contact') }}" class="btn btn-primary w-100 mb-2">
+                            <i class="bi bi-envelope me-2"></i>Contact Support
+                        </a>
+                        <a href="#" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-chat-dots me-2"></i>Live Chat
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-3">Popular Articles</h5>
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><a href="#" class="text-decoration-none text-muted">How to write a professional summary</a></li>
+                            <li class="mb-2"><a href="#" class="text-decoration-none text-muted">Resume formatting best practices</a></li>
+                            <li class="mb-2"><a href="#" class="text-decoration-none text-muted">ATS optimization guide</a></li>
+                            <li class="mb-2"><a href="#" class="text-decoration-none text-muted">Common resume mistakes to avoid</a></li>
+                            <li class="mb-2"><a href="#" class="text-decoration-none text-muted">How to tailor your resume for different jobs</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-3">Video Tutorials</h5>
+                        <div class="mb-3">
+                            <div class="ratio ratio-16x9 mb-2">
+                                <div class="bg-dark d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-play-circle text-white fs-1"></i>
+                                </div>
+                            </div>
+                            <small class="text-muted">Getting Started with ResumeBuilder Pro</small>
+                        </div>
+                        <div class="mb-3">
+                            <div class="ratio ratio-16x9 mb-2">
+                                <div class="bg-dark d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-play-circle text-white fs-1"></i>
+                                </div>
+                            </div>
+                            <small class="text-muted">Using AI Features to Improve Your Resume</small>
+                        </div>
+                        <div>
+                            <div class="ratio ratio-16x9 mb-2">
+                                <div class="bg-dark d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-play-circle text-white fs-1"></i>
+                                </div>
+                            </div>
+                            <small class="text-muted">Advanced Template Customization</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+function searchHelp() {
+    const searchTerm = document.getElementById('helpSearch').value.toLowerCase();
+    const articles = document.querySelectorAll('.accordion-item');
+    
+    articles.forEach(article => {
+        const title = article.querySelector('.accordion-button').textContent.toLowerCase();
+        const content = article.querySelector('.accordion-body').textContent.toLowerCase();
+        
+        if (title.includes(searchTerm) || content.includes(searchTerm)) {
+            article.style.display = 'block';
+            // Expand matching articles
+            const collapse = article.querySelector('.accordion-collapse');
+            if (collapse && !collapse.classList.contains('show')) {
+                new bootstrap.Collapse(collapse, { show: true });
+            }
+        } else {
+            article.style.display = 'none';
+        }
+    });
+    
+    // Show results message
+    const visibleArticles = document.querySelectorAll('.accordion-item[style="display: block"]');
+    if (searchTerm) {
+        alert(`Found ${visibleArticles.length} articles matching "${searchTerm}"`);
+    }
+}
+
+// Search on Enter key
+document.getElementById('helpSearch').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        searchHelp();
+    }
+});
+</script>
+{% endblock %}
