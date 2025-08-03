@@ -12,6 +12,31 @@
     box-shadow: 0 4px 32px rgba(0,0,0,0.08);
     background: #fff;
 }
+.payment-options {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    justify-content: center;
+}
+.payment-option {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    background: #f8f9fa;
+    color: #6c757d;
+    border: 1px solid #dee2e6;
+}
+.payment-option.stripe {
+    background: #6772e5;
+    color: white;
+    border-color: #6772e5;
+}
+.payment-option.paypal {
+    background: #0070ba;
+    color: white;
+    border-color: #0070ba;
+}
 </style>
 <div class="premium-bg">
     <div class="container">
@@ -21,6 +46,16 @@
                     <div class="card-body text-center">
                         <h1 class="mb-3"><i class="bi bi-stars text-warning"></i> Go Premium</h1>
                         <p class="lead mb-4">Unlock unlimited resumes, AI features, premium templates, analytics, and more!</p>
+                        
+                        <div class="payment-options">
+                            <span class="payment-option stripe">
+                                <i class="bi bi-credit-card me-1"></i>Stripe
+                            </span>
+                            <span class="payment-option paypal">
+                                <i class="bi bi-paypal me-1"></i>PayPal
+                            </span>
+                        </div>
+                        
                         <form method="POST" action="{{ url_for('upgrade') }}">
                             {{ csrf_token() }}
                             <input type="hidden" name="plan" value="monthly">
@@ -38,7 +73,12 @@
                                 Get Yearly Premium (Save 20%)
                             </button>
                         </form>
-                        <div class="text-muted small mb-2">Cancel anytime. Secure payment via Stripe.</div>
+                        
+                        <div class="text-muted small mb-2 mt-3">
+                            <i class="bi bi-shield-check me-1"></i>
+                            Secure payments via Stripe & PayPal. Cancel anytime.
+                        </div>
+                        
                         <ul class="list-unstyled text-start mt-4 mb-0">
                             <li><i class="bi bi-check-circle text-success"></i> Unlimited resumes & cover letters</li>
                             <li><i class="bi bi-check-circle text-success"></i> All premium templates</li>
