@@ -1606,12 +1606,16 @@ def referral_landing(code):
 @login_required
 def upgrade():
     if request.method == 'POST':
+        logger.info(f"Payment attempt by user {current_user.id} ({current_user.email})")
+        
         # Check if PayPal is configured
         if not app.config.get('PAYPAL_CLIENT_ID') or not app.config.get('PAYPAL_CLIENT_SECRET'):
+            logger.error("PayPal not configured - missing credentials")
             flash('Payment system is not configured. Please contact support.', 'error')
             return redirect(url_for('dashboard'))
         
         plan = request.form.get('plan', 'monthly')
+        logger.info(f"Plan selected: {plan}")
         
         # Set pricing based on plan
         if plan == 'monthly':
@@ -1621,6 +1625,8 @@ def upgrade():
             amount = '199.99'
             description = 'Yearly Premium Subscription'
         
+        logger.info(f"Amount: {amount}, Description: {description}")
+        
         # Store plan type in session for PayPal success handling
         session['paypal_plan_type'] = plan
         
@@ -1628,6 +1634,7 @@ def upgrade():
             # Get PayPal API base URL
             paypal_mode = app.config.get('PAYPAL_MODE', 'sandbox')
             paypal_api_base = 'https://api.sandbox.paypal.com' if paypal_mode == 'sandbox' else 'https://api.paypal.com'
+            logger.info(f"PayPal mode: {paypal_mode}, API base: {paypal_api_base}")
             
             # Create PayPal payment
             payment_data = {
@@ -1657,8 +1664,12 @@ def upgrade():
                 }]
             }
             
+            logger.info(f"Payment data prepared: {payment_data}")
+            
             # Create PayPal payment
             access_token = get_paypal_access_token()
+            logger.info(f"PayPal access token obtained: {access_token[:20]}...")
+            
             headers = {
                 'Authorization': f'Bearer {access_token}',
                 'Content-Type': 'application/json'
@@ -1670,16 +1681,24 @@ def upgrade():
                 headers=headers
             )
             
+            logger.info(f"PayPal API response status: {response.status_code}")
+            logger.info(f"PayPal API response: {response.text[:200]}...")
+            
             if response.status_code == 201:
                 payment = response.json()
                 approval_url = next(link['href'] for link in payment['links'] if link['rel'] == 'approval_url')
+                logger.info(f"Redirecting to PayPal approval URL: {approval_url}")
                 return redirect(approval_url)
             else:
-                flash(f'Error creating payment: {response.status_code} - {response.text}', 'error')
+                error_msg = f'Error creating payment: {response.status_code} - {response.text}'
+                logger.error(error_msg)
+                flash(error_msg, 'error')
                 return redirect(url_for('dashboard'))
                 
         except Exception as e:
-            flash(f'Error creating payment: {str(e)}', 'error')
+            error_msg = f'Error creating payment: {str(e)}'
+            logger.error(error_msg)
+            flash(error_msg, 'error')
             return redirect(url_for('dashboard'))
     
     return render_template('upgrade.html', 
