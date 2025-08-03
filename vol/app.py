@@ -3855,6 +3855,17 @@ def get_paypal_access_token():
         logger.error(f"Error getting PayPal access token: {e}")
         raise e
 
+@app.route('/test-payment')
+@login_required
+def test_payment():
+    """Simple test route to debug payment issues"""
+    return jsonify({
+        'status': 'success',
+        'message': 'Payment test route working',
+        'user': current_user.email,
+        'paypal_configured': bool(app.config.get('PAYPAL_CLIENT_ID') and app.config.get('PAYPAL_CLIENT_SECRET'))
+    })
+
 if __name__ == '__main__':
     logger.info("Starting Flask application...")
     app.run(debug=True, host='0.0.0.0', port=5000) 

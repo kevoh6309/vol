@@ -28,11 +28,6 @@
     color: #6c757d;
     border: 1px solid #dee2e6;
 }
-.payment-option.stripe {
-    background: #6772e5;
-    color: white;
-    border-color: #6772e5;
-}
 .payment-option.paypal {
     background: #0070ba;
     color: white;
@@ -54,21 +49,23 @@
                             </span>
                         </div>
                         
-                        <form method="POST" action="{{ url_for('upgrade') }}">
-                            {{ csrf_token() }}
+                        <!-- Monthly Plan -->
+                        <form method="POST" action="/upgrade" style="margin-bottom: 15px;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <input type="hidden" name="plan" value="monthly">
-                            <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
+                            <button type="submit" class="btn btn-primary btn-lg w-100">
                                 <i class="bi bi-star-fill me-2"></i>
-                                Get Monthly Premium
+                                Get Monthly Premium - $19.99
                             </button>
                         </form>
                         
-                        <form method="POST" action="{{ url_for('upgrade') }}">
-                            {{ csrf_token() }}
+                        <!-- Yearly Plan -->
+                        <form method="POST" action="/upgrade">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <input type="hidden" name="plan" value="yearly">
                             <button type="submit" class="btn btn-outline-primary btn-lg w-100">
                                 <i class="bi bi-calendar-check me-2"></i>
-                                Get Yearly Premium (Save 20%)
+                                Get Yearly Premium - $199.99 (Save 20%)
                             </button>
                         </form>
                         
