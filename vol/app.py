@@ -1430,166 +1430,188 @@ def interview_prep_advanced():
 @app.route('/chatbot', methods=['POST'])
 @csrf.exempt
 def chatbot():
-    # Handle both JSON and form data
-    if request.is_json:
-        user_message = request.json.get('message', '').strip()
-        section = request.json.get('section', 'general')
-        page = request.json.get('page', 'general')
-    else:
-        user_message = request.form.get('message', '').strip()
-        section = request.form.get('section', 'general')
-        page = request.form.get('page', 'general')
-    
-    if not user_message:
-        return jsonify({'response': 'Please enter a message.'})
-    
-    # Try OpenRouter AI first (primary)
-    if app.config.get('OPENROUTER_API_KEY') and app.config.get('OPENROUTER_API_KEY') != 'your_openrouter_api_key_here':
-        try:
-            headers = {
-                'Authorization': f'Bearer {app.config["OPENROUTER_API_KEY"]}',
-                'Content-Type': 'application/json',
-                'HTTP-Referer': app.config.get('APP_URL', 'http://localhost:5000'),
-                'X-Title': 'ResumeBuilder AI Assistant'
-            }
-            
-            system_prompt = (
-                "You are Resume Assistant, an expert career coach and resume writer. You are highly intelligent, helpful, and provide specific, actionable advice with real examples.\n\n"
-                "**CONTEXT AWARENESS:** The user is currently on the '{page}' page, working on the '{section}' section. Use this context to provide highly relevant, specific advice.\n\n"
-                "**RESPONSE STYLE:**\n"
-                "• Be conversational, friendly, and encouraging\n"
-                "• Provide specific examples and templates\n"
-                "• Give step-by-step instructions when helpful\n"
-                "• Use bullet points for lists and bold for headers\n"
-                "• Offer multiple suggestions and alternatives\n"
-                "• Ask follow-up questions to better assist\n\n"
-                "**PAGE-SPECIFIC GUIDANCE:**\n"
-                "• If on 'resume_form' or 'create-resume': Focus on resume writing, structure, and content\n"
-                "• If on 'cover_letter_form' or 'create-cover-letter': Focus on cover letter writing and formatting\n"
-                "• If on 'upgrade' or 'pricing': Help with subscription benefits and features\n"
-                "• If on 'dashboard': Provide general career guidance and next steps\n"
-                "• If on 'interview-prep': Focus on interview preparation and questions\n"
-                "• If on 'job-application-tracker': Help with job search strategies\n\n"
-                "**EXAMPLES TO PROVIDE:**\n"
-                "• Real resume bullet points with action verbs\n"
-                "• Sample cover letter paragraphs\n"
-                "• Interview question examples and answers\n"
-                "• Skills lists for different industries\n"
-                "• Professional summary examples\n\n"
-                "**FORMATTING:** Always format responses clearly with proper structure. Use markdown formatting for better readability."
-            )
-            data = {
-                'model': 'anthropic/claude-3.5-sonnet',
-                'messages': [
-                    {
-                        'role': 'system',
-                        'content': system_prompt
-                    },
-                    {
-                        'role': 'user',
-                        'content': user_message
-                    }
-                ],
-                'max_tokens': 500,
-                'temperature': 0.7
-            }
-            
-            response = requests.post(
-                app.config['OPENROUTER_API_URL'],
-                headers=headers,
-                json=data,
-                timeout=15
-            )
-            
-            if response.status_code == 200:
-                result = response.json()
-                if 'choices' in result and result['choices']:
-                    ai_response = result['choices'][0]['message']['content']
-                    return jsonify({'response': ai_response})
-            else:
-                print(f"OpenRouter API error: {response.status_code} - {response.text}")
-        except Exception as e:
-            print(f"OpenRouter API error: {e}")
-    
-    # Fallback to Gemini AI
-    elif app.config.get('GEMINI_API_KEY') and app.config.get('GEMINI_API_KEY') != 'your_gemini_api_key_here':
-        try:
-            headers = {
-                'Content-Type': 'application/json',
-            }
-            data = {
-                'contents': [{
-                    'parts': [{'text': f"You are a helpful career assistant. Help with resume tips, interview questions, and career advice. User: {user_message}"}]
-                }]
-            }
-            
-            response = requests.post(
-                f'{app.config["GEMINI_API_URL"]}?key={app.config["GEMINI_API_KEY"]}',
-                headers=headers,
-                json=data,
-                timeout=10
-            )
-            
-            if response.status_code == 200:
-                result = response.json()
-                if 'candidates' in result and result['candidates']:
-                    ai_response = result['candidates'][0]['content']['parts'][0]['text']
-                    return jsonify({'response': ai_response})
-        except Exception as e:
-            print(f"Gemini API error: {e}")
-    
-    # Enhanced fallback responses with specific examples
-    responses = {
-        'resume': [
-            f"**Resume Writing Tips for {page}:**\n\n• **Professional Summary Example:**\n  'Results-driven software developer with 5+ years experience in full-stack development, specializing in React and Node.js. Led team of 8 developers to deliver 3 major applications, improving user engagement by 40%.'\n\n• **Action Verb Examples:**\n  - Developed, Implemented, Optimized, Managed, Led\n  - Increased, Reduced, Improved, Streamlined, Launched\n\n• **Quantified Achievement Example:**\n  'Increased website conversion rate by 25% through A/B testing and UX improvements'\n\nWhat specific section would you like me to help with?",
-            
-            f"**Resume Structure for {page}:**\n\n**1. Contact Information**\n- Name, email, phone, LinkedIn\n- Professional email (not personal)\n\n**2. Professional Summary**\n- 2-3 sentences highlighting key strengths\n- Tailored to target position\n\n**3. Work Experience**\n- Use STAR method: Situation, Task, Action, Result\n- Quantify achievements with numbers\n\n**4. Skills Section**\n- Technical skills first, then soft skills\n- Match job description keywords\n\nWould you like a specific example for any section?"
-        ],
-        'interview': [
-            f"**Interview Preparation for {page}:**\n\n**Common Questions & Sample Answers:**\n\n**'Tell me about yourself':**\n'I'm a passionate software developer with 3 years of experience building scalable web applications. I love solving complex problems and recently led a team that reduced application load time by 50%.'\n\n**'Why this company?':**\n'I'm excited about your innovative approach to AI and your commitment to sustainability. Your recent project on renewable energy solutions aligns perfectly with my passion for impactful technology.'\n\n**'What are your strengths?':**\n'I'm highly analytical and detail-oriented, which helps me catch bugs early. I'm also a strong communicator who enjoys mentoring junior developers.'\n\nWhat type of interview are you preparing for?",
-            
-            f"**Interview Success Checklist for {page}:**\n\n**Before the Interview:**\n• Research company: website, news, social media, Glassdoor\n• Prepare 3-5 thoughtful questions to ask\n• Practice responses but don't memorize\n• Prepare portfolio/work samples\n\n**During the Interview:**\n• Arrive 10-15 minutes early\n• Dress business professional\n• Maintain eye contact and positive body language\n• Ask thoughtful questions\n• Send thank-you email within 24 hours\n\nWhat specific role are you interviewing for?"
-        ],
-        'cover letter': [
-            f"**Cover Letter Writing for {page}:**\n\n**Opening Paragraph Example:**\n'Dear Hiring Manager,\n\nI am writing to express my strong interest in the Senior Software Engineer position at TechCorp. With 5 years of experience in full-stack development and a proven track record of delivering high-impact solutions, I am excited about the opportunity to contribute to your innovative team.'\n\n**Body Paragraph Example:**\n'In my current role at PreviousCompany, I led the development of a customer portal that improved user satisfaction by 35% and reduced support tickets by 40%. I believe this experience, combined with my expertise in React and Node.js, makes me an excellent fit for your team.'\n\nWould you like me to help you write a specific cover letter?",
-            
-            f"**Cover Letter Structure for {page}:**\n\n**Paragraph 1: Introduction**\n- State the position you're applying for\n- Show enthusiasm for the company\n- Mention how you found the position\n\n**Paragraph 2: Why You're Qualified**\n- Connect your experience to job requirements\n- Provide specific examples and achievements\n- Show you understand the role\n\n**Paragraph 3: Why This Company**\n- Demonstrate knowledge of the company\n- Show cultural fit and values alignment\n- Express genuine interest\n\n**Paragraph 4: Closing**\n- Thank them for consideration\n- Request an interview\n- Provide contact information\n\nWhat job are you applying for?"
-        ],
-        'general': [
-            f"**Welcome to Your AI Career Assistant!** 🤖\n\nI'm here to help you succeed in your career journey. Since you're on the {page} page, here are some relevant suggestions:\n\n**For Resume Building:**\n• Create compelling professional summaries\n• Write impactful bullet points with action verbs\n• Optimize for ATS systems\n• Choose the right template for your industry\n\n**For Cover Letters:**\n• Write personalized opening paragraphs\n• Connect your experience to job requirements\n• Show genuine enthusiasm for the company\n• Structure for maximum impact\n\n**For Interviews:**\n• Prepare for common questions\n• Research companies thoroughly\n• Practice your elevator pitch\n• Develop thoughtful questions to ask\n\nWhat would you like to focus on today?",
-            
-            f"**Career Success Guide for {page}:**\n\n**🎯 Resume Excellence:**\n• Professional summaries that grab attention\n• Quantified achievements that demonstrate impact\n• Skills sections that match job descriptions\n• Clean, professional formatting\n\n**📝 Cover Letter Mastery:**\n• Personalized content that shows research\n• Specific examples that connect to the role\n• Professional tone that matches company culture\n• Clear call-to-action for next steps\n\n**🤝 Interview Confidence:**\n• Thorough company and role research\n• Practice responses to common questions\n• Professional appearance and body language\n• Follow-up strategies that make an impact\n\nHow can I help you achieve your career goals today?"
-        ]
+    # Add CORS headers for frontend requests
+    response_headers = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type'
     }
     
-    # Enhanced page-aware response selection
-    message_lower = user_message.lower()
+    # Handle preflight OPTIONS request
+    if request.method == 'OPTIONS':
+        return '', 200, response_headers
     
-    # Page-specific category selection
-    if page in ['/create-resume', '/edit-resume', '/my-resumes', '/resume-checker'] or 'resume' in page:
-        category = 'resume'
-    elif page in ['/create-cover-letter', '/my-cover-letters', '/ai-cover-letter-generator'] or 'cover' in page:
-        category = 'cover letter'
-    elif page in ['/interview-prep', '/interview-prep-advanced', '/practice-sessions'] or 'interview' in page:
-        category = 'interview'
-    elif page in ['/upgrade', '/pricing', '/subscription-management'] or 'upgrade' in page or 'pricing' in page:
-        category = 'general'  # Will provide upgrade/pricing specific advice
-    elif page in ['/job-application-tracker', '/add-job-application'] or 'job' in page or 'application' in page:
-        category = 'general'  # Will provide job search specific advice
-    else:
-        # Fallback to message content analysis
-        if any(word in message_lower for word in ['resume', 'cv', 'curriculum vitae', 'summary', 'experience', 'skills']):
-            category = 'resume'
-        elif any(word in message_lower for word in ['interview', 'meeting', 'question', 'prep', 'practice']):
-            category = 'interview'
-        elif any(word in message_lower for word in ['cover letter', 'application letter', 'letter']):
-            category = 'cover letter'
+    try:
+        # Handle both JSON and form data
+        if request.is_json:
+            user_message = request.json.get('message', '').strip()
+            section = request.json.get('section', 'general')
+            page = request.json.get('page', 'general')
         else:
-            category = 'general'
-    
-    import random
-    response = random.choice(responses[category])
-    return jsonify({'response': response})
+            user_message = request.form.get('message', '').strip()
+            section = request.form.get('section', 'general')
+            page = request.form.get('page', 'general')
+        
+        if not user_message:
+            return jsonify({'response': 'Please enter a message.'}), 200, response_headers
+        
+        print(f"Chatbot request: message='{user_message}', page='{page}', section='{section}'")
+        
+        # Try OpenRouter AI first (primary)
+        if app.config.get('OPENROUTER_API_KEY') and app.config.get('OPENROUTER_API_KEY') != 'your_openrouter_api_key_here':
+            try:
+                headers = {
+                    'Authorization': f'Bearer {app.config["OPENROUTER_API_KEY"]}',
+                    'Content-Type': 'application/json',
+                    'HTTP-Referer': app.config.get('APP_URL', 'http://localhost:5000'),
+                    'X-Title': 'ResumeBuilder AI Assistant'
+                }
+                
+                system_prompt = (
+                    "You are Resume Assistant, an expert career coach and resume writer. You are highly intelligent, helpful, and provide specific, actionable advice with real examples.\n\n"
+                    "**CONTEXT AWARENESS:** The user is currently on the '{page}' page, working on the '{section}' section. Use this context to provide highly relevant, specific advice.\n\n"
+                    "**RESPONSE STYLE:**\n"
+                    "• Be conversational, friendly, and encouraging\n"
+                    "• Provide specific examples and templates\n"
+                    "• Give step-by-step instructions when helpful\n"
+                    "• Use bullet points for lists and bold for headers\n"
+                    "• Offer multiple suggestions and alternatives\n"
+                    "• Ask follow-up questions to better assist\n\n"
+                    "**PAGE-SPECIFIC GUIDANCE:**\n"
+                    "• If on 'resume_form' or 'create-resume': Focus on resume writing, structure, and content\n"
+                    "• If on 'cover_letter_form' or 'create-cover-letter': Focus on cover letter writing and formatting\n"
+                    "• If on 'upgrade' or 'pricing': Help with subscription benefits and features\n"
+                    "• If on 'dashboard': Provide general career guidance and next steps\n"
+                    "• If on 'interview-prep': Focus on interview preparation and questions\n"
+                    "• If on 'job-application-tracker': Help with job search strategies\n\n"
+                    "**EXAMPLES TO PROVIDE:**\n"
+                    "• Real resume bullet points with action verbs\n"
+                    "• Sample cover letter paragraphs\n"
+                    "• Interview question examples and answers\n"
+                    "• Skills lists for different industries\n"
+                    "• Professional summary examples\n\n"
+                    "**FORMATTING:** Always format responses clearly with proper structure. Use markdown formatting for better readability."
+                )
+                data = {
+                    'model': 'anthropic/claude-3.5-sonnet',
+                    'messages': [
+                        {
+                            'role': 'system',
+                            'content': system_prompt
+                        },
+                        {
+                            'role': 'user',
+                            'content': user_message
+                        }
+                    ],
+                    'max_tokens': 500,
+                    'temperature': 0.7
+                }
+                
+                response = requests.post(
+                    app.config['OPENROUTER_API_URL'],
+                    headers=headers,
+                    json=data,
+                    timeout=15
+                )
+                
+                if response.status_code == 200:
+                    result = response.json()
+                    if 'choices' in result and result['choices']:
+                        ai_response = result['choices'][0]['message']['content']
+                        print(f"OpenRouter API success: {len(ai_response)} characters")
+                        return jsonify({'response': ai_response}), 200, response_headers
+                else:
+                    print(f"OpenRouter API error: {response.status_code} - {response.text}")
+            except Exception as e:
+                print(f"OpenRouter API error: {e}")
+        
+        # Fallback to Gemini AI
+        elif app.config.get('GEMINI_API_KEY') and app.config.get('GEMINI_API_KEY') != 'your_gemini_api_key_here':
+            try:
+                headers = {
+                    'Content-Type': 'application/json',
+                }
+                data = {
+                    'contents': [{
+                        'parts': [{'text': f"You are a helpful career assistant. Help with resume tips, interview questions, and career advice. User: {user_message}"}]
+                    }]
+                }
+                
+                response = requests.post(
+                    f'{app.config["GEMINI_API_URL"]}?key={app.config["GEMINI_API_KEY"]}',
+                    headers=headers,
+                    json=data,
+                    timeout=10
+                )
+                
+                if response.status_code == 200:
+                    result = response.json()
+                    if 'candidates' in result and result['candidates']:
+                        ai_response = result['candidates'][0]['content']['parts'][0]['text']
+                        print(f"Gemini API success: {len(ai_response)} characters")
+                        return jsonify({'response': ai_response}), 200, response_headers
+            except Exception as e:
+                print(f"Gemini API error: {e}")
+        
+        # Enhanced fallback responses with specific examples
+        print("Using enhanced fallback responses")
+        responses = {
+            'resume': [
+                f"**Resume Writing Tips for {page}:**\n\n• **Professional Summary Example:**\n  'Results-driven software developer with 5+ years experience in full-stack development, specializing in React and Node.js. Led team of 8 developers to deliver 3 major applications, improving user engagement by 40%.'\n\n• **Action Verb Examples:**\n  - Developed, Implemented, Optimized, Managed, Led\n  - Increased, Reduced, Improved, Streamlined, Launched\n\n• **Quantified Achievement Example:**\n  'Increased website conversion rate by 25% through A/B testing and UX improvements'\n\nWhat specific section would you like me to help with?",
+                
+                f"**Resume Structure for {page}:**\n\n**1. Contact Information**\n- Name, email, phone, LinkedIn\n- Professional email (not personal)\n\n**2. Professional Summary**\n- 2-3 sentences highlighting key strengths\n- Tailored to target position\n\n**3. Work Experience**\n- Use STAR method: Situation, Task, Action, Result\n- Quantify achievements with numbers\n\n**4. Skills Section**\n- Technical skills first, then soft skills\n- Match job description keywords\n\nWould you like a specific example for any section?"
+            ],
+            'interview': [
+                f"**Interview Preparation for {page}:**\n\n**Common Questions & Sample Answers:**\n\n**'Tell me about yourself':**\n'I'm a passionate software developer with 3 years of experience building scalable web applications. I love solving complex problems and recently led a team that reduced application load time by 50%.'\n\n**'Why this company?':**\n'I'm excited about your innovative approach to AI and your commitment to sustainability. Your recent project on renewable energy solutions aligns perfectly with my passion for impactful technology.'\n\n**'What are your strengths?':**\n'I'm highly analytical and detail-oriented, which helps me catch bugs early. I'm also a strong communicator who enjoys mentoring junior developers.'\n\nWhat type of interview are you preparing for?",
+                
+                f"**Interview Success Checklist for {page}:**\n\n**Before the Interview:**\n• Research company: website, news, social media, Glassdoor\n• Prepare 3-5 thoughtful questions to ask\n• Practice responses but don't memorize\n• Prepare portfolio/work samples\n\n**During the Interview:**\n• Arrive 10-15 minutes early\n• Dress business professional\n• Maintain eye contact and positive body language\n• Ask thoughtful questions\n• Send thank-you email within 24 hours\n\nWhat specific role are you interviewing for?"
+            ],
+            'cover letter': [
+                f"**Cover Letter Writing for {page}:**\n\n**Opening Paragraph Example:**\n'Dear Hiring Manager,\n\nI am writing to express my strong interest in the Senior Software Engineer position at TechCorp. With 5 years of experience in full-stack development and a proven track record of delivering high-impact solutions, I am excited about the opportunity to contribute to your innovative team.'\n\n**Body Paragraph Example:**\n'In my current role at PreviousCompany, I led the development of a customer portal that improved user satisfaction by 35% and reduced support tickets by 40%. I believe this experience, combined with my expertise in React and Node.js, makes me an excellent fit for your team.'\n\nWould you like me to help you write a specific cover letter?",
+                
+                f"**Cover Letter Structure for {page}:**\n\n**Paragraph 1: Introduction**\n- State the position you're applying for\n- Show enthusiasm for the company\n- Mention how you found the position\n\n**Paragraph 2: Why You're Qualified**\n- Connect your experience to job requirements\n- Provide specific examples and achievements\n- Show you understand the role\n\n**Paragraph 3: Why This Company**\n- Demonstrate knowledge of the company\n- Show cultural fit and values alignment\n- Express genuine interest\n\n**Paragraph 4: Closing**\n- Thank them for consideration\n- Request an interview\n- Provide contact information\n\nWhat job are you applying for?"
+            ],
+            'general': [
+                f"**Welcome to Your AI Career Assistant!** 🤖\n\nI'm here to help you succeed in your career journey. Since you're on the {page} page, here are some relevant suggestions:\n\n**For Resume Building:**\n• Create compelling professional summaries\n• Write impactful bullet points with action verbs\n• Optimize for ATS systems\n• Choose the right template for your industry\n\n**For Cover Letters:**\n• Write personalized opening paragraphs\n• Connect your experience to job requirements\n• Show genuine enthusiasm for the company\n• Structure for maximum impact\n\n**For Interviews:**\n• Prepare for common questions\n• Research companies thoroughly\n• Practice your elevator pitch\n• Develop thoughtful questions to ask\n\nWhat would you like to focus on today?",
+                
+                f"**Career Success Guide for {page}:**\n\n**🎯 Resume Excellence:**\n• Professional summaries that grab attention\n• Quantified achievements that demonstrate impact\n• Skills sections that match job descriptions\n• Clean, professional formatting\n\n**📝 Cover Letter Mastery:**\n• Personalized content that shows research\n• Specific examples that connect to the role\n• Professional tone that matches company culture\n• Clear call-to-action for next steps\n\n**🤝 Interview Confidence:**\n• Thorough company and role research\n• Practice responses to common questions\n• Professional appearance and body language\n• Follow-up strategies that make an impact\n\nHow can I help you achieve your career goals today?"
+            ]
+        }
+        
+        # Enhanced page-aware response selection
+        message_lower = user_message.lower()
+        
+        # Page-specific category selection
+        if page in ['/create-resume', '/edit-resume', '/my-resumes', '/resume-checker'] or 'resume' in page:
+            category = 'resume'
+        elif page in ['/create-cover-letter', '/my-cover-letters', '/ai-cover-letter-generator'] or 'cover' in page:
+            category = 'cover letter'
+        elif page in ['/interview-prep', '/interview-prep-advanced', '/practice-sessions'] or 'interview' in page:
+            category = 'interview'
+        elif page in ['/upgrade', '/pricing', '/subscription-management'] or 'upgrade' in page or 'pricing' in page:
+            category = 'general'  # Will provide upgrade/pricing specific advice
+        elif page in ['/job-application-tracker', '/add-job-application'] or 'job' in page or 'application' in page:
+            category = 'general'  # Will provide job search specific advice
+        else:
+            # Fallback to message content analysis
+            if any(word in message_lower for word in ['resume', 'cv', 'curriculum vitae', 'summary', 'experience', 'skills']):
+                category = 'resume'
+            elif any(word in message_lower for word in ['interview', 'meeting', 'question', 'prep', 'practice']):
+                category = 'interview'
+            elif any(word in message_lower for word in ['cover letter', 'application letter', 'letter']):
+                category = 'cover letter'
+            else:
+                category = 'general'
+        
+        import random
+        response = random.choice(responses[category])
+        print(f"Fallback response selected: category='{category}', length={len(response)}")
+        return jsonify({'response': response}), 200, response_headers
+        
+    except Exception as e:
+        print(f"Chatbot error: {e}")
+        return jsonify({'response': 'Sorry, I encountered an error. Please try again.'}), 500, response_headers
 
 # Add analytics tracking
 @app.route('/analytics')
