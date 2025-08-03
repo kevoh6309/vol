@@ -1,0 +1,362 @@
+{% extends "base.html" %}
+{% block title %}Pricing - ResumeBuilder Pro{% endblock %}
+{% block content %}
+<!-- Hero Section -->
+<section class="py-5 bg-gradient-primary text-white">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-lg-8 mx-auto">
+                <h1 class="display-4 fw-bold mb-4">Choose Your Plan</h1>
+                <p class="lead mb-0">Start free, upgrade when you're ready to accelerate your career</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Pricing Plans -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <!-- Free Plan -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-header bg-light text-center py-4">
+                        <h3 class="fw-bold mb-2">Free</h3>
+                        <div class="display-6 fw-bold text-primary mb-2">$0</div>
+                        <p class="text-muted mb-0">Perfect for getting started</p>
+                    </div>
+                    <div class="card-body p-4">
+                        <ul class="list-unstyled mb-4">
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                <strong>3 Resumes</strong> per month
+                            </li>
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                <strong>Basic Templates</strong> (5 templates)
+                            </li>
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                <strong>PDF Download</strong>
+                            </li>
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                <strong>Email Support</strong>
+                            </li>
+                            <li class="mb-3 text-muted">
+                                <i class="bi bi-x-circle text-muted me-2"></i>
+                                AI Writing Assistant
+                            </li>
+                            <li class="mb-3 text-muted">
+                                <i class="bi bi-x-circle text-muted me-2"></i>
+                                Advanced Analytics
+                            </li>
+                            <li class="mb-3 text-muted">
+                                <i class="bi bi-x-circle text-muted me-2"></i>
+                                Premium Templates
+                            </li>
+                            <li class="mb-3 text-muted">
+                                <i class="bi bi-x-circle text-muted me-2"></i>
+                                Priority Support
+                            </li>
+                        </ul>
+                        <a href="{{ url_for('register') }}" class="btn btn-outline-primary w-100">
+                            Get Started Free
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monthly Premium -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card h-100 border-0 shadow-lg position-relative">
+                    <div class="position-absolute top-0 start-50 translate-middle-x">
+                        <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">
+                            <i class="bi bi-star-fill me-1"></i>Most Popular
+                        </span>
+                    </div>
+                    <div class="card-header bg-gradient-primary text-white text-center py-4">
+                        <h3 class="fw-bold mb-2">Monthly Premium</h3>
+                        <div class="display-6 fw-bold mb-2">$19.99</div>
+                        <p class="mb-0">per month</p>
+                    </div>
+                    <div class="card-body p-4">
+                        <ul class="list-unstyled mb-4">
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                <strong>Unlimited Resumes</strong>
+                            </li>
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                <strong>All Templates</strong> (20+ premium templates)
+                            </li>
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                <strong>AI Writing Assistant</strong>
+                            </li>
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                <strong>Advanced Analytics</strong>
+                            </li>
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                <strong>ATS Optimization</strong>
+                            </li>
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                <strong>Cover Letter Generator</strong>
+                            </li>
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                <strong>Priority Support</strong>
+                            </li>
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                <strong>No Ads</strong>
+                            </li>
+                        </ul>
+                        <a href="{{ url_for('upgrade') }}" class="btn btn-primary w-100">
+                            <i class="bi bi-star-fill me-2"></i>Start Monthly Plan
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Yearly Premium -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-header bg-success text-white text-center py-4">
+                        <h3 class="fw-bold mb-2">Yearly Premium</h3>
+                        <div class="display-6 fw-bold mb-2">$199.99</div>
+                        <p class="mb-0">per year</p>
+                        <div class="badge bg-warning text-dark mt-2">
+                            <i class="bi bi-tag-fill me-1"></i>Save 20%
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <ul class="list-unstyled mb-4">
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                <strong>Everything in Monthly</strong>
+                            </li>
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                <strong>2 Months Free</strong>
+                            </li>
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                <strong>Early Access</strong> to new features
+                            </li>
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                <strong>Exclusive Templates</strong>
+                            </li>
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                <strong>Advanced AI Features</strong>
+                            </li>
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                <strong>Custom Branding</strong>
+                            </li>
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                <strong>API Access</strong>
+                            </li>
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                <strong>Dedicated Support</strong>
+                            </li>
+                        </ul>
+                        <a href="{{ url_for('upgrade') }}" class="btn btn-success w-100">
+                            <i class="bi bi-calendar-check me-2"></i>Start Yearly Plan
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Comparison -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold mb-3">Feature Comparison</h2>
+                <p class="lead text-muted">See what's included in each plan</p>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-12">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Feature</th>
+                                <th class="text-center">Free</th>
+                                <th class="text-center">Monthly</th>
+                                <th class="text-center">Yearly</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Resume Creation</strong></td>
+                                <td class="text-center">3 per month</td>
+                                <td class="text-center text-success">Unlimited</td>
+                                <td class="text-center text-success">Unlimited</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Templates</strong></td>
+                                <td class="text-center">5 basic</td>
+                                <td class="text-center text-success">20+ premium</td>
+                                <td class="text-center text-success">25+ exclusive</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AI Writing Assistant</strong></td>
+                                <td class="text-center text-muted">✗</td>
+                                <td class="text-center text-success">✓</td>
+                                <td class="text-center text-success">✓ Advanced</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ATS Optimization</strong></td>
+                                <td class="text-center text-muted">✗</td>
+                                <td class="text-center text-success">✓</td>
+                                <td class="text-center text-success">✓</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cover Letters</strong></td>
+                                <td class="text-center">1 per month</td>
+                                <td class="text-center text-success">Unlimited</td>
+                                <td class="text-center text-success">Unlimited</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Analytics</strong></td>
+                                <td class="text-center text-muted">Basic</td>
+                                <td class="text-center text-success">Advanced</td>
+                                <td class="text-center text-success">Premium</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Support</strong></td>
+                                <td class="text-center">Email</td>
+                                <td class="text-center text-success">Priority</td>
+                                <td class="text-center text-success">Dedicated</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Ads</strong></td>
+                                <td class="text-center text-muted">✓</td>
+                                <td class="text-center text-success">✗</td>
+                                <td class="text-center text-success">✗</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold mb-3">Frequently Asked Questions</h2>
+                <p class="lead text-muted">Everything you need to know about our pricing</p>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="accordion" id="pricingFAQ">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                Can I cancel my subscription anytime?
+                            </button>
+                        </h2>
+                        <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#pricingFAQ">
+                            <div class="accordion-body">
+                                Yes! You can cancel your subscription at any time. Your premium features will remain active until the end of your current billing period.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                Do you offer refunds?
+                            </button>
+                        </h2>
+                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#pricingFAQ">
+                            <div class="accordion-body">
+                                We offer a 30-day money-back guarantee. If you're not satisfied with our service, contact our support team for a full refund.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                Can I switch between plans?
+                            </button>
+                        </h2>
+                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#pricingFAQ">
+                            <div class="accordion-body">
+                                Absolutely! You can upgrade or downgrade your plan at any time. Changes will take effect at your next billing cycle.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                Is my data secure?
+                            </button>
+                        </h2>
+                        <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#pricingFAQ">
+                            <div class="accordion-body">
+                                Yes! We use industry-standard encryption and security measures to protect your personal information and resume data.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                                Do you offer team plans?
+                            </button>
+                        </h2>
+                        <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#pricingFAQ">
+                            <div class="accordion-body">
+                                Yes! We offer custom team plans for companies and organizations. Contact our sales team for pricing and features.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 bg-gradient-primary text-white">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold mb-4">Ready to Build Your Professional Resume?</h2>
+                <p class="lead mb-4">Join thousands of job seekers who have landed their dream jobs with ResumeBuilder Pro</p>
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    <a href="{{ url_for('register') }}" class="btn btn-light btn-lg">
+                        <i class="bi bi-person-plus me-2"></i>Start Free
+                    </a>
+                    <a href="{{ url_for('upgrade') }}" class="btn btn-warning btn-lg">
+                        <i class="bi bi-star-fill me-2"></i>Go Premium
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -2,27 +2,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Resume Builder{% endblock %}</title>
+    <title>{% block title %}ResumeBuilder Pro - Professional Resume Builder{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <link rel="apple-touch-icon" href="{{ url_for('static', filename='favicon.svg') }}">
-    <meta name="description" content="ResumeBuilder SaaS - Build beautiful resumes, cover letters, and track your job search with AI tools.">
+    <meta name="description" content="ResumeBuilder Pro - Professional AI-powered resume builder. Create ATS-optimized resumes, cover letters, and track your job search with advanced analytics.">
     
     <!-- PWA Meta Tags -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#667eea">
+    <meta name="theme-color" content="#1e40af">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="ResumeBuilder">
+    <meta name="apple-mobile-web-app-title" content="ResumeBuilder Pro">
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     
-    <!-- Accessibility Meta Tags -->
+    <!-- SEO Meta Tags -->
     <meta name="robots" content="index, follow">
     <meta name="author" content="ResumeBuilder Pro">
-    <meta name="keywords" content="resume builder, cover letter, job search, AI resume, professional resume">
+    <meta name="keywords" content="resume builder, professional resume, AI resume builder, ATS optimized, cover letter generator, job search tools">
+    <meta property="og:title" content="ResumeBuilder Pro - Professional Resume Builder">
+    <meta property="og:description" content="Create professional, ATS-optimized resumes with AI assistance. Land your dream job faster.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.url }}">
     
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-YOUR_ADSENSE_PUBLISHER_ID"
@@ -38,897 +42,505 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     
-    <!-- Loading States CSS -->
+    <!-- Professional Design System -->
     <style>
-        body {
-            background: #f8f9fa;
-            font-family: 'Inter', Arial, sans-serif;
-            color: #1e293b;
-            transition: background 0.3s, color 0.3s;
-        }
-        .navbar {
-            background: linear-gradient(90deg, #2563eb 0%, #1e3c72 100%);
-            transition: background 0.3s;
-        }
-        .navbar .navbar-brand {
-            font-weight: 700;
-            letter-spacing: 1px;
-            color: #fff !important;
-        }
-        .navbar-nav .nav-link {
-            color: #e0e7ef !important;
-            font-weight: 500;
-            margin-right: 8px;
-            transition: color 0.2s;
-        }
-        .navbar-nav .nav-link.active, .navbar-nav .nav-link:hover {
-            color: #ffd700 !important;
-        }
-        .btn-primary {
-            background: #2563eb;
-            border: none;
-            transition: background 0.2s;
-        }
-        .btn-primary:hover {
-            background: #1e3c72;
-        }
-        .card {
-            border-radius: 16px;
-            box-shadow: 0 2px 16px rgba(30,60,114,0.07);
-            border: none;
-        }
-        .form-label {
-            font-weight: 600;
-        }
-        .dark-mode body {
-            background: #181f2a;
-            color: #e0e7ef;
-        }
-        .dark-mode .navbar {
-            background: linear-gradient(90deg, #0f172a 0%, #2563eb 100%);
-        }
-        .dark-mode .navbar .navbar-brand {
-            color: #ffd700 !important;
-        }
-        .dark-mode .navbar-nav .nav-link {
-            color: #cbd5e1 !important;
-        }
-        .dark-mode .navbar-nav .nav-link.active, .dark-mode .navbar-nav .nav-link:hover {
-            color: #ffd700 !important;
-        }
-        .dark-mode .btn-primary {
-            background: #2563eb;
-        }
-        .dark-mode .btn-primary:hover {
-            background: #ffd700;
-            color: #181f2a;
-        }
-        .dark-mode .card {
-            background: #232e41;
-            color: #e0e7ef;
-        }
-        .dark-mode .form-label {
-            color: #ffd700;
-        }
-        .transition {
-            transition: all 0.3s ease;
-        }
-        
-        /* Mobile-First Responsive Design */
-        @media (max-width: 768px) {
-            .container-fluid { padding: 1rem; }
-            .card { margin-bottom: 1rem; }
-            .btn { padding: 0.75rem 1.5rem; font-size: 1rem; }
-            .metric-value { font-size: 2rem; }
-            .navbar-brand { font-size: 1.1rem; }
-            .dropdown-menu { min-width: 200px; }
-            .table-responsive { font-size: 0.875rem; }
-            .modal-dialog { margin: 1rem; }
-        }
-        
-        /* Touch-Friendly Design */
-        .btn, .nav-link, .dropdown-item { min-height: 44px; display: flex; align-items: center; }
-        .form-control, .form-select { min-height: 44px; }
-        .card { cursor: pointer; }
-        
-        /* Accessibility Features */
-        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
-        .focus-visible:focus { outline: 2px solid #667eea; outline-offset: 2px; }
-        .high-contrast { filter: contrast(1.2); }
-        .large-text { font-size: 1.2rem; }
-        
-        /* Reduced Motion */
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
-        }
-            transition: all 0.3s;
-        }
-        .container.fadein {
-            animation: fadein 0.7s cubic-bezier(0.4,0,0.2,1);
-        }
-        @keyframes fadein {
-            from { opacity: 0; transform: translateY(16px); }
-            to { opacity: 1; transform: none; }
-        }
-        
-        /* AdSense Styles */
-        .ad-container {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 10px;
-            margin: 15px 0;
-            min-height: 90px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-        
-        .ad-header-banner {
-            margin-bottom: 20px;
-        }
-        
-        .ad-sidebar {
-            margin: 15px 0;
-        }
-        
-        .ad-footer-banner {
-            margin-top: 20px;
-        }
-        
-        .ad-in-content {
-            margin: 25px 0;
-        }
-        
-        /* Hide ads for premium users */
-        .premium-user .ad-container {
-            display: none !important;
-        }
-        
-        /* Responsive ad adjustments */
-        @media (max-width: 768px) {
-            .ad-container {
-                margin: 10px 0;
-                padding: 5px;
-            }
-            
-            .ad-sidebar {
-                margin: 10px 0;
-            }
-        }
-        
-        /* Ad loading animation */
-        .ad-container:empty::before {
-            content: "Loading advertisement...";
-            color: #6c757d;
-            font-style: italic;
-        }
-        
-        /* AdSense compliance */
-        .ad-container::after {
-            content: "Advertisement";
-            position: absolute;
-            top: -8px;
-            left: 10px;
-            background: #fff;
-            padding: 0 5px;
-            font-size: 10px;
-            color: #6c757d;
-            border: 1px solid #e9ecef;
-            border-radius: 3px;
-        }
-        
-        .dark-mode .ad-container {
-            background: #232e41;
-            border-color: #374151;
-        }
-        
-        .dark-mode .ad-container::after {
-            background: #232e41;
-            color: #9ca3af;
-            border-color: #374151;
+        :root {
+            --primary-color: #1e40af;
+            --primary-dark: #1e3a8a;
+            --primary-light: #3b82f6;
+            --secondary-color: #64748b;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --info-color: #0891b2;
+            --light-bg: #f8fafc;
+            --dark-bg: #0f172a;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
         }
 
-        /* Skeleton Loading Animation */
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
+        body {
+            background: var(--light-bg);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-weight: 400;
+            transition: all 0.3s ease;
         }
-        
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+
+        /* Professional Typography */
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--text-primary);
         }
-        
-        .skeleton-text {
-            height: 1em;
-            margin: 0.5em 0;
-            border-radius: 4px;
+
+        .display-1, .display-2, .display-3, .display-4, .display-5, .display-6 {
+            font-weight: 800;
+            letter-spacing: -0.025em;
         }
-        
-        .skeleton-card {
-            height: 200px;
+
+        /* Enhanced Navbar */
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-lg);
+            padding: 1rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .navbar .navbar-brand {
+            font-weight: 800;
+            font-size: 1.5rem;
+            letter-spacing: -0.025em;
+            color: #fff !important;
+            text-decoration: none;
+        }
+
+        .navbar-nav .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 500;
+            font-size: 0.95rem;
+            margin: 0 0.5rem;
+            padding: 0.5rem 1rem;
             border-radius: 8px;
-            margin: 1em 0;
+            transition: all 0.2s ease;
         }
-        
-        /* Loading Spinner */
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #3498db;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+
+        .navbar-nav .nav-link:hover,
+        .navbar-nav .nav-link.active {
+            color: #fff !important;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
         }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* Page Loading Overlay */
-        .page-loading {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.9);
-            display: flex;
-            justify-content: center;
+
+        /* Professional Buttons */
+        .btn {
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            border: none;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
             align-items: center;
-            z-index: 9999;
-            transition: opacity 0.3s ease;
+            gap: 0.5rem;
         }
-        
-        .page-loading.hidden {
-            opacity: 0;
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            color: #fff;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-outline-primary {
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            background: transparent;
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary-color);
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        /* Enhanced Cards */
+        .card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--light-bg) 0%, #fff 100%);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        /* Professional Forms */
+        .form-control, .form-select {
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Professional Alerts */
+        .alert {
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            color: var(--success-color);
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            color: var(--danger-color);
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            color: var(--warning-color);
+        }
+
+        .alert-info {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            color: var(--info-color);
+        }
+
+        /* Professional Badges */
+        .badge {
+            font-weight: 600;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+        }
+
+        /* Loading States */
+        .loading {
+            opacity: 0.6;
             pointer-events: none;
         }
-        
-        /* Button Loading States */
-        .btn-loading {
-            position: relative;
-            pointer-events: none;
+
+        .spinner-border {
+            width: 1.5rem;
+            height: 1.5rem;
         }
-        
-        .btn-loading::after {
-            content: '';
-            position: absolute;
-            width: 16px;
-            height: 16px;
-            top: 50%;
-            left: 50%;
-            margin-left: -8px;
-            margin-top: -8px;
-            border: 2px solid transparent;
-            border-top: 2px solid currentColor;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+
+        /* Dark Mode Support */
+        .dark-mode body {
+            background: var(--dark-bg);
+            color: #e2e8f0;
         }
-        
-        /* Toast Customization */
-        .toast-success {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+        .dark-mode .navbar {
+            background: linear-gradient(135deg, #0f172a 0%, var(--primary-dark) 100%);
         }
-        
-        .toast-error {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+
+        .dark-mode .card {
+            background: #1e293b;
+            border: 1px solid #334155;
         }
-        
-        .toast-warning {
-            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-            color: #333;
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .navbar .navbar-brand {
+                font-size: 1.25rem;
+            }
+            
+            .btn {
+                padding: 0.625rem 1.25rem;
+                font-size: 0.9rem;
+            }
+            
+            .card-body {
+                padding: 1rem;
+            }
         }
-        
-        .toast-info {
-            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-            color: #333;
+
+        /* Professional Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Professional Gradients */
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+        }
+
+        .bg-gradient-success {
+            background: linear-gradient(135deg, var(--success-color) 0%, #10b981 100%);
+        }
+
+        .bg-gradient-warning {
+            background: linear-gradient(135deg, var(--warning-color) 0%, #f59e0b 100%);
+        }
+
+        .bg-gradient-info {
+            background: linear-gradient(135deg, var(--info-color) 0%, #06b6d4 100%);
         }
     </style>
 </head>
-<body class="transition {% if is_premium %}premium-user{% endif %}">
-
-<!-- AdSense Macros -->
-{% macro display_ad(ad_unit_id, ad_slot, ad_format='auto', responsive='true') %}
-<div class="ad-container text-center">
-    <ins class="adsbygoogle"
-         style="display:block"
-         data-ad-client="ca-pub-YOUR_ADSENSE_PUBLISHER_ID"
-         data-ad-slot="{{ ad_slot }}"
-         data-ad-format="{{ ad_format }}"
-         data-full-width-responsive="{{ responsive }}"></ins>
-    <script>
-         (adsbygoogle = window.adsbygoogle || []).push({});
-    </script>
-</div>
-{% endmacro %}
-
-{% macro header_banner_ad() %}
-<div class="ad-header-banner">
-    {{ display_ad('header-banner', 'YOUR_HEADER_BANNER_SLOT', 'auto', 'true') }}
-</div>
-{% endmacro %}
-
-{% macro sidebar_ad() %}
-<div class="ad-sidebar">
-    {{ display_ad('sidebar', 'YOUR_SIDEBAR_SLOT', 'auto', 'true') }}
-</div>
-{% endmacro %}
-
-{% macro footer_banner_ad() %}
-<div class="ad-footer-banner">
-    {{ display_ad('footer-banner', 'YOUR_FOOTER_BANNER_SLOT', 'auto', 'true') }}
-</div>
-{% endmacro %}
-
-{% macro in_content_ad() %}
-<div class="ad-in-content">
-    {{ display_ad('in-content', 'YOUR_IN_CONTENT_SLOT', 'auto', 'true') }}
-</div>
-{% endmacro %}
-
-{% macro ad_free_notice() %}
-{% if not is_premium %}
-<div class="ad-free-notice text-center p-2 bg-light border rounded mb-3">
-    <small class="text-muted">
-        <i class="bi bi-star-fill text-warning"></i>
-        Upgrade to Premium to remove ads and unlock all features!
-        <a href="{{ url_for('upgrade') }}" class="btn btn-sm btn-primary ms-2">Upgrade Now</a>
-    </small>
-</div>
-{% endif %}
-{% endmacro %}
-<nav class="navbar navbar-expand-lg navbar-dark mb-4">
-  <div class="container">
-    <a class="navbar-brand fw-bold" href="/">
-      <i class="bi bi-file-earmark-text me-2"></i>ResumeBuilder Pro
-    </a>
-    <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <!-- Mobile Quick Actions -->
-    <div class="d-lg-none ms-auto">
-        <div class="dropdown">
-            <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="bi bi-plus-lg"></i>
+<body>
+    <!-- Professional Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('home') }}">
+                <i class="bi bi-file-earmark-text me-2"></i>
+                ResumeBuilder Pro
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
             </button>
-            <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="{{ url_for('create_resume') }}"><i class="bi bi-file-earmark-text me-2"></i>New Resume</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('create_cover_letter') }}"><i class="bi bi-envelope me-2"></i>New Cover Letter</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('add_job_application') }}"><i class="bi bi-briefcase me-2"></i>Add Application</a></li>
-            </ul>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link {{ 'active' if request.endpoint == 'dashboard' }}" href="{{ url_for('dashboard') }}">
+                                <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ 'active' if request.endpoint == 'create_resume' }}" href="{{ url_for('create_resume') }}">
+                                <i class="bi bi-plus-circle me-1"></i>Create Resume
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ 'active' if request.endpoint == 'my_resumes' }}" href="{{ url_for('my_resumes') }}">
+                                <i class="bi bi-folder me-1"></i>My Resumes
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ 'active' if request.endpoint == 'career_toolkit' }}" href="{{ url_for('career_toolkit') }}">
+                                <i class="bi bi-tools me-1"></i>Career Tools
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link {{ 'active' if request.endpoint == 'home' }}" href="{{ url_for('home') }}">
+                                <i class="bi bi-house me-1"></i>Home
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#features">
+                                <i class="bi bi-star me-1"></i>Features
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#pricing">
+                                <i class="bi bi-currency-dollar me-1"></i>Pricing
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+                
+                <ul class="navbar-nav">
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle me-1"></i>{{ current_user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{{ url_for('profile') }}">
+                                    <i class="bi bi-person me-2"></i>Profile
+                                </a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('settings') }}">
+                                    <i class="bi bi-gear me-2"></i>Settings
+                                </a></li>
+                                {% if current_user.is_admin %}
+                                <li><a class="dropdown-item" href="{{ url_for('admin_dashboard') }}">
+                                    <i class="bi bi-shield-check me-2"></i>Admin
+                                </a></li>
+                                {% endif %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('logout') }}">
+                                    <i class="bi bi-box-arrow-right me-2"></i>Logout
+                                </a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('login') }}">
+                                <i class="bi bi-box-arrow-in-right me-1"></i>Login
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-outline-light btn-sm ms-2" href="{{ url_for('register') }}">
+                                <i class="bi bi-person-plus me-1"></i>Sign Up
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
         </div>
-    </div>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav me-auto">
-        <li class="nav-item">
-          <a class="nav-link" href="/">
-            <i class="bi bi-house me-1"></i>Home
-          </a>
-        </li>
-        {% if current_user.is_authenticated %}
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="resumeDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bi bi-file-earmark-text me-1"></i>Resumes
-          </a>
-          <ul class="dropdown-menu shadow">
-            <li><a class="dropdown-item" href="{{ url_for('my_resumes') }}"><i class="bi bi-collection me-2"></i>My Resumes</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('create_resume') }}"><i class="bi bi-plus-circle me-2"></i>Create New</a></li>
-            <li><hr class="dropdown-divider"></li>
-                                            <li><a class="dropdown-item" href="{{ url_for('ai_resume_analysis') }}"><i class="bi bi-robot me-2"></i>AI Resume Analysis</a></li>
-                                <li><a class="dropdown-item" href="{{ url_for('resume_checker') }}"><i class="bi bi-search me-2"></i>Resume Checker</a></li>
-          </ul>
-        </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="careerDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bi bi-briefcase me-1"></i>Career Tools
-          </a>
-          <ul class="dropdown-menu shadow">
-            <li><a class="dropdown-item" href="{{ url_for('my_cover_letters') }}"><i class="bi bi-envelope me-2"></i>Cover Letters</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('job_application_tracker') }}"><i class="bi bi-graph-up me-2"></i>Job Tracker</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('ai_interview_prep') }}"><i class="bi bi-robot me-2"></i>AI Interview Prep</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('interview_prep_advanced') }}"><i class="bi bi-camera-video me-2"></i>Interview Prep</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="{{ url_for('career_toolkit') }}"><i class="bi bi-tools me-2"></i>Career Toolkit</a></li>
-          </ul>
-        </li>
-        {% endif %}
-      </ul>
-      
-      <ul class="navbar-nav ms-auto">
-        {% if current_user.is_authenticated %}
-        <!-- Notifications -->
-        <li class="nav-item dropdown me-2">
-          <a class="nav-link position-relative" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bi bi-bell"></i>
-            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">3</span>
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end shadow" style="width: 300px;">
-            <li><h6 class="dropdown-header">Notifications</h6></li>
-            <li><a class="dropdown-item" href="#"><i class="bi bi-calendar-check me-2"></i>Interview reminder tomorrow</a></li>
-            <li><a class="dropdown-item" href="#"><i class="bi bi-envelope me-2"></i>New job application received</a></li>
-            <li><a class="dropdown-item" href="#"><i class="bi bi-star me-2"></i>Premium features unlocked</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item text-center" href="#">View all notifications</a></li>
-          </ul>
-        </li>
-        
-        <!-- User Avatar Dropdown -->
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <img src="{{ current_user.profile_image if current_user.profile_image else '/static/avatar1.png' }}" alt="Avatar" class="rounded-circle me-2" style="width:32px;height:32px;object-fit:cover;border:2px solid rgba(255,255,255,0.3);">
-            <span class="d-none d-md-inline">{{ current_user.username }}</span>
-            {% if is_premium %}
-            <span class="badge bg-warning text-dark ms-1"><i class="bi bi-star-fill"></i></span>
-            {% endif %}
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
-            <li><a class="dropdown-item" href="{{ url_for('dashboard') }}"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('profile') }}"><i class="bi bi-person me-2"></i>Profile</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('analytics') }}"><i class="bi bi-graph-up me-2"></i>Analytics</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('advanced_analytics') }}"><i class="bi bi-chart-line me-2"></i>Advanced Analytics</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('api_dashboard') }}"><i class="bi bi-code-slash me-2"></i>API Dashboard</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="{{ url_for('subscription_management') }}"><i class="bi bi-credit-card me-2"></i>Subscription</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('settings') }}"><i class="bi bi-gear me-2"></i>Settings</a></li>
-            <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
-          </ul>
-        </li>
-        
-        {% if not is_premium %}
-        <li class="nav-item ms-2">
-          <a class="btn btn-warning btn-sm" href="{{ url_for('upgrade') }}">
-            <i class="bi bi-star me-1"></i>Upgrade
-          </a>
-        </li>
-        {% endif %}
-        {% else %}
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('login') }}">
-            <i class="bi bi-box-arrow-in-right me-1"></i>Login
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="btn btn-light btn-sm ms-2" href="{{ url_for('register') }}">
-            <i class="bi bi-person-plus me-1"></i>Sign Up
-          </a>
-        </li>
-        {% endif %}
-        
-        <!-- Dark Mode Toggle -->
-        <li class="nav-item ms-2">
-          <button id="darkModeToggle" class="btn btn-sm btn-outline-light" type="button" title="Toggle dark mode">
-            <i class="bi bi-moon"></i>
-          </button>
-        </li>
-      </ul>
-    </div>
-  </div>
-</nav>
-              <path d="M6 0a7 7 0 0 0 0 14c3.866 0 7-3.134 7-7 0-1.657-.672-3.156-1.757-4.243A7.001 7.001 0 0 1 6 0z"/>
-            </svg>
-          </button>
-        </li>
-      </ul>
-    </div>
-  </div>
-</nav>
+    </nav>
 
-<!-- Header Banner Ad -->
-{% if not is_premium %}
-{{ header_banner_ad() }}
-{% endif %}
-<div class="container transition fadein">
-  {% block content %}{% endblock %}
-</div>
-<script>
-  // Dark mode toggle
-  const toggle = document.getElementById('darkModeToggle');
-  toggle.onclick = function() {
-    document.documentElement.classList.toggle('dark-mode');
-    localStorage.setItem('darkMode', document.documentElement.classList.contains('dark-mode'));
-  };
-  // Persist dark mode
-  if (localStorage.getItem('darkMode') === 'true') {
-    document.documentElement.classList.add('dark-mode');
-  }
-</script>
-<!-- Google Analytics (replace with your own GA4 ID) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-XXXXXXXXXX');
-</script>
-<!-- For privacy-friendly analytics, try Plausible: https://plausible.io/docs/analytics-script -->
-    <!-- Chatbot FAB and Sidebar (available on every page) -->
-    <button id="chatbot-fab" class="btn btn-primary rounded-circle" style="position:fixed;bottom:32px;right:32px;z-index:1100;width:60px;height:60px;box-shadow:0 4px 16px rgba(30,60,114,0.18);display:flex;align-items:center;justify-content:center;">
-        <i class="bi bi-chat-dots" style="font-size:2em;"></i>
-    </button>
-    <div id="chatbot-sidebar" style="display:none;">
-        <div id="chatbot-header" class="d-flex justify-content-between align-items-center">
-            <span>Resume Assistant</span>
-            <button id="chatbot-close" class="btn btn-sm btn-outline-light ms-2" title="Close" style="border-radius:50%;"><i class="bi bi-x-lg"></i></button>
+    <!-- Main Content -->
+    <main class="fade-in-up">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Professional Footer -->
+    <footer class="bg-dark text-light py-5 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="bi bi-file-earmark-text me-2"></i>ResumeBuilder Pro
+                    </h5>
+                    <p class="text-muted">
+                        Professional AI-powered resume builder helping job seekers create compelling, 
+                        ATS-optimized resumes that get results.
+                    </p>
+                    <div class="social-links">
+                        <a href="#" class="text-muted me-3"><i class="bi bi-twitter"></i></a>
+                        <a href="#" class="text-muted me-3"><i class="bi bi-linkedin"></i></a>
+                        <a href="#" class="text-muted me-3"><i class="bi bi-facebook"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="fw-bold mb-3">Product</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-muted text-decoration-none">Resume Builder</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Cover Letters</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">AI Tools</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Templates</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="fw-bold mb-3">Company</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-muted text-decoration-none">About</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Careers</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Contact</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Blog</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="fw-bold mb-3">Support</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-muted text-decoration-none">Help Center</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Privacy Policy</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Terms of Service</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Status</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="fw-bold mb-3">Resources</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-muted text-decoration-none">Resume Tips</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Job Search</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Interview Prep</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Career Advice</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="text-muted mb-0">
+                        © 2024 ResumeBuilder Pro. All rights reserved.
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="text-muted mb-0">
+                        Made with <i class="bi bi-heart-fill text-danger"></i> for job seekers
+                    </p>
+                </div>
+            </div>
         </div>
-        <div id="chatbot-messages"></div>
-        <form id="chatbot-form" autocomplete="off">
-            <input type="text" id="chatbot-input" placeholder="Ask me anything about resumes..." class="form-control" />
-            <button type="submit" class="btn btn-primary w-100 mt-2">Send</button>
-        </form>
-        <div id="chatbot-loading" style="display:none;" class="text-center mt-2">
-            <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
-            <div class="small text-muted">Bot is thinking...</div>
-        </div>
-        <div id="chatbot-suggestions" class="mt-3">
-            <span class="suggestion-bubble">Write my summary</span>
-            <span class="suggestion-bubble">Suggest skills</span>
-            <span class="suggestion-bubble">How to describe experience?</span>
-            <span class="suggestion-bubble">Best resume template?</span>
-        </div>
-    </div>
-    <style>
-        #chatbot-fab {
-            transition: background 0.2s, box-shadow 0.2s;
-        }
-        #chatbot-fab:hover {
-            background: #1e3c72;
-        }
-        #chatbot-sidebar {
-            position: fixed;
-            top: 0;
-            right: 0;
-            width: 370px;
-            height: 100vh;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: #fff;
-            box-shadow: -2px 0 16px rgba(30,60,114,0.12);
-            z-index: 1200;
-            display: flex;
-            flex-direction: column;
-            border-top-left-radius: 18px;
-            border-bottom-left-radius: 18px;
-            transition: transform 0.3s, opacity 0.3s;
-        }
-        #chatbot-header {
-            background: #2563eb;
-            color: #fff;
-            font-weight: 700;
-            font-size: 1.2em;
-            padding: 18px 24px;
-            border-top-left-radius: 18px;
-        }
-        #chatbot-close {
-            color: #fff;
-            border: none;
-            background: transparent;
-        }
-        #chatbot-close:hover {
-            background: #ffd700;
-            color: #181f2a;
-        }
-        #chatbot-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 18px 18px 0 18px;
-            background: transparent;
-        }
-        .chat-bubble {
-            max-width: 80%;
-            margin-bottom: 14px;
-            padding: 12px 18px;
-            border-radius: 18px;
-            font-size: 1em;
-            line-height: 1.5;
-            position: relative;
-            box-shadow: 0 2px 8px rgba(30,60,114,0.07);
-        }
-        .chat-bubble.bot {
-            background: #f1f5fb;
-            color: #1e3c72;
-            align-self: flex-start;
-            border-bottom-left-radius: 4px;
-            margin-right: auto;
-        }
-        .chat-bubble.user {
-            background: #2563eb;
-            color: #fff;
-            align-self: flex-end;
-            border-bottom-right-radius: 4px;
-            margin-left: auto;
-        }
-        .chat-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-right: 8px;
-            vertical-align: middle;
-        }
-        .chat-meta {
-            font-size: 0.8em;
-            color: #b0b8c9;
-            margin-top: 2px;
-        }
-        #chatbot-form {
-            padding: 12px 18px 0 18px;
-            background: transparent;
-        }
-        #chatbot-input {
-            border-radius: 8px;
-            border: none;
-            padding: 10px 14px;
-            font-size: 1em;
-        }
-        #chatbot-loading {
-            padding: 8px 0 0 0;
-        }
-        #chatbot-suggestions {
-            padding: 0 18px 18px 18px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .suggestion-bubble {
-            background: #fff;
-            color: #2563eb;
-            border-radius: 16px;
-            padding: 6px 14px;
-            font-size: 0.95em;
-            cursor: pointer;
-            box-shadow: 0 1px 4px rgba(30,60,114,0.08);
-            transition: background 0.2s, color 0.2s;
-        }
-        .suggestion-bubble:hover {
-            background: #2563eb;
-            color: #fff;
-        }
-        @media (max-width: 900px) {
-            #chatbot-sidebar {
-                width: 100vw;
-                position: fixed;
-                border-radius: 0;
-                min-height: 400px;
-            }
-            #chatbot-fab {
-                right: 16px;
-                bottom: 16px;
-            }
-        }
-    </style>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script>
-    // Modern chat UI logic
-    const chatbotMessages = document.getElementById('chatbot-messages');
-    const chatbotForm = document.getElementById('chatbot-form');
-    const chatbotInput = document.getElementById('chatbot-input');
-    const chatbotLoading = document.getElementById('chatbot-loading');
-    const suggestions = document.querySelectorAll('.suggestion-bubble');
-    function addMessage(text, sender, timestamp) {
-        const bubble = document.createElement('div');
-        bubble.className = 'chat-bubble ' + sender;
-        const meta = document.createElement('div');
-        meta.className = 'chat-meta';
-        meta.textContent = timestamp || new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        // Render markdown as HTML for bot responses
-        if (sender === 'bot') {
-            bubble.innerHTML = '<img src="https://api.dicebear.com/7.x/bottts/svg?seed=ResumeBot" class="chat-avatar" />' +
-                '<span>' + marked.parse(text) + '</span>';
-        } else {
-            bubble.innerHTML = '<img src="https://api.dicebear.com/7.x/avataaars/svg?seed=User" class="chat-avatar" />' +
-                '<span>' + text + '</span>';
-        }
-        bubble.appendChild(meta);
-        chatbotMessages.appendChild(bubble);
-        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
-    }
-    chatbotForm.onsubmit = async (e) => {
-        e.preventDefault();
-        const msg = chatbotInput.value.trim();
-        if (!msg) return;
-        addMessage(msg, 'user');
-        chatbotInput.value = '';
-        chatbotLoading.style.display = '';
-        try {
-            const res = await fetch('/chatbot', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({message: msg})
-            });
-            const data = await res.json();
-            addMessage(data.reply || 'Sorry, I could not generate a response.', 'bot');
-        } catch (err) {
-            addMessage('Sorry, there was an error.', 'bot');
-        }
-        chatbotLoading.style.display = 'none';
-    };
-    suggestions.forEach(s => s.onclick = () => {
-        chatbotInput.value = s.textContent;
-        chatbotForm.dispatchEvent(new Event('submit'));
-    });
-    // Initial welcome message
-    if (!chatbotMessages.hasChildNodes()) {
-        addMessage('Hi! I can help you with resume tips, suggestions, and answer your questions. Try asking: "How do I write a good summary?"', 'bot');
-    }
-    // FAB and sidebar toggle logic
-    const chatbotFab = document.getElementById('chatbot-fab');
-    const chatbotSidebar = document.getElementById('chatbot-sidebar');
-    const chatbotClose = document.getElementById('chatbot-close');
-    chatbotFab.onclick = () => {
-        chatbotSidebar.style.display = '';
-        chatbotFab.style.display = 'none';
-    };
-    chatbotClose.onclick = () => {
-        chatbotSidebar.style.display = 'none';
-        chatbotFab.style.display = '';
-    };
-    </script>
-    <!-- Toast Notifications -->
-    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 2000">
-      <div id="toastContainer"></div>
-    </div>
-    <script>
-    // Toast notification function
-    function showToast(message, type = 'info') {
-      const colors = {info: 'bg-info text-dark', success: 'bg-success text-white', error: 'bg-danger text-white'};
-      const toast = document.createElement('div');
-      toast.className = `toast align-items-center ${colors[type] || colors.info} border-0 fade show`;
-      toast.setAttribute('role', 'alert');
-      toast.setAttribute('aria-live', 'assertive');
-      toast.setAttribute('aria-atomic', 'true');
-      toast.innerHTML = `
-        <div class="d-flex">
-          <div class="toast-body">${message}</div>
-          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>`;
-      document.getElementById('toastContainer').appendChild(toast);
-      setTimeout(() => {
-        toast.classList.remove('show');
-        toast.classList.add('hide');
-        setTimeout(() => toast.remove(), 500);
-      }, 3500);
-    }
-    // Show upgrade success toast if redirected from upgrade
-    if (window.location.search.includes('upgraded=1')) {
-      showToast('Upgrade successful! Enjoy premium features.', 'success');
-    }
-    </script>
-    <!-- Footer Banner Ad -->
-    {% if not is_premium %}
-    {{ footer_banner_ad() }}
-    {% endif %}
-    
-    <footer class="footer mt-auto py-3 bg-dark text-light text-center">
-      <div class="container">
-        <span>&copy; <span id="footer-year"></span> ResumeBuilder. All rights reserved. | <a href="mailto:support@vibelink.spot" class="text-warning">Contact</a></span>
-      </div>
     </footer>
-    <script>
-      // Always update footer year
-      document.getElementById('footer-year').textContent = new Date().getFullYear();
-    </script>
+
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Enhanced JavaScript -->
+    <!-- Professional JavaScript -->
     <script>
-        // Enhanced Toast Notification System
-        function showToast(message, type = 'info', duration = 3000) {
+        // Professional Toast Notifications
+        function showToast(message, type = 'info') {
+            const backgroundColor = {
+                success: '#059669',
+                error: '#dc2626',
+                warning: '#d97706',
+                info: '#0891b2'
+            }[type] || '#0891b2';
+            
             Toastify({
                 text: message,
-                duration: duration,
+                duration: 4000,
                 gravity: "top",
                 position: "right",
-                className: `toast-${type}`,
+                backgroundColor: backgroundColor,
                 stopOnFocus: true,
-                close: true
+                style: {
+                    borderRadius: '12px',
+                    fontFamily: 'Inter, sans-serif',
+                    fontWeight: '500'
+                }
             }).showToast();
         }
-        
-        // Loading State Management
-        function showLoading(button) {
-            button.classList.add('btn-loading');
-            button.disabled = true;
-            button.dataset.originalText = button.textContent;
-            button.textContent = 'Loading...';
-        }
-        
-        function hideLoading(button) {
-            button.classList.remove('btn-loading');
-            button.disabled = false;
-            if (button.dataset.originalText) {
-                button.textContent = button.dataset.originalText;
-            }
-        }
-        
-        // Page Loading Overlay
+
+        // Professional Loading States
         function showPageLoading() {
-            const overlay = document.createElement('div');
-            overlay.className = 'page-loading';
-            overlay.innerHTML = `
-                <div class="text-center">
-                    <div class="loading-spinner mb-3"></div>
-                    <p class="text-muted">Loading...</p>
+            const loader = document.createElement('div');
+            loader.id = 'page-loader';
+            loader.innerHTML = `
+                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary mb-3" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="text-muted">Loading...</p>
+                    </div>
                 </div>
             `;
-            document.body.appendChild(overlay);
+            document.body.appendChild(loader);
         }
-        
+
         function hidePageLoading() {
-            const overlay = document.querySelector('.page-loading');
-            if (overlay) {
-                overlay.classList.add('hidden');
-                setTimeout(() => overlay.remove(), 300);
+            const loader = document.getElementById('page-loader');
+            if (loader) {
+                loader.remove();
             }
         }
-        
-        // Auto-save functionality
-        let autoSaveTimer;
-        function setupAutoSave(formId, saveUrl) {
-            const form = document.getElementById(formId);
-            if (!form) return;
-            
-            const inputs = form.querySelectorAll('input, textarea, select');
-            inputs.forEach(input => {
-                input.addEventListener('input', () => {
-                    clearTimeout(autoSaveTimer);
-                    autoSaveTimer = setTimeout(() => {
-                        autoSaveForm(form, saveUrl);
-                    }, 2000);
-                });
-            });
-        }
-        
-        function autoSaveForm(form, saveUrl) {
-            const formData = new FormData(form);
-            fetch(saveUrl, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast('Auto-saved successfully', 'success', 2000);
-                }
-            })
-            .catch(error => {
-                console.error('Auto-save failed:', error);
-            });
-        }
-        
-        // Keyboard Shortcuts
-        document.addEventListener('keydown', function(e) {
-            // Ctrl/Cmd + S for save
-            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-                e.preventDefault();
-                const saveBtn = document.querySelector('.btn-save');
-                if (saveBtn) saveBtn.click();
-            }
-            
-            // Ctrl/Cmd + N for new resume
-            if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
-                e.preventDefault();
-                window.location.href = '/create-resume';
-            }
-            
-            // Ctrl/Cmd + D for dashboard
-            if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
-                e.preventDefault();
-                window.location.href = '/dashboard';
-            }
-        });
-        
-        // Enhanced Form Validation
+
+        // Professional Form Validation
         function validateForm(form) {
-            const inputs = form.querySelectorAll('input[required], textarea[required], select[required]');
+            const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
             let isValid = true;
             
             inputs.forEach(input => {
@@ -942,42 +554,87 @@
             
             return isValid;
         }
-        
-        // Real-time Character Count
-        function setupCharacterCount(textarea, maxLength = 500) {
-            const counter = document.createElement('div');
-            counter.className = 'text-muted small mt-1';
-            textarea.parentNode.appendChild(counter);
-            
-            function updateCount() {
-                const count = textarea.value.length;
-                counter.textContent = `${count}/${maxLength} characters`;
-                counter.className = `text-muted small mt-1 ${count > maxLength ? 'text-danger' : ''}`;
+
+        // Professional Analytics
+        function trackEvent(eventName, properties = {}) {
+            if (typeof gtag !== 'undefined') {
+                gtag('event', eventName, properties);
             }
-            
-            textarea.addEventListener('input', updateCount);
-            updateCount();
         }
-        
-        // Initialize tooltips
+
+        // Professional Error Handling
+        window.addEventListener('error', function(e) {
+            console.error('Application Error:', e.error);
+            showToast('An unexpected error occurred. Please try again.', 'error');
+        });
+
+        // Professional Performance Monitoring
+        window.addEventListener('load', function() {
+            if ('performance' in window) {
+                const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
+                console.log('Page load time:', loadTime + 'ms');
+            }
+        });
+
+        // Professional Accessibility
+        document.addEventListener('keydown', function(e) {
+            // Skip to main content
+            if (e.key === 'Tab' && e.altKey) {
+                e.preventDefault();
+                document.querySelector('main').focus();
+            }
+        });
+
+        // Professional Mobile Optimization
+        function isMobile() {
+            return window.innerWidth <= 768;
+        }
+
+        // Professional Dark Mode Toggle
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+        }
+
+        // Load dark mode preference
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+        }
+
+        // Professional Auto-save
+        let autoSaveTimeout;
+        function setupAutoSave(formId, saveUrl) {
+            const form = document.getElementById(formId);
+            if (!form) return;
+            
+            form.addEventListener('input', function() {
+                clearTimeout(autoSaveTimeout);
+                autoSaveTimeout = setTimeout(() => {
+                    const formData = new FormData(form);
+                    fetch(saveUrl, {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast('Auto-saved successfully', 'success');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Auto-save error:', error);
+                    });
+                }, 2000);
+            });
+        }
+
+        // Professional Tooltips
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl);
         });
-        
-        // Show page loading on navigation
-        document.addEventListener('click', function(e) {
-            if (e.target.tagName === 'A' && e.target.href && !e.target.href.includes('#')) {
-                showPageLoading();
-            }
-        });
-        
-        // Hide loading when page is ready
-        document.addEventListener('DOMContentLoaded', function() {
-            hidePageLoading();
-        });
-        
-        // Enhanced flash message handling
+
+        // Professional Flash Messages
         document.addEventListener('DOMContentLoaded', function() {
             const flashMessages = document.querySelectorAll('.alert');
             flashMessages.forEach(message => {
@@ -987,71 +644,18 @@
                 
                 showToast(message.textContent.trim(), type);
                 
-                // Auto-dismiss after 5 seconds
                 setTimeout(() => {
                     message.style.opacity = '0';
                     setTimeout(() => message.remove(), 300);
                 }, 5000);
             });
         });
-        
-        // Mobile Touch Support
-        document.addEventListener('touchstart', function() {}, {passive: true});
-        
-        // Swipe Navigation
-        let touchStartX = 0;
-        let touchEndX = 0;
-        
-        document.addEventListener('touchstart', e => {
-            touchStartX = e.changedTouches[0].screenX;
-        });
-        
-        document.addEventListener('touchend', e => {
-            touchEndX = e.changedTouches[0].screenX;
-            handleSwipe();
-        });
-        
-        function handleSwipe() {
-            const swipeThreshold = 50;
-            const diff = touchStartX - touchEndX;
-            
-            if (Math.abs(diff) > swipeThreshold) {
-                if (diff > 0) {
-                    // Swipe left - could be used for navigation
-                    console.log('Swipe left detected');
-                } else {
-                    // Swipe right - could be used for navigation
-                    console.log('Swipe right detected');
-                }
-            }
-        }
-        
-        // Accessibility Support
-        document.addEventListener('keydown', function(e) {
-            // Skip to main content
-            if (e.key === 'Tab' && e.altKey) {
-                e.preventDefault();
-                document.querySelector('main').focus();
-            }
-            
-            // High contrast toggle
-            if (e.key === 'H' && e.ctrlKey) {
-                e.preventDefault();
-                document.body.classList.toggle('high-contrast');
-            }
-            
-            // Large text toggle
-            if (e.key === 'L' && e.ctrlKey) {
-                e.preventDefault();
-                document.body.classList.toggle('large-text');
-            }
-        });
-        
-        // Service Worker Registration for PWA
+
+        // Professional Service Worker
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js')
-                .then(registration => console.log('SW registered'))
-                .catch(error => console.log('SW registration failed'));
+                .then(registration => console.log('SW registered successfully'))
+                .catch(error => console.log('SW registration failed:', error));
         }
     </script>
 </body>

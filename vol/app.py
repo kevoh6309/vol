@@ -530,6 +530,14 @@ def render_with_premium(template, **kwargs):
 def home():
     return render_template('landing.html')
 
+@app.route('/pricing')
+def pricing():
+    return render_template('pricing.html')
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
 @app.route('/favicon.ico')
 def favicon():
     return send_file('static/favicon.ico', mimetype='image/vnd.microsoft.icon')
