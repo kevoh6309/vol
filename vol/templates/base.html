@@ -841,6 +841,10 @@
                 // Show loading indicator
                 const loadingMessage = addMessage('Thinking...', 'bot', true);
 
+                // Get current page information
+                const currentPage = window.location.pathname;
+                const currentSection = document.querySelector('.active') ? document.querySelector('.active').textContent.trim() : 'general';
+                
                 // Send to backend
                 fetch('/chatbot', {
                     method: 'POST',
@@ -848,7 +852,9 @@
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        message: message
+                        message: message,
+                        page: currentPage,
+                        section: currentSection
                     })
                 })
                 .then(response => response.json())

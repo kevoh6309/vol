@@ -1454,12 +1454,29 @@ def chatbot():
             }
             
             system_prompt = (
-                "You are Resume Assistant, an expert career coach and resume writer. Respond conversationally and helpfully, like ChatGPT. "
-                "Give detailed, step-by-step advice, examples, and encouragement. If the user asks for a summary, generate a strong, tailored summary. "
-                "If they ask for skills, suggest a list with explanations. Always be friendly, supportive, and professional.\n\n"
-                "Context: The user is currently on the '{page}' page, working on the '{section}' section. Tailor your response to this context.\n\n"
-                "**Formatting instructions:** Always format your response clearly. Use bullet points for lists, numbered steps for instructions, and bold for section headers. "
-                "If suggesting a summary, output a single strong paragraph. For skills, use a bulleted list. For experience, use a short, clear example. Format for easy copy-paste."
+                "You are Resume Assistant, an expert career coach and resume writer. You are highly intelligent, helpful, and provide specific, actionable advice with real examples.\n\n"
+                "**CONTEXT AWARENESS:** The user is currently on the '{page}' page, working on the '{section}' section. Use this context to provide highly relevant, specific advice.\n\n"
+                "**RESPONSE STYLE:**\n"
+                "• Be conversational, friendly, and encouraging\n"
+                "• Provide specific examples and templates\n"
+                "• Give step-by-step instructions when helpful\n"
+                "• Use bullet points for lists and bold for headers\n"
+                "• Offer multiple suggestions and alternatives\n"
+                "• Ask follow-up questions to better assist\n\n"
+                "**PAGE-SPECIFIC GUIDANCE:**\n"
+                "• If on 'resume_form' or 'create-resume': Focus on resume writing, structure, and content\n"
+                "• If on 'cover_letter_form' or 'create-cover-letter': Focus on cover letter writing and formatting\n"
+                "• If on 'upgrade' or 'pricing': Help with subscription benefits and features\n"
+                "• If on 'dashboard': Provide general career guidance and next steps\n"
+                "• If on 'interview-prep': Focus on interview preparation and questions\n"
+                "• If on 'job-application-tracker': Help with job search strategies\n\n"
+                "**EXAMPLES TO PROVIDE:**\n"
+                "• Real resume bullet points with action verbs\n"
+                "• Sample cover letter paragraphs\n"
+                "• Interview question examples and answers\n"
+                "• Skills lists for different industries\n"
+                "• Professional summary examples\n\n"
+                "**FORMATTING:** Always format responses clearly with proper structure. Use markdown formatting for better readability."
             )
             data = {
                 'model': 'anthropic/claude-3.5-sonnet',
@@ -1521,36 +1538,54 @@ def chatbot():
         except Exception as e:
             print(f"Gemini API error: {e}")
     
-    # Fallback to rule-based responses
+    # Enhanced fallback responses with specific examples
     responses = {
         'resume': [
-            "Here are some key resume tips:\n\n• **Keep it concise** - 1-2 pages maximum\n• **Use action verbs** - 'achieved', 'developed', 'managed'\n• **Quantify achievements** - 'increased sales by 25%'\n• **Tailor to job** - match keywords from job description\n• **Proofread carefully** - no typos or grammar errors\n\nWould you like specific help with any section?",
-            "For a strong resume, focus on:\n\n• **Professional summary** - 2-3 sentences highlighting key strengths\n• **Work experience** - Use STAR method (Situation, Task, Action, Result)\n• **Skills section** - Include both technical and soft skills\n• **Education** - List most recent degree first\n\nWhat specific section would you like help with?"
+            f"**Resume Writing Tips for {page}:**\n\n• **Professional Summary Example:**\n  'Results-driven software developer with 5+ years experience in full-stack development, specializing in React and Node.js. Led team of 8 developers to deliver 3 major applications, improving user engagement by 40%.'\n\n• **Action Verb Examples:**\n  - Developed, Implemented, Optimized, Managed, Led\n  - Increased, Reduced, Improved, Streamlined, Launched\n\n• **Quantified Achievement Example:**\n  'Increased website conversion rate by 25% through A/B testing and UX improvements'\n\nWhat specific section would you like me to help with?",
+            
+            f"**Resume Structure for {page}:**\n\n**1. Contact Information**\n- Name, email, phone, LinkedIn\n- Professional email (not personal)\n\n**2. Professional Summary**\n- 2-3 sentences highlighting key strengths\n- Tailored to target position\n\n**3. Work Experience**\n- Use STAR method: Situation, Task, Action, Result\n- Quantify achievements with numbers\n\n**4. Skills Section**\n- Technical skills first, then soft skills\n- Match job description keywords\n\nWould you like a specific example for any section?"
         ],
         'interview': [
-            "Common interview questions and tips:\n\n• **Tell me about yourself** - 2-minute elevator pitch\n• **Why this company?** - Research company culture and values\n• **Strengths/Weaknesses** - Be honest but positive\n• **Salary expectations** - Research market rates\n\nPractice with mock interviews to build confidence!",
-            "Interview preparation checklist:\n\n• **Research the company** - website, news, social media\n• **Prepare questions** - show interest and engagement\n• **Practice responses** - but don't memorize\n• **Dress appropriately** - business professional\n• **Arrive early** - 10-15 minutes before\n\nWhat type of interview are you preparing for?"
+            f"**Interview Preparation for {page}:**\n\n**Common Questions & Sample Answers:**\n\n**'Tell me about yourself':**\n'I'm a passionate software developer with 3 years of experience building scalable web applications. I love solving complex problems and recently led a team that reduced application load time by 50%.'\n\n**'Why this company?':**\n'I'm excited about your innovative approach to AI and your commitment to sustainability. Your recent project on renewable energy solutions aligns perfectly with my passion for impactful technology.'\n\n**'What are your strengths?':**\n'I'm highly analytical and detail-oriented, which helps me catch bugs early. I'm also a strong communicator who enjoys mentoring junior developers.'\n\nWhat type of interview are you preparing for?",
+            
+            f"**Interview Success Checklist for {page}:**\n\n**Before the Interview:**\n• Research company: website, news, social media, Glassdoor\n• Prepare 3-5 thoughtful questions to ask\n• Practice responses but don't memorize\n• Prepare portfolio/work samples\n\n**During the Interview:**\n• Arrive 10-15 minutes early\n• Dress business professional\n• Maintain eye contact and positive body language\n• Ask thoughtful questions\n• Send thank-you email within 24 hours\n\nWhat specific role are you interviewing for?"
         ],
         'cover letter': [
-            "Cover letter best practices:\n\n• **Personalize** - Address specific person if possible\n• **Match job requirements** - Connect your experience to their needs\n• **Show enthusiasm** - Demonstrate genuine interest\n• **Keep it concise** - 3-4 paragraphs maximum\n• **Proofread** - No errors allowed\n\nWould you like help writing a specific cover letter?",
-            "Structure your cover letter:\n\n• **Opening** - State position and show enthusiasm\n• **Body** - Connect your experience to job requirements\n• **Closing** - Thank them and request interview\n• **Signature** - Professional closing\n\nWhat job are you applying for?"
+            f"**Cover Letter Writing for {page}:**\n\n**Opening Paragraph Example:**\n'Dear Hiring Manager,\n\nI am writing to express my strong interest in the Senior Software Engineer position at TechCorp. With 5 years of experience in full-stack development and a proven track record of delivering high-impact solutions, I am excited about the opportunity to contribute to your innovative team.'\n\n**Body Paragraph Example:**\n'In my current role at PreviousCompany, I led the development of a customer portal that improved user satisfaction by 35% and reduced support tickets by 40%. I believe this experience, combined with my expertise in React and Node.js, makes me an excellent fit for your team.'\n\nWould you like me to help you write a specific cover letter?",
+            
+            f"**Cover Letter Structure for {page}:**\n\n**Paragraph 1: Introduction**\n- State the position you're applying for\n- Show enthusiasm for the company\n- Mention how you found the position\n\n**Paragraph 2: Why You're Qualified**\n- Connect your experience to job requirements\n- Provide specific examples and achievements\n- Show you understand the role\n\n**Paragraph 3: Why This Company**\n- Demonstrate knowledge of the company\n- Show cultural fit and values alignment\n- Express genuine interest\n\n**Paragraph 4: Closing**\n- Thank them for consideration\n- Request an interview\n- Provide contact information\n\nWhat job are you applying for?"
         ],
         'general': [
-            "I'm here to help with your career journey! I can assist with:\n\n• **Resume writing** - Tips, templates, and optimization\n• **Cover letters** - Structure and content advice\n• **Interview prep** - Questions and strategies\n• **Career advice** - Job search and networking\n\nWhat would you like to focus on today?",
-            "Welcome to your AI career assistant! I can help you:\n\n• **Create compelling resumes** that stand out\n• **Write effective cover letters** that get interviews\n• **Prepare for interviews** with confidence\n• **Navigate your career** with expert advice\n\nHow can I help you succeed today?"
+            f"**Welcome to Your AI Career Assistant!** 🤖\n\nI'm here to help you succeed in your career journey. Since you're on the {page} page, here are some relevant suggestions:\n\n**For Resume Building:**\n• Create compelling professional summaries\n• Write impactful bullet points with action verbs\n• Optimize for ATS systems\n• Choose the right template for your industry\n\n**For Cover Letters:**\n• Write personalized opening paragraphs\n• Connect your experience to job requirements\n• Show genuine enthusiasm for the company\n• Structure for maximum impact\n\n**For Interviews:**\n• Prepare for common questions\n• Research companies thoroughly\n• Practice your elevator pitch\n• Develop thoughtful questions to ask\n\nWhat would you like to focus on today?",
+            
+            f"**Career Success Guide for {page}:**\n\n**🎯 Resume Excellence:**\n• Professional summaries that grab attention\n• Quantified achievements that demonstrate impact\n• Skills sections that match job descriptions\n• Clean, professional formatting\n\n**📝 Cover Letter Mastery:**\n• Personalized content that shows research\n• Specific examples that connect to the role\n• Professional tone that matches company culture\n• Clear call-to-action for next steps\n\n**🤝 Interview Confidence:**\n• Thorough company and role research\n• Practice responses to common questions\n• Professional appearance and body language\n• Follow-up strategies that make an impact\n\nHow can I help you achieve your career goals today?"
         ]
     }
     
-    # Determine response category based on user message
+    # Enhanced page-aware response selection
     message_lower = user_message.lower()
-    if any(word in message_lower for word in ['resume', 'cv', 'curriculum vitae']):
+    
+    # Page-specific category selection
+    if page in ['/create-resume', '/edit-resume', '/my-resumes', '/resume-checker'] or 'resume' in page:
         category = 'resume'
-    elif any(word in message_lower for word in ['interview', 'meeting', 'question']):
-        category = 'interview'
-    elif any(word in message_lower for word in ['cover letter', 'application letter']):
+    elif page in ['/create-cover-letter', '/my-cover-letters', '/ai-cover-letter-generator'] or 'cover' in page:
         category = 'cover letter'
+    elif page in ['/interview-prep', '/interview-prep-advanced', '/practice-sessions'] or 'interview' in page:
+        category = 'interview'
+    elif page in ['/upgrade', '/pricing', '/subscription-management'] or 'upgrade' in page or 'pricing' in page:
+        category = 'general'  # Will provide upgrade/pricing specific advice
+    elif page in ['/job-application-tracker', '/add-job-application'] or 'job' in page or 'application' in page:
+        category = 'general'  # Will provide job search specific advice
     else:
-        category = 'general'
+        # Fallback to message content analysis
+        if any(word in message_lower for word in ['resume', 'cv', 'curriculum vitae', 'summary', 'experience', 'skills']):
+            category = 'resume'
+        elif any(word in message_lower for word in ['interview', 'meeting', 'question', 'prep', 'practice']):
+            category = 'interview'
+        elif any(word in message_lower for word in ['cover letter', 'application letter', 'letter']):
+            category = 'cover letter'
+        else:
+            category = 'general'
     
     import random
     response = random.choice(responses[category])
