@@ -554,6 +554,24 @@ def contact():
 def help():
     return render_template('help.html')
 
+@app.route('/debug/stripe-config')
+@login_required
+def debug_stripe_config():
+    """Debug route to check Stripe configuration (remove in production)"""
+    if not current_user.is_admin:
+        flash('Access denied.', 'error')
+        return redirect(url_for('dashboard'))
+    
+    config_status = {
+        'stripe_secret_key': '✅ Configured' if app.config.get('STRIPE_SECRET_KEY') else '❌ Missing',
+        'stripe_publishable_key': '✅ Configured' if app.config.get('STRIPE_PUBLISHABLE_KEY') else '❌ Missing',
+        'stripe_monthly_price_id': '✅ Configured' if app.config.get('STRIPE_MONTHLY_PRICE_ID') else '❌ Missing',
+        'stripe_yearly_price_id': '✅ Configured' if app.config.get('STRIPE_YEARLY_PRICE_ID') else '❌ Missing',
+        'stripe_webhook_secret': '✅ Configured' if app.config.get('STRIPE_WEBHOOK_SECRET') else '❌ Missing',
+    }
+    
+    return render_template('debug_stripe.html', config_status=config_status)
+
 @app.route('/favicon.ico')
 def favicon():
     return send_file('static/favicon.ico', mimetype='image/vnd.microsoft.icon')
@@ -1525,11 +1543,23 @@ def referral_landing(code):
 @app.route('/upgrade', methods=['GET', 'POST'])
 @login_required
 def upgrade():
-    monthly_price_id = app.config['STRIPE_MONTHLY_PRICE_ID']
-    yearly_price_id = app.config['STRIPE_YEARLY_PRICE_ID']
+    # Check if Stripe is configured
+    if not app.config.get('STRIPE_SECRET_KEY') or not app.config.get('STRIPE_PUBLISHABLE_KEY'):
+        flash('Payment system is not configured. Please contact support.', 'error')
+        return redirect(url_for('dashboard'))
+    
+    monthly_price_id = app.config.get('STRIPE_MONTHLY_PRICE_ID')
+    yearly_price_id = app.config.get('STRIPE_YEARLY_PRICE_ID')
+    
+    # Check if price IDs are configured
+    if not monthly_price_id or not yearly_price_id:
+        flash('Pricing is not configured. Please contact support.', 'error')
+        return redirect(url_for('dashboard'))
+    
     if request.method == 'POST':
         plan = request.form.get('plan', 'monthly')
         price_id = monthly_price_id if plan == 'monthly' else yearly_price_id
+        
         try:
             checkout_session = stripe.checkout.Session.create(
                 customer_email=current_user.email,
@@ -1547,13 +1577,20 @@ def upgrade():
                 }
             )
             return redirect(checkout_session.url)
+        except stripe.error.AuthenticationError:
+            flash('Payment system authentication error. Please contact support.', 'error')
+            return redirect(url_for('dashboard'))
+        except stripe.error.InvalidRequestError as e:
+            flash(f'Invalid payment request: {str(e)}', 'error')
+            return redirect(url_for('dashboard'))
         except Exception as e:
             flash(f'Error creating checkout session: {str(e)}', 'error')
             return redirect(url_for('dashboard'))
+    
     return render_template('upgrade.html', 
         monthly_price_id=monthly_price_id,
         yearly_price_id=yearly_price_id,
-        stripe_publishable_key=STRIPE_PUBLISHABLE_KEY,
+        stripe_publishable_key=app.config.get('STRIPE_PUBLISHABLE_KEY'),
         is_premium=is_premium(current_user))
 
 @app.route('/upgrade-success')
