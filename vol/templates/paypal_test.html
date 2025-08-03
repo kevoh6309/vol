@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}PayPal Test - ResumeBuilder{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="bi bi-paypal text-primary"></i> PayPal Configuration Test</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        This page helps you test your PayPal configuration.
+                    </div>
+                    
+                    <h5>Configuration Status:</h5>
+                    <ul class="list-group mb-4">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            PayPal Client ID
+                            {% if config.paypal_client_id %}
+                                <span class="badge bg-success">✅ Configured</span>
+                            {% else %}
+                                <span class="badge bg-danger">❌ Missing</span>
+                            {% endif %}
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            PayPal Client Secret
+                            {% if config.paypal_client_secret %}
+                                <span class="badge bg-success">✅ Configured</span>
+                            {% else %}
+                                <span class="badge bg-danger">❌ Missing</span>
+                            {% endif %}
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            PayPal Mode
+                            <span class="badge bg-info">{{ config.paypal_mode or 'Not Set' }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            PayPal Receiver Email
+                            {% if config.paypal_receiver_email %}
+                                <span class="badge bg-success">✅ Configured</span>
+                            {% else %}
+                                <span class="badge bg-danger">❌ Missing</span>
+                            {% endif %}
+                        </li>
+                    </ul>
+                    
+                    {% if config.paypal_client_id and config.paypal_client_secret %}
+                        <div class="alert alert-success">
+                            <h5><i class="bi bi-check-circle"></i> PayPal is Configured!</h5>
+                            <p>Your PayPal configuration looks good. You can now test the upgrade functionality.</p>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('upgrade') }}" class="btn btn-primary">
+                                <i class="bi bi-paypal me-2"></i>Test Upgrade Page
+                            </a>
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            <h5><i class="bi bi-exclamation-triangle"></i> PayPal Not Configured</h5>
+                            <p>Please add the following environment variables to your Railway project:</p>
+                            <ul>
+                                <li><code>PAYPAL_CLIENT_ID</code> - Your PayPal Client ID</li>
+                                <li><code>PAYPAL_CLIENT_SECRET</code> - Your PayPal Client Secret</li>
+                                <li><code>PAYPAL_MODE</code> - Set to 'sandbox' for testing</li>
+                                <li><code>PAYPAL_RECEIVER_EMAIL</code> - Your PayPal business email</li>
+                            </ul>
+                            <p><strong>Note:</strong> After adding these variables, Railway will automatically redeploy your application.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

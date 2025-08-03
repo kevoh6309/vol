@@ -581,6 +581,18 @@ def debug_paypal_config():
     
     return render_template('debug_paypal.html', config_status=config_status)
 
+@app.route('/paypal-test')
+def paypal_test():
+    """Public PayPal test page"""
+    config = {
+        'paypal_client_id': app.config.get('PAYPAL_CLIENT_ID'),
+        'paypal_client_secret': app.config.get('PAYPAL_CLIENT_SECRET'),
+        'paypal_mode': app.config.get('PAYPAL_MODE'),
+        'paypal_receiver_email': app.config.get('PAYPAL_RECEIVER_EMAIL'),
+    }
+    
+    return render_template('paypal_test.html', config=config)
+
 @app.route('/favicon.ico')
 def favicon():
     return send_file('static/favicon.ico', mimetype='image/vnd.microsoft.icon')
