@@ -1596,6 +1596,10 @@ def upgrade():
         session['paypal_plan_type'] = plan
         
         try:
+            # Get PayPal API base URL
+            paypal_mode = app.config.get('PAYPAL_MODE', 'sandbox')
+            paypal_api_base = 'https://api.sandbox.paypal.com' if paypal_mode == 'sandbox' else 'https://api.paypal.com'
+            
             # Create PayPal payment
             payment_data = {
                 'intent': 'sale',
@@ -1632,7 +1636,7 @@ def upgrade():
             }
             
             response = requests.post(
-                f'{PAYPAL_API_BASE}/v1/payments/payment',
+                f'{paypal_api_base}/v1/payments/payment',
                 json=payment_data,
                 headers=headers
             )
@@ -1642,7 +1646,7 @@ def upgrade():
                 approval_url = next(link['href'] for link in payment['links'] if link['rel'] == 'approval_url')
                 return redirect(approval_url)
             else:
-                flash('Error creating payment. Please try again.', 'error')
+                flash(f'Error creating payment: {response.status_code} - {response.text}', 'error')
                 return redirect(url_for('dashboard'))
                 
         except Exception as e:
@@ -3644,8 +3648,12 @@ def upgrade_plan():
             'Content-Type': 'application/json'
         }
         
+        # Get PayPal API base URL
+        paypal_mode = app.config.get('PAYPAL_MODE', 'sandbox')
+        paypal_api_base = 'https://api.sandbox.paypal.com' if paypal_mode == 'sandbox' else 'https://api.paypal.com'
+        
         response = requests.post(
-            f'{PAYPAL_API_BASE}/v1/payments/payment',
+            f'{paypal_api_base}/v1/payments/payment',
             json=payment_data,
             headers=headers
         )
@@ -3704,8 +3712,12 @@ def paypal_success():
             'Content-Type': 'application/json'
         }
         
+        # Get PayPal API base URL
+        paypal_mode = app.config.get('PAYPAL_MODE', 'sandbox')
+        paypal_api_base = 'https://api.sandbox.paypal.com' if paypal_mode == 'sandbox' else 'https://api.paypal.com'
+        
         response = requests.post(
-            f'{PAYPAL_API_BASE}/v1/payments/payment/{payment_id}/execute',
+            f'{paypal_api_base}/v1/payments/payment/{payment_id}/execute',
             json={'payer_id': payer_id},
             headers=headers
         )
@@ -3774,8 +3786,12 @@ def get_paypal_access_token():
         auth = (PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET)
         data = {'grant_type': 'client_credentials'}
         
+        # Get PayPal API base URL
+        paypal_mode = app.config.get('PAYPAL_MODE', 'sandbox')
+        paypal_api_base = 'https://api.sandbox.paypal.com' if paypal_mode == 'sandbox' else 'https://api.paypal.com'
+        
         response = requests.post(
-            f'{PAYPAL_API_BASE}/v1/oauth2/token',
+            f'{paypal_api_base}/v1/oauth2/token',
             auth=auth,
             data=data,
             headers={'Accept': 'application/json', 'Accept-Language': 'en_US'}
