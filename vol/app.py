@@ -210,11 +210,14 @@ logger.info("Rate limiter initialized")
 mail = Mail(app)
 logger.info("Mail extension initialized")
 
-# Configure Stripe
-stripe.api_key = app.config['STRIPE_SECRET_KEY']
-STRIPE_PUBLISHABLE_KEY = app.config['STRIPE_PUBLISHABLE_KEY']
-STRIPE_WEBHOOK_SECRET = app.config['STRIPE_WEBHOOK_SECRET']
-logger.info("Stripe configured")
+# Configure Stripe (only if keys are available)
+if app.config.get('STRIPE_SECRET_KEY'):
+    stripe.api_key = app.config['STRIPE_SECRET_KEY']
+    STRIPE_PUBLISHABLE_KEY = app.config.get('STRIPE_PUBLISHABLE_KEY')
+    STRIPE_WEBHOOK_SECRET = app.config.get('STRIPE_WEBHOOK_SECRET')
+    logger.info("Stripe configured")
+else:
+    logger.warning("Stripe keys not configured - payment features will be disabled")
 
 # Forms
 class LoginForm(FlaskForm):
@@ -553,6 +556,11 @@ def contact():
 @app.route('/help')
 def help():
     return render_template('help.html')
+
+@app.route('/health')
+def health():
+    """Health check endpoint"""
+    return 'OK'
 
 @app.route('/debug/stripe-config')
 @login_required
