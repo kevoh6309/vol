@@ -1619,10 +1619,10 @@ def upgrade():
         
         # Set pricing based on plan
         if plan == 'monthly':
-            amount = '19.99'
+            amount = '9.00'
             description = 'Monthly Premium Subscription'
         else:
-            amount = '199.99'
+            amount = '89.00'
             description = 'Yearly Premium Subscription'
         
         logger.info(f"Amount: {amount}, Description: {description}")
@@ -3652,10 +3652,10 @@ def upgrade_plan():
         
         # Set pricing based on plan
         if plan_type == 'monthly':
-            amount = '19.99'
+            amount = '9.00'
             description = 'Monthly Premium Subscription'
         else:
-            amount = '199.99'
+            amount = '89.00'
             description = 'Yearly Premium Subscription'
         
         # Store plan type in session for PayPal success handling
