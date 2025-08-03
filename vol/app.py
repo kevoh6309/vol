@@ -460,28 +460,51 @@ def send_email(to_email, subject, template_name, **kwargs):
                     sender=app.config['MAIL_DEFAULT_SENDER'],
                     recipients=[to_email])
         
-        # Import template macros
-        from flask import render_template_string
-        
+        # Use simple email templates
         if template_name == 'password_reset':
-            from vol.templates.email_templates import password_reset_email
-            html_content = render_template_string(
-                password_reset_email(kwargs.get('username', ''), kwargs.get('reset_url', '')),
-                username=kwargs.get('username', ''),
-                reset_url=kwargs.get('reset_url', '')
-            )
+            html_content = f"""
+            <html>
+            <body>
+                <h2>Password Reset Request</h2>
+                <p>Hello {kwargs.get('username', 'User')},</p>
+                <p>You requested a password reset. Click the link below to reset your password:</p>
+                <p><a href="{kwargs.get('reset_url', '')}">Reset Password</a></p>
+                <p>If you didn't request this, please ignore this email.</p>
+                <p>Best regards,<br>ResumeBuilder Pro Team</p>
+            </body>
+            </html>
+            """
         elif template_name == 'welcome':
-            from vol.templates.email_templates import welcome_email
-            html_content = render_template_string(
-                welcome_email(kwargs.get('username', '')),
-                username=kwargs.get('username', '')
-            )
+            html_content = f"""
+            <html>
+            <body>
+                <h2>Welcome to ResumeBuilder Pro!</h2>
+                <p>Hello {kwargs.get('username', 'User')},</p>
+                <p>Thank you for joining ResumeBuilder Pro! We're excited to help you create professional resumes and advance your career.</p>
+                <p>Get started by creating your first resume or explore our AI-powered features.</p>
+                <p>Best regards,<br>ResumeBuilder Pro Team</p>
+            </body>
+            </html>
+            """
         elif template_name == 'premium_upgrade':
-            from vol.templates.email_templates import premium_upgrade_email
-            html_content = render_template_string(
-                premium_upgrade_email(kwargs.get('username', '')),
-                username=kwargs.get('username', '')
-            )
+            html_content = f"""
+            <html>
+            <body>
+                <h2>Welcome to Premium!</h2>
+                <p>Hello {kwargs.get('username', 'User')},</p>
+                <p>Congratulations on upgrading to Premium! You now have access to all our advanced features:</p>
+                <ul>
+                    <li>Unlimited resumes and cover letters</li>
+                    <li>All premium templates</li>
+                    <li>AI-powered writing assistance</li>
+                    <li>Advanced analytics</li>
+                    <li>Priority support</li>
+                </ul>
+                <p>Start creating amazing resumes today!</p>
+                <p>Best regards,<br>ResumeBuilder Pro Team</p>
+            </body>
+            </html>
+            """
         else:
             html_content = kwargs.get('html_content', '')
         
@@ -596,6 +619,10 @@ def paypal_test():
 @app.route('/favicon.ico')
 def favicon():
     return send_file('static/favicon.ico', mimetype='image/vnd.microsoft.icon')
+
+@app.route('/sw.js')
+def service_worker():
+    return send_file('static/sw.js', mimetype='application/javascript')
 
 @app.route('/register', methods=['GET', 'POST'])
 @limiter.limit('5 per minute')
