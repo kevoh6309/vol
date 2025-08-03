@@ -5,7 +5,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timezone, timedelta
 import os
-import stripe
+
 from flask_mail import Mail, Message
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -51,7 +51,7 @@ except ImportError:
             'X-Frame-Options': 'SAMEORIGIN',
             'X-XSS-Protection': '1; mode=block',
             'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
-            'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://pagead2.googlesyndication.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' https://cdn.jsdelivr.net https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.stripe.com https://generativelanguage.googleapis.com https://api.cohere.ai https://openrouter.ai; frame-src https://js.stripe.com https://hooks.stripe.com;"
+            'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://pagead2.googlesyndication.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' https://cdn.jsdelivr.net https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.paypal.com https://api.sandbox.paypal.com https://generativelanguage.googleapis.com https://api.cohere.ai https://openrouter.ai; frame-src https://www.paypal.com https://www.sandbox.paypal.com;"
         }
         
         # Mail Configuration
@@ -62,12 +62,11 @@ except ImportError:
         MAIL_PASSWORD = os.getenv('MAIL_PASSWORD', 'your-gmail-app-password')
         MAIL_DEFAULT_SENDER = os.getenv('MAIL_USERNAME', 'your-email@gmail.com')
         
-        # Stripe Configuration
-        STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
-        STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')
-        STRIPE_MONTHLY_PRICE_ID = os.environ.get('STRIPE_MONTHLY_PRICE_ID')
-        STRIPE_YEARLY_PRICE_ID = os.environ.get('STRIPE_YEARLY_PRICE_ID')
-        STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
+        # PayPal Configuration
+        PAYPAL_CLIENT_ID = os.environ.get('PAYPAL_CLIENT_ID')
+        PAYPAL_CLIENT_SECRET = os.environ.get('PAYPAL_CLIENT_SECRET')
+        PAYPAL_MODE = os.environ.get('PAYPAL_MODE', 'sandbox')
+        PAYPAL_RECEIVER_EMAIL = os.environ.get('PAYPAL_RECEIVER_EMAIL')
         
         # AI API Configuration
         GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', 'your_gemini_api_key_here')
@@ -210,14 +209,17 @@ logger.info("Rate limiter initialized")
 mail = Mail(app)
 logger.info("Mail extension initialized")
 
-# Configure Stripe (only if keys are available)
-if app.config.get('STRIPE_SECRET_KEY'):
-    stripe.api_key = app.config['STRIPE_SECRET_KEY']
-    STRIPE_PUBLISHABLE_KEY = app.config.get('STRIPE_PUBLISHABLE_KEY')
-    STRIPE_WEBHOOK_SECRET = app.config.get('STRIPE_WEBHOOK_SECRET')
-    logger.info("Stripe configured")
+# PayPal Configuration
+PAYPAL_CLIENT_ID = app.config.get('PAYPAL_CLIENT_ID')
+PAYPAL_CLIENT_SECRET = app.config.get('PAYPAL_CLIENT_SECRET')
+PAYPAL_MODE = app.config.get('PAYPAL_MODE', 'sandbox')  # sandbox or live
+PAYPAL_RECEIVER_EMAIL = app.config.get('PAYPAL_RECEIVER_EMAIL')
+PAYPAL_API_BASE = 'https://api.sandbox.paypal.com' if PAYPAL_MODE == 'sandbox' else 'https://api.paypal.com'
+
+if PAYPAL_CLIENT_ID and PAYPAL_CLIENT_SECRET:
+    logger.info("PayPal configured")
 else:
-    logger.warning("Stripe keys not configured - payment features will be disabled")
+    logger.warning("PayPal keys not configured - payment features will be disabled")
 
 # Forms
 class LoginForm(FlaskForm):
@@ -562,23 +564,22 @@ def health():
     """Health check endpoint"""
     return 'OK'
 
-@app.route('/debug/stripe-config')
+@app.route('/debug/paypal-config')
 @login_required
-def debug_stripe_config():
-    """Debug route to check Stripe configuration (remove in production)"""
+def debug_paypal_config():
+    """Debug route to check PayPal configuration (remove in production)"""
     if not current_user.is_admin:
         flash('Access denied.', 'error')
         return redirect(url_for('dashboard'))
     
     config_status = {
-        'stripe_secret_key': '✅ Configured' if app.config.get('STRIPE_SECRET_KEY') else '❌ Missing',
-        'stripe_publishable_key': '✅ Configured' if app.config.get('STRIPE_PUBLISHABLE_KEY') else '❌ Missing',
-        'stripe_monthly_price_id': '✅ Configured' if app.config.get('STRIPE_MONTHLY_PRICE_ID') else '❌ Missing',
-        'stripe_yearly_price_id': '✅ Configured' if app.config.get('STRIPE_YEARLY_PRICE_ID') else '❌ Missing',
-        'stripe_webhook_secret': '✅ Configured' if app.config.get('STRIPE_WEBHOOK_SECRET') else '❌ Missing',
+        'paypal_client_id': '✅ Configured' if app.config.get('PAYPAL_CLIENT_ID') else '❌ Missing',
+        'paypal_client_secret': '✅ Configured' if app.config.get('PAYPAL_CLIENT_SECRET') else '❌ Missing',
+        'paypal_mode': '✅ Configured' if app.config.get('PAYPAL_MODE') else '❌ Missing',
+        'paypal_receiver_email': '✅ Configured' if app.config.get('PAYPAL_RECEIVER_EMAIL') else '❌ Missing',
     }
     
-    return render_template('debug_stripe.html', config_status=config_status)
+    return render_template('debug_paypal.html', config_status=config_status)
 
 @app.route('/favicon.ico')
 def favicon():
@@ -1551,54 +1552,80 @@ def referral_landing(code):
 @app.route('/upgrade', methods=['GET', 'POST'])
 @login_required
 def upgrade():
-    # Check if Stripe is configured
-    if not app.config.get('STRIPE_SECRET_KEY') or not app.config.get('STRIPE_PUBLISHABLE_KEY'):
+    # Check if PayPal is configured
+    if not app.config.get('PAYPAL_CLIENT_ID') or not app.config.get('PAYPAL_CLIENT_SECRET'):
         flash('Payment system is not configured. Please contact support.', 'error')
-        return redirect(url_for('dashboard'))
-    
-    monthly_price_id = app.config.get('STRIPE_MONTHLY_PRICE_ID')
-    yearly_price_id = app.config.get('STRIPE_YEARLY_PRICE_ID')
-    
-    # Check if price IDs are configured
-    if not monthly_price_id or not yearly_price_id:
-        flash('Pricing is not configured. Please contact support.', 'error')
         return redirect(url_for('dashboard'))
     
     if request.method == 'POST':
         plan = request.form.get('plan', 'monthly')
-        price_id = monthly_price_id if plan == 'monthly' else yearly_price_id
+        
+        # Set pricing based on plan
+        if plan == 'monthly':
+            amount = '19.99'
+            description = 'Monthly Premium Subscription'
+        else:
+            amount = '199.99'
+            description = 'Yearly Premium Subscription'
+        
+        # Store plan type in session for PayPal success handling
+        session['paypal_plan_type'] = plan
         
         try:
-            checkout_session = stripe.checkout.Session.create(
-                customer_email=current_user.email,
-                payment_method_types=['card'],
-                line_items=[{
-                    'price': price_id,
-                    'quantity': 1,
-                }],
-                mode='subscription',
-                success_url=url_for('upgrade_success', _external=True),
-                cancel_url=url_for('upgrade_cancel', _external=True),
-                metadata={
-                    'user_id': current_user.id,
-                    'user_email': current_user.email
-                }
+            # Create PayPal payment
+            payment_data = {
+                'intent': 'sale',
+                'payer': {
+                    'payment_method': 'paypal'
+                },
+                'redirect_urls': {
+                    'return_url': url_for('paypal_success', _external=True),
+                    'cancel_url': url_for('paypal_cancel', _external=True)
+                },
+                'transactions': [{
+                    'item_list': {
+                        'items': [{
+                            'name': description,
+                            'sku': f'premium_{plan}',
+                            'price': amount,
+                            'currency': 'USD',
+                            'quantity': 1
+                        }]
+                    },
+                    'amount': {
+                        'total': amount,
+                        'currency': 'USD'
+                    },
+                    'description': description
+                }]
+            }
+            
+            # Create PayPal payment
+            access_token = get_paypal_access_token()
+            headers = {
+                'Authorization': f'Bearer {access_token}',
+                'Content-Type': 'application/json'
+            }
+            
+            response = requests.post(
+                f'{PAYPAL_API_BASE}/v1/payments/payment',
+                json=payment_data,
+                headers=headers
             )
-            return redirect(checkout_session.url)
-        except stripe.error.AuthenticationError:
-            flash('Payment system authentication error. Please contact support.', 'error')
-            return redirect(url_for('dashboard'))
-        except stripe.error.InvalidRequestError as e:
-            flash(f'Invalid payment request: {str(e)}', 'error')
-            return redirect(url_for('dashboard'))
+            
+            if response.status_code == 201:
+                payment = response.json()
+                approval_url = next(link['href'] for link in payment['links'] if link['rel'] == 'approval_url')
+                return redirect(approval_url)
+            else:
+                flash('Error creating payment. Please try again.', 'error')
+                return redirect(url_for('dashboard'))
+                
         except Exception as e:
-            flash(f'Error creating checkout session: {str(e)}', 'error')
+            flash(f'Error creating payment: {str(e)}', 'error')
             return redirect(url_for('dashboard'))
     
     return render_template('upgrade.html', 
-        monthly_price_id=monthly_price_id,
-        yearly_price_id=yearly_price_id,
-        stripe_publishable_key=app.config.get('STRIPE_PUBLISHABLE_KEY'),
         is_premium=is_premium(current_user))
 
 @app.route('/upgrade-success')
@@ -1626,61 +1653,7 @@ def upgrade_cancel():
     flash('Upgrade was cancelled. You can try again anytime!', 'info')
     return redirect(url_for('dashboard'))
 
-@app.route('/create-checkout-session', methods=['POST'])
-@login_required
-def create_checkout_session():
-    plan = request.form.get('plan', 'monthly')
-    price_id = app.config['STRIPE_MONTHLY_PRICE_ID'] if plan == 'monthly' else app.config['STRIPE_YEARLY_PRICE_ID']
-    try:
-        checkout_session = stripe.checkout.Session.create(
-            customer_email=current_user.email,
-            payment_method_types=['card'],
-            line_items=[{
-                'price': price_id,
-                'quantity': 1,
-            }],
-            mode='subscription',
-            success_url=url_for('upgrade_success', _external=True),
-            cancel_url=url_for('upgrade_cancel', _external=True),
-            metadata={
-                'user_id': current_user.id,
-                'user_email': current_user.email
-            }
-        )
-        return jsonify({'id': checkout_session.id})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
 
-@app.route('/stripe-webhook', methods=['POST'])
-def stripe_webhook():
-    payload = request.get_data()
-    sig_header = request.headers.get('Stripe-Signature')
-
-    try:
-        event = stripe.Webhook.construct_event(
-            payload, sig_header, STRIPE_WEBHOOK_SECRET
-        )
-    except ValueError as e:
-        return 'Invalid payload', 400
-    except stripe.error.SignatureVerificationError as e:
-        return 'Invalid signature', 400
-
-    if event['type'] == 'checkout.session.completed':
-        session = event['data']['object']
-        user_id = session['metadata']['user_id']
-        
-        # Update user to premium
-        user = User.query.get(user_id)
-        if user:
-            user.is_premium = True
-            db.session.commit()
-    
-    elif event['type'] == 'customer.subscription.deleted':
-        subscription = event['data']['object']
-        # Handle subscription cancellation
-        pass
-
-    return '', 200
 
 @app.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
