@@ -1552,12 +1552,12 @@ def referral_landing(code):
 @app.route('/upgrade', methods=['GET', 'POST'])
 @login_required
 def upgrade():
-    # Check if PayPal is configured
-    if not app.config.get('PAYPAL_CLIENT_ID') or not app.config.get('PAYPAL_CLIENT_SECRET'):
-        flash('Payment system is not configured. Please contact support.', 'error')
-        return redirect(url_for('dashboard'))
-    
     if request.method == 'POST':
+        # Check if PayPal is configured
+        if not app.config.get('PAYPAL_CLIENT_ID') or not app.config.get('PAYPAL_CLIENT_SECRET'):
+            flash('Payment system is not configured. Please contact support.', 'error')
+            return redirect(url_for('dashboard'))
+        
         plan = request.form.get('plan', 'monthly')
         
         # Set pricing based on plan
