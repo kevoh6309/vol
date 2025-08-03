@@ -3574,33 +3574,83 @@ def get_fallback_usage_stats():
 @app.route('/api/upgrade-plan', methods=['POST'])
 @login_required
 def upgrade_plan():
-    """Handle plan upgrade"""
+    """Handle plan upgrade via PayPal"""
     try:
         data = request.get_json()
         plan_type = data.get('plan', 'monthly')
         
-        # Create Stripe checkout session
-        session = stripe.checkout.Session.create(
-            payment_method_types=['card'],
-            line_items=[{
-                'price': app.config['STRIPE_MONTHLY_PRICE_ID'] if plan_type == 'monthly' else app.config['STRIPE_YEARLY_PRICE_ID'],
-                'quantity': 1,
-            }],
-            mode='subscription',
-            success_url=url_for('upgrade_success', _external=True),
-            cancel_url=url_for('upgrade_cancel', _external=True),
-            client_reference_id=str(current_user.id),
-            metadata={
-                'user_id': current_user.id,
-                'plan_type': plan_type
-            }
+        # Check if PayPal is configured
+        if not app.config.get('PAYPAL_CLIENT_ID') or not app.config.get('PAYPAL_CLIENT_SECRET'):
+            return jsonify({
+                'success': False,
+                'error': 'Payment system is not configured'
+            }), 400
+        
+        # Set pricing based on plan
+        if plan_type == 'monthly':
+            amount = '19.99'
+            description = 'Monthly Premium Subscription'
+        else:
+            amount = '199.99'
+            description = 'Yearly Premium Subscription'
+        
+        # Store plan type in session for PayPal success handling
+        session['paypal_plan_type'] = plan_type
+        
+        # Create PayPal payment
+        payment_data = {
+            'intent': 'sale',
+            'payer': {
+                'payment_method': 'paypal'
+            },
+            'redirect_urls': {
+                'return_url': url_for('paypal_success', _external=True),
+                'cancel_url': url_for('paypal_cancel', _external=True)
+            },
+            'transactions': [{
+                'item_list': {
+                    'items': [{
+                        'name': description,
+                        'sku': f'premium_{plan_type}',
+                        'price': amount,
+                        'currency': 'USD',
+                        'quantity': 1
+                    }]
+                },
+                'amount': {
+                    'total': amount,
+                    'currency': 'USD'
+                },
+                'description': description
+            }]
+        }
+        
+        # Create PayPal payment
+        access_token = get_paypal_access_token()
+        headers = {
+            'Authorization': f'Bearer {access_token}',
+            'Content-Type': 'application/json'
+        }
+        
+        response = requests.post(
+            f'{PAYPAL_API_BASE}/v1/payments/payment',
+            json=payment_data,
+            headers=headers
         )
         
-        return jsonify({
-            'success': True,
-            'session_id': session.id,
-            'checkout_url': session.url
-        })
+        if response.status_code == 201:
+            payment = response.json()
+            approval_url = next(link['href'] for link in payment['links'] if link['rel'] == 'approval_url')
+            return jsonify({
+                'success': True,
+                'payment_id': payment['id'],
+                'checkout_url': approval_url
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'Failed to create payment'
+            }), 500
         
     except Exception as e:
         logger.error(f"Error creating upgrade session: {e}")
