@@ -109,4 +109,15 @@ import tempfile
 # WeasyPrint will be imported locally in functions where needed
 WEASYPRINT_AVAILABLE = None  # Will be set when first needed
 
-# Remainder of file unchanged...
+# Remainder of file unchanged...# ...your existing code...
+
+# Make sure this line appears at the module level (not inside any function)
+app = Flask(__name__)
+
+# ...rest of your Flask setup and routes...
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=5000)
+
+# For Gunicorn compatibility on Render
+application = app
